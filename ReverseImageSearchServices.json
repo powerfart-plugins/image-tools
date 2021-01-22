@@ -35,5 +35,11 @@
     "name": "Yandex",
     "id": "yandex",
     "url": "https://yandex.ru/images/search?url="
+  },
+  {
+    "name": "ImgOps",
+    "id": "imgops",
+    "url": "https://imgops.com/",
+    "note": "alot of reverse image search links plus tools to mess with the image"
   }
 ]
