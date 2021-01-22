@@ -1,0 +1,21 @@
+{
+  "OPEN_IMAGE": "Открыть изображение",
+  "COPY_IMAGE": "Копировать изображение",
+  "SAVE_IMAGE_AS": "Сохранить изображение как...",
+  "IMAGE_SEARCH": "Искать изображение в...",
+  "HIDE_NATIVE_BUTTONS": "Скрыть встроенные кнопки",
+  "HIDE_NATIVE_BUTTONS_NOTE": "Скрыть кнопки изображения в контекстном меню сообщении",
+  "SHOW_WEBP": "Показывать расширение WEBP",
+  "RESIZE_IMAGES": "Изменить размер изображения",
+  "RESIZE_IMAGES_NOTE": "Увеличить размер изображений в модальных окнах",
+  "LENS_SETTINGS": "Настройки линзы",
+  "LENS_BORDER_COLOR": "Цвет обводки линзы",
+  "LENS_BORDER_COLOR_NOTE": "По умолчанию используется цвет interactive-hover вашей темы",
+  "ZOOM_RATIO": "Коэффициент зума",
+  "ZOOM_RATIO_NOTE": "Увеличение изображения в линзе",
+  "LENS_RADIUS": "Радиус линзы",
+  "REVERSE_SEARCH_IMAGES_SERVICES": "Сервисы поиска изображений",
+  "DISABLE_LENS": "Отключить линзу",
+  "IMAGE_COPIED": "Изображение скопировано",
+  "IMAGE_LINK_COPIED": "Ссылка на изображение скопирована"
+}

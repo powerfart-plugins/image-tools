@@ -1,0 +1,21 @@
+{
+  "OPEN_IMAGE": "Open image",
+  "COPY_IMAGE": "Copy image",
+  "SAVE_IMAGE_AS": "Save Image As...",
+  "IMAGE_SEARCH": "Search image in...",
+  "HIDE_NATIVE_BUTTONS": "Hide native buttons",
+  "HIDE_NATIVE_BUTTONS_NOTE": "Hide image buttons in messages context menu",
+  "SHOW_WEBP": "Show WEBP extension",
+  "RESIZE_IMAGES": "Resize images",
+  "RESIZE_IMAGES_NOTE": "Increase the size of images in modals",
+  "LENS_SETTINGS": "Lens settings",
+  "LENS_BORDER_COLOR": "Lens border color",
+  "LENS_BORDER_COLOR_NOTE": "The default is the interactive-hover color of your theme",
+  "ZOOM_RATIO": "Zoom ratio",
+  "ZOOM_RATIO_NOTE": "Magnifying the image in the lens",
+  "LENS_RADIUS": "Lens radius",
+  "REVERSE_SEARCH_IMAGES_SERVICES": "Reverse search images services",
+  "DISABLE_LENS": "Disable lens",
+  "IMAGE_COPIED": "Image copied",
+  "IMAGE_LINK_COPIED": "Image link copied"
+}

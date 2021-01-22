@@ -1,0 +1,8 @@
+/* noinspection CssUnresolvedCustomProperty */
+.image-tools-lens {
+    position: absolute;
+    z-index: 1;
+    background-repeat: no-repeat;
+    border: 2px solid var(--interactive-hover);
+    border-radius: 50%;
+}
