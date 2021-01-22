@@ -3,7 +3,7 @@ const { inject, uninject } = require('powercord/injector');
 const { getModule } = require('powercord/webpack');
 
 const Settings = require('./components/Settings');
-const patches = require('./Patches');
+const patches = require('./patches');
 const i18n = require('./i18n');
 
 module.exports = class ImageTools extends Plugin {
