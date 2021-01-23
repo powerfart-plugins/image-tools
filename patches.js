@@ -20,7 +20,8 @@ module.exports.imageModal = function (args, res, settings) {
   res.props.children.unshift(
     React.createElement(ImageWrapper, {
       children: res.props.children.shift(),
-      getSetting: settings.get
+      getSetting: settings.get,
+      setSetting: settings.set
     })
   );
   return res;

@@ -37,7 +37,7 @@ module.exports = class ImageTools extends Plugin {
   registerSettings () {
     powercord.api.settings.registerSettings('image-tools-settings', {
       category: this.entityID,
-      label: 'Images Tools',
+      label: 'Image Tools',
       render: Settings
     });
   }

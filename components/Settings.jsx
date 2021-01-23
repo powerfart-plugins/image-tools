@@ -24,8 +24,8 @@ module.exports = class Settings extends React.Component {
         note={ Messages.RESIZE_IMAGES_NOTE }
       >{Messages.RESIZE_IMAGES}</SwitchItem>
       <SwitchItem
-        value={ getSetting('enableWebp', true) }
-        onChange={ () => toggleSetting('enableWebp', true) }
+        value={ getSetting('disableWebp', true) }
+        onChange={ () => toggleSetting('disableWebp', true) }
       >{Messages.HIDE_WEBP}</SwitchItem>
       <Category
         name={Messages.LENS_SETTINGS}
@@ -40,7 +40,7 @@ module.exports = class Settings extends React.Component {
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
-          markers={[ 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]}
+          markers={[ 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]}
           onMarkerRender={(e) => `${e}x`}
           onValueChange={(v) => updateSetting('zoomRatio', v)}
           defaultValue={ getSetting('zoomRatio', 1) }
@@ -50,7 +50,7 @@ module.exports = class Settings extends React.Component {
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
-          markers={[ 50, 100, 200, 300, 400, 500 ]}
+          markers={[ 50, 100, 200, 300, 400, 500, 600, 700 ]}
           onMarkerRender={(e) => `${e}px`}
           onValueChange={(v) => updateSetting('lensRadius', v)}
           defaultValue={ getSetting('lensRadius', 50) }

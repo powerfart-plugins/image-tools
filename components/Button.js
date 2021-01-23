@@ -9,17 +9,16 @@ module.exports.getButton = function (images, { get }) {
   const baseExtensions = Object.keys(images);
   const disabledISS = get('disabledImageSearchServices', []);
   const disabled = {
-    webp: get('enableWebp', true),
+    webp: get('disableWebp', true),
     mp4: [ 'openImage', 'copyImage', 'saveAs', 'searchImage' ]
   };
 
-
   const items = baseExtensions.filter((e) => {
-    if (images[e] && !(e in disabled)) {
-      return true;
+    if (!images[e]) {
+      return false;
     }
-    if (!Array.isArray(disabled[e])) {
-      return disabled[e];
+    if (e in disabled) {
+      return (Array.isArray(disabled[e])) ? true : !disabled[e];
     }
     return true;
   });

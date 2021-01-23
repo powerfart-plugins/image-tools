@@ -15,7 +15,7 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         name: Messages.ZOOM_RATIO,
         value: get('zoomRatio', 2),
         minValue: 1,
-        maxValue: 10,
+        maxValue: 15,
         onChange: (v) => set('zoomRatio', v.toFixed(1))
       },
       {
@@ -23,7 +23,7 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         name: Messages.LENS_RADIUS,
         value: get('lensRadius', 50),
         minValue: 50,
-        maxValue: 600,
+        maxValue: 700,
         onChange: (v) => set('lensRadius', v.toFixed(1))
       }
     ])
