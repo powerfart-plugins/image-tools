@@ -84,7 +84,7 @@ module.exports.getButton = function (urls, size, { get }) {
             type: 'button',
             name: e.name,
             subtext: e.note,
-            onClick: () => search(e.url, url)
+            onClick: () => openUrl((e.withoutEncode) ? e.url + url : e.url + encodeURIComponent(url))
           })),
         getItems () {
           return this.items;
@@ -142,7 +142,4 @@ function copyUrl (url) {
 async function saveAs (url) {
   const { saveImage } = await getModule([ 'saveImage' ]);
   saveImage(url);
-}
-function search (starUrl, endUrl) {
-  shell.openExternal(starUrl + encodeURIComponent(endUrl));
 }
