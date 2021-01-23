@@ -24,9 +24,9 @@ module.exports = class Settings extends React.Component {
         note={ Messages.RESIZE_IMAGES_NOTE }
       >{Messages.RESIZE_IMAGES}</SwitchItem>
       <SwitchItem
-        value={ getSetting('enableWebp', false) }
-        onChange={ () => toggleSetting('enableWebp', false) }
-      >{Messages.SHOW_WEBP}</SwitchItem>
+        value={ getSetting('enableWebp', true) }
+        onChange={ () => toggleSetting('enableWebp', true) }
+      >{Messages.HIDE_WEBP}</SwitchItem>
       <Category
         name={Messages.LENS_SETTINGS}
         opened={true}

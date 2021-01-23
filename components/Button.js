@@ -5,15 +5,26 @@ const { clipboard, shell } = require('electron');
 const imageSearchServices = require('../ReverseImageSearchServices.json');
 
 /* eslint-disable no-use-before-define */
-module.exports.getButton = function (urls, size, { get }) {
-  const enabled = {
-    png: true,
-    gif: true,
-    webp: get('enableWebp', false)
-  };
-  const baseExtensions = Object.keys(enabled);
+module.exports.getButton = function (images, { get }) {
+  const baseExtensions = Object.keys(images);
   const disabledISS = get('disabledImageSearchServices', []);
-  const items = baseExtensions.filter(e => urls[e] && enabled[e]);
+  const disabled = {
+    webp: get('enableWebp', true),
+    mp4: [ 'openImage', 'copyImage', 'saveAs', 'searchImage' ]
+  };
+
+
+  const items = baseExtensions.filter((e) => {
+    if (images[e] && !(e in disabled)) {
+      return true;
+    }
+    if (!Array.isArray(disabled[e])) {
+      return disabled[e];
+    }
+    return true;
+  });
+
+  const getDisabledMethods = (e) => Array.isArray(disabled[e]) ? disabled[e] : [];
 
   return [
     ...ContextMenu.renderRawItems([
@@ -34,35 +45,41 @@ module.exports.getButton = function (urls, size, { get }) {
       return items.map((e) => ({
         type: 'submenu',
         name: e.toUpperCase(),
-        items: getBaseMenu(urls[e]),
+        items: getBaseMenu(images[e], getDisabledMethods(e)),
         getItems () {
           return this.items;
         }
       }));
     }
-    return getBaseMenu(urls[items[0]]);
+    return getBaseMenu(images[items[0]], getDisabledMethods(items[0]));
   }
 
-  function getBaseMenu (url) {
+  function getBaseMenu (image, disabled) {
+    const url = (image.content) ? image.content : image.src;
     return [
       {
         type: 'button',
         name: Messages.OPEN_IMAGE,
-        onClick: () => openImg(url, size)
+        disabled: disabled.includes('openImage'),
+        onClick: () => openImg(image)
       },
       {
         type: 'button',
         name: (items.length > 1) ? `${Messages.COPY_IMAGE} (PNG)` : Messages.COPY_IMAGE,
-        onClick: () => copyImg(urls.png)
+        disabled: disabled.includes('copyImage'),
+        onClick: () => copyImg(images.png.src)
       },
       {
         type: 'button',
         name: Messages.OPEN_LINK,
+        disabled: disabled.includes('openLink'),
         onClick: () => openUrl(url)
+
       },
       {
         type: 'button',
         name: Messages.COPY_LINK,
+        disabled: disabled.includes('copyLink'),
         onClick: () => copyUrl(url)
       },
       // {
@@ -73,11 +90,13 @@ module.exports.getButton = function (urls, size, { get }) {
       {
         type: 'button',
         name: Messages.SAVE_IMAGE_AS,
+        disabled: disabled.includes('saveAs'),
         onClick: () => saveAs(url)
       },
       {
         type: 'submenu',
         name: Messages.IMAGE_SEARCH,
+        disabled: disabled.includes('searchImage'),
         items: imageSearchServices
           .filter((e) => !disabledISS.includes(e.id))
           .map((e) => ({
@@ -109,15 +128,8 @@ function output (msg) {
   });
 }
 
-async function openImg (url, size) {
-  const { open } = require('../components/ImageModal');
-  const defaultSize = { height: 780, width: 780 }; // eslint-disable-line object-property-newline
-
-  open({
-    src: url,
-    height: size.height || defaultSize.height,
-    width: size.width || defaultSize.width
-  });
+async function openImg (image) {
+  require('../components/ImageModal').open(image);
 }
 
 async function copyImg (url) {
