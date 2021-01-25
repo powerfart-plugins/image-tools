@@ -38,11 +38,13 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   updatePos (e) {
+    /* eslint-disable no-use-before-define */
     const rect = this.imgRef.current.firstChild.firstChild.getBoundingClientRect();
-    const X = e.clientX - rect.left;
-    const Y = e.clientY - rect.top;
     const lensRadius = this.getLensRadius();
     const zooming = this.getZooming();
+    const X = fixConfines(e.clientX, [ rect.left, rect.right ]) - rect.left;
+    const Y = fixConfines(e.clientY, [ rect.top, rect.bottom ]) - rect.top;
+
 
     this.setState((prevState) => ({
       lensStyle: {
@@ -94,8 +96,7 @@ module.exports = class ImageWrapper extends React.Component {
       const [ step ] = borders[target];
       const plus = (e.deltaY < 0) ? step : (step * -1);
 
-      // eslint-disable-next-line no-use-before-define
-      this.props.setSetting(target, fixConfines(current[target], plus, borders[target]));
+      this.props.setSetting(target, fixConfines(current[target], borders[target], plus));
     };
 
     if (e.ctrlKey) {
@@ -110,20 +111,16 @@ module.exports = class ImageWrapper extends React.Component {
     // console.log(this.props.children.props.overlayEventListener);
     return <>
       { this.state.showLens &&
-          <div
-            className="image-tools-lens"
-            style={{
-              ...this.baseLensStyle,
-              ...this.state.lensStyle
-            }}
-            onMouseUp={this.onMouseDownUp}
-            onMouseMove={this.updatePos}
-            onWheel={this.onWheel}
-          />
+      <div
+        className="image-tools-lens"
+        style={{
+          ...this.baseLensStyle,
+          ...this.state.lensStyle
+        }}
+      />
       }
       <div
         onMouseDown={this.onMouseDownUp}
-        onWheel={this.onWheel}
         ref={this.imgRef}
       >
         {this.props.children}
@@ -133,7 +130,10 @@ module.exports = class ImageWrapper extends React.Component {
 
   componentDidMount () {
     if (this.props.overlay) {
-      console.log('overlay online');
+      this.props.overlay.setEventListener('onWheel', this.onWheel);
+      this.props.overlay.setEventListener('onMouseMove', this.updatePos);
+      this.props.overlay.setEventListener('onMouseUp', this.onMouseDownUp);
+      this.props.overlay.setEventListener('onMouseLeave', this.onMouseDownUp);
     } else {
       console.error('overlay offline');
     }
@@ -141,7 +141,7 @@ module.exports = class ImageWrapper extends React.Component {
 };
 
 
-function fixConfines (number, plus, borders) {
+function fixConfines (number, borders, plus = 0) {
   const [ min, max ] = borders;
   let val = Math.round(number) + plus;
 
