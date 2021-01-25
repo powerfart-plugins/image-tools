@@ -34,7 +34,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   uninjectImageModal () {
-    console.log('uninject');
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
     return true;

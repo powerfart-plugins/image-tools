@@ -8,14 +8,12 @@ const borders = {
 module.exports = class ImageWrapper extends React.Component {
   constructor (props) {
     super(props);
-    // console.log(this);
 
     this.getLensRadius = () => this.props.getSetting('lensRadius', 100);
     this.getZooming = () => this.props.getSetting('zoomRatio', 2);
     this.imgRef = React.createRef();
 
     this.baseLensStyle = {
-      backgroundImage: `url(${this.props.children.props.src})`,
       borderColor: this.props.getSetting('lensColor', null)
     };
     this.state = {
@@ -27,6 +25,7 @@ module.exports = class ImageWrapper extends React.Component {
         left: null,
         top: null
       },
+      src: null,
       showLens: false
     };
 
@@ -107,13 +106,22 @@ module.exports = class ImageWrapper extends React.Component {
     this.updateStatus(e);
   }
 
+  lazyLoadImg (src) {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      this.setState({ src });
+    };
+  }
+
   render () {
-    // console.log(this.props.children.props.overlayEventListener);
+    // console.log(this.props.children);
     return <>
-      { this.state.showLens &&
+      { this.state.showLens && this.state.src &&
       <div
         className="image-tools-lens"
         style={{
+          backgroundImage:`url(${this.state.src})`,
           ...this.baseLensStyle,
           ...this.state.lensStyle
         }}
@@ -129,6 +137,8 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   componentDidMount () {
+    this.lazyLoadImg(this.props.children.props.src);
+
     if (this.props.overlay) {
       this.props.overlay.setEventListener('onWheel', this.onWheel);
       this.props.overlay.setEventListener('onMouseMove', this.updatePos);
