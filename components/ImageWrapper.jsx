@@ -8,6 +8,7 @@ const borders = {
 module.exports = class ImageWrapper extends React.Component {
   constructor (props) {
     super(props);
+    // console.log(this);
 
     this.getLensRadius = () => this.props.getSetting('lensRadius', 100);
     this.getZooming = () => this.props.getSetting('zoomRatio', 2);
@@ -36,16 +37,10 @@ module.exports = class ImageWrapper extends React.Component {
     this.onMouseDownUp = this.onMouseDownUp.bind(this);
   }
 
-  updatePos ({ clientX, clientY, pageX, pageY }) {
-    const img = this.imgRef.current.firstChild.firstChild;
-    const rect = img.getBoundingClientRect();
-
-    if (pageX < rect.left || pageX > rect.right || pageY < rect.top || pageY > rect.bottom) {
-      this.setState({ showLens: false });
-      return;
-    }
-    const X = clientX - rect.left;
-    const Y = clientY - rect.top;
+  updatePos (e) {
+    const rect = this.imgRef.current.firstChild.firstChild.getBoundingClientRect();
+    const X = e.clientX - rect.left;
+    const Y = e.clientY - rect.top;
     const lensRadius = this.getLensRadius();
     const zooming = this.getZooming();
 
@@ -60,16 +55,16 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   updateSize () {
-    const img = this.imgRef.current.firstChild.firstChild;
-    const lensRadius = this.getLensRadius;
-    const zooming = this.getZooming;
+    const { offsetWidth, offsetHeight } = this.imgRef.current.firstChild.firstChild;
+    const lensRadius = this.getLensRadius();
+    const zooming = this.getZooming();
 
     this.setState((prevState) => ({
       lensStyle: {
         ...prevState.lensStyle,
-        backgroundSize: `${img.offsetWidth * zooming()}px ${img.offsetHeight * zooming()}px`,
-        width: `${lensRadius() * 2}px`,
-        height: `${lensRadius() * 2}px`
+        backgroundSize: `${offsetWidth * zooming}px ${offsetHeight * zooming}px`,
+        width: `${lensRadius * 2}px`,
+        height: `${lensRadius * 2}px`
       }
     }));
   }
@@ -95,34 +90,24 @@ module.exports = class ImageWrapper extends React.Component {
       lensRadius: this.getLensRadius(),
       zoomRatio: this.getZooming()
     };
-    const plusTo = (to) => {
-      const [ step ] = borders[to];
+    const change = (target) => {
+      const [ step ] = borders[target];
       const plus = (e.deltaY < 0) ? step : (step * -1);
-      this.props.setSetting(to, fixConfines(current[to], plus, borders[to])); // eslint-disable-line no-use-before-define
+
+      // eslint-disable-next-line no-use-before-define
+      this.props.setSetting(target, fixConfines(current[target], plus, borders[target]));
     };
 
     if (e.ctrlKey) {
-      plusTo('lensRadius', e.deltaY);
+      change('lensRadius');
     } else {
-      plusTo('zoomRatio', e.deltaY);
+      change('zoomRatio');
     }
     this.updateStatus(e);
-
-    function fixConfines (number, plus, borders) {
-      const [ min, max ] = borders;
-      let val = Math.round(number) + plus;
-
-      if (val < min) {
-        val = min;
-      }
-      if (val > max) {
-        val = max;
-      }
-      return val;
-    }
   }
 
   render () {
+    // console.log(this.props.children.props.overlayEventListener);
     return <>
       { this.state.showLens &&
           <div
@@ -145,5 +130,26 @@ module.exports = class ImageWrapper extends React.Component {
       </div>
     </>;
   }
+
+  componentDidMount () {
+    if (this.props.overlay) {
+      console.log('overlay online');
+    } else {
+      console.error('overlay offline');
+    }
+  }
 };
 
+
+function fixConfines (number, plus, borders) {
+  const [ min, max ] = borders;
+  let val = Math.round(number) + plus;
+
+  if (val < min) {
+    val = min;
+  }
+  if (val > max) {
+    val = max;
+  }
+  return val;
+}

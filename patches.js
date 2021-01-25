@@ -27,6 +27,29 @@ module.exports.imageModal = function (args, res, settings) {
   return res;
 };
 
+module.exports.overlay = function (args, res, settings) {
+  const Overlay = require('./components/Overlay');
+  const patch = () => {
+    res = React.createElement(Overlay, {
+      children: res
+    });
+  };
+
+  try { // NativeModal
+    if (res.props.children[1].props.render().props.children.type.displayName === 'ImageModal') {
+      patch();
+    }
+  } catch {}
+
+  try { // PowercordModal
+    if (res.props.children[1].props.renderModal().type.prototype.render().type().type.displayName === 'ImageModal') {
+      patch();
+    }
+  } catch {}
+
+  return res;
+};
+
 module.exports.message = function ([ { target, message: { content } } ], res, settings) {
   if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop)) {
     const { width, height } = target;

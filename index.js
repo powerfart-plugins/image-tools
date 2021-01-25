@@ -17,6 +17,7 @@ module.exports = class ImageTools extends Plugin {
     this.loadStylesheet('style.css');
     this.registerSettings();
 
+    await this.inject('TransitionGroup.default.prototype.render', patches.overlay);
     await this.inject('ImageModal.default.prototype.render', patches.imageModal);
     await this.inject('MessageContextMenu.default', patches.message);
     await this.inject('GuildChannelUserContextMenu.default', patches.user);
@@ -31,6 +32,8 @@ module.exports = class ImageTools extends Plugin {
 
   pluginWillUnload () {
     this.uninjectIDs.forEach((id) => uninject(id));
+    uninject('image-tools-overlay-image-modal');
+    uninject('image-tools-overlay-backdrop');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 
