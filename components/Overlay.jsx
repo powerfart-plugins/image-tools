@@ -1,4 +1,4 @@
-const { React, getModule } = require('powercord/webpack');
+const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
 
 module.exports = class ImageToolsOverlay extends React.Component {
@@ -7,6 +7,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
     this.state = {
       injected: false,
+      showLensInfo: false,
       infoFromImage: {}
     };
 
@@ -38,7 +39,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
   uninjectImageModal () {
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
-    this.setState({});
     return true;
   }
 
@@ -55,6 +55,19 @@ module.exports = class ImageToolsOverlay extends React.Component {
         ...obj
       }
     }));
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    if (prevState.infoFromImage.lens !== this.state.infoFromImage.lens) {
+      this.setState({
+        showLensInfo: true
+      });
+      setTimeout(() => {
+        this.setState({
+          showLensInfo: false
+        });
+      }, 2500);
+    }
   }
 
   render () {
@@ -75,9 +88,11 @@ module.exports = class ImageToolsOverlay extends React.Component {
         {this.props.children}
 
         {this.state.infoFromImage.lens &&
-          <div className="image-tools-lens-info">
-            <p>lensRadius: {this.state.infoFromImage.lens.radius}px</p>
-            <p>zoomRatio: {this.state.infoFromImage.lens.zoom}x</p>
+          <div
+            className={`image-tools-lens-info ${this.state.showLensInfo ? null : 'image-tools-lens-info-hide'}`}
+          >
+            <p>{Messages.ZOOM_RATIO}: {this.state.infoFromImage.lens.lensRadius}px</p>
+            <p>{Messages.LENS_RADIUS}: {this.state.infoFromImage.lens.zoomRatio}x</p>
           </div>
         }
       </div>

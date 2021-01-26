@@ -1,4 +1,7 @@
 /* noinspection CssUnresolvedCustomProperty */
+.submenuContainer-2gbm7M {
+    z-index: 1;
+}
 .image-tools-lens {
     position: absolute;
     z-index: 1;
@@ -8,9 +11,6 @@
     margin: -2px;
     cursor: move;
 }
-.submenuContainer-2gbm7M {
-    z-index: 1;
-}
 .image-tools-lens-info {
     position: absolute;
     top: 20px;
@@ -19,7 +19,12 @@
     font-size: 15px;
     z-index: 1003;
     text-align: right;
+    opacity: 1;
     p {
         margin: 5px;
     }
+}
+.image-tools-lens-info-hide {
+    opacity: 0;
+    transition: 2s;
 }

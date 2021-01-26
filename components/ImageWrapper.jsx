@@ -68,12 +68,6 @@ module.exports = class ImageWrapper extends React.Component {
         height: `${lensRadius * 2}px`
       }
     }));
-    this.props.overlay.sendInfo({
-      lens: {
-        radius:lensRadius,
-        zoom:zooming
-      }
-    });
   }
 
   updateStatus (e) {
@@ -105,8 +99,10 @@ module.exports = class ImageWrapper extends React.Component {
     const change = (target) => {
       const [ step ] = borders[target];
       const plus = (e.deltaY < 0) ? step : (step * -1);
+      current[target] = fixConfines(current[target], borders[target], plus);
 
-      this.props.setSetting(target, fixConfines(current[target], borders[target], plus));
+      this.props.setSetting(target, current[target]);
+      this.props.overlay.sendInfo({ lens: current });
     };
 
     if (e.ctrlKey) {
@@ -133,6 +129,7 @@ module.exports = class ImageWrapper extends React.Component {
       this.props.overlay.setEventListener('onMouseMove', this.updatePos);
       this.props.overlay.setEventListener('onMouseUp', this.onMouseDownUp);
       this.props.overlay.setEventListener('onMouseLeave', this.onMouseDownUp);
+      this.updateSize();
     } else {
       console.error('overlay offline');
     }
