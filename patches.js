@@ -36,8 +36,8 @@ module.exports.imageModal = function (args, res, settings) {
     const { height, width } = imgComp;
     imgComp.height = height * 2;
     imgComp.width = width * 2;
-    imgComp.maxHeight = window.outerHeight * 80 / 100;
-    imgComp.maxWidth = window.outerWidth * 95 / 100;
+    imgComp.maxHeight = document.body.clientWidth * 60 / 100;
+    imgComp.maxWidth = document.body.clientHeight * 120 / 100;
   }
 
   res.props.children.unshift(
