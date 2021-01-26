@@ -6,7 +6,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
     super(props);
 
     this.state = {
-      injected: false
+      injected: false,
+      infoFromImage: {}
     };
 
     this.uninjectImageModal = this.uninjectImageModal.bind(this);
@@ -22,7 +23,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
     inject('image-tools-overlay-image-modal', ImageModal.default.prototype, 'render', (args, res) => {
       res.props.children[0].props.overlay = { // inject to ImageWrapper
-        setEventListener: this.setEventListener.bind(this)
+        setEventListener: this.setEventListener.bind(this),
+        sendInfo: this.getInfo.bind(this)
       };
       return res;
     });
@@ -36,6 +38,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
   uninjectImageModal () {
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
+    this.setState({});
     return true;
   }
 
@@ -45,10 +48,19 @@ module.exports = class ImageToolsOverlay extends React.Component {
     });
   }
 
+  getInfo (obj) {
+    this.setState((prevState) => ({
+      infoFromImage: {
+        ...prevState.infoFromImage,
+        ...obj
+      }
+    }));
+  }
+
   render () {
     this.injectToImageModal();
 
-    return <>
+    return (
       <div
         onMouseMove={this.state.onMouseMove}
         onWheel={this.state.onWheel}
@@ -61,8 +73,14 @@ module.exports = class ImageToolsOverlay extends React.Component {
         }}
       >
         {this.props.children}
-      </div>
 
-    </>;
+        {this.state.infoFromImage.lens &&
+          <div className="image-tools-lens-info">
+            <p>lensRadius: {this.state.infoFromImage.lens.radius}px</p>
+            <p>zoomRatio: {this.state.infoFromImage.lens.zoom}x</p>
+          </div>
+        }
+      </div>
+    );
   }
 };

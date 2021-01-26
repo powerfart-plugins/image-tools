@@ -68,6 +68,12 @@ module.exports = class ImageWrapper extends React.Component {
         height: `${lensRadius * 2}px`
       }
     }));
+    this.props.overlay.sendInfo({
+      lens: {
+        radius:lensRadius,
+        zoom:zooming
+      }
+    });
   }
 
   updateStatus (e) {
@@ -76,13 +82,16 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   onMouseDownUp (e) {
+    const isMouseDown = (e.type === 'mousedown');
     if (e.button === 2) {
       return;
     }
     this.setState({
-      showLens: (e.type === 'mousedown')
+      showLens: isMouseDown
     });
-    this.updateStatus(e);
+    if (isMouseDown) {
+      this.updateStatus(e);
+    }
     this.imgRef.current.click(); // do not interfere with other handlers
   }
 
@@ -114,6 +123,19 @@ module.exports = class ImageWrapper extends React.Component {
     };
   }
 
+  componentDidMount () {
+    this.lazyLoadImg(this.props.children.props.src);
+
+    if (this.props.overlay) {
+      this.props.overlay.setEventListener('onWheel', this.onWheel);
+      this.props.overlay.setEventListener('onMouseMove', this.updatePos);
+      this.props.overlay.setEventListener('onMouseUp', this.onMouseDownUp);
+      this.props.overlay.setEventListener('onMouseLeave', this.onMouseDownUp);
+    } else {
+      console.error('overlay offline');
+    }
+  }
+
   render () {
     // console.log(this.props.children);
     return <>
@@ -134,19 +156,6 @@ module.exports = class ImageWrapper extends React.Component {
         {this.props.children}
       </div>
     </>;
-  }
-
-  componentDidMount () {
-    this.lazyLoadImg(this.props.children.props.src);
-
-    if (this.props.overlay) {
-      this.props.overlay.setEventListener('onWheel', this.onWheel);
-      this.props.overlay.setEventListener('onMouseMove', this.updatePos);
-      this.props.overlay.setEventListener('onMouseUp', this.onMouseDownUp);
-      this.props.overlay.setEventListener('onMouseLeave', this.onMouseDownUp);
-    } else {
-      console.error('overlay offline');
-    }
   }
 };
 

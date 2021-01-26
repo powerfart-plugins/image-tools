@@ -8,3 +8,15 @@
     margin: -2px;
     cursor: move;
 }
+.image-tools-lens-info {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    color: white;
+    font-size: 15px;
+    z-index: 1003;
+    text-align: right;
+    p {
+        margin: 5px;
+    }
+}

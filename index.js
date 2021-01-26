@@ -14,7 +14,7 @@ module.exports = class ImageTools extends Plugin {
 
   async startPlugin () {
     powercord.api.i18n.loadAllStrings(i18n);
-    this.loadStylesheet('style.css');
+    this.loadStylesheet('style.scss');
     this.registerSettings();
 
     await this.inject('TransitionGroup.default.prototype.render', patches.overlay);
