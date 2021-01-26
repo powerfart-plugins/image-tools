@@ -5,8 +5,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
     super(props);
 
+    this.injected = false;
     this.state = {
-      injected: false,
       showLensInfo: false,
       infoFromImage: {}
     };
@@ -15,7 +15,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   injectToImageModal () {
-    if (this.state.injected) {
+    if (this.injected) {
       return;
     }
 
@@ -31,9 +31,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
     });
     inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.uninjectImageModal);
 
-    this.setState({
-      injected: true
-    });
+    this.injected = true;
   }
 
   uninjectImageModal () {
