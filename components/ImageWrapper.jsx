@@ -83,16 +83,18 @@ module.exports = class ImageWrapper extends React.Component {
 
   onMouseDownUp (e) {
     const isMouseDown = (e.type === 'mousedown');
+
     if (e.button === 2) {
       return;
     }
     this.setState({
       showLens: isMouseDown
     });
+
     if (isMouseDown) {
       this.updateStatus(e);
+      this.imgRef.current.click(); // do not interfere with other handlers
     }
-    this.imgRef.current.click(); // do not interfere with other handlers
   }
 
   onWheel (e) {
