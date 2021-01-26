@@ -68,7 +68,7 @@ module.exports.message = function ([ { target, message: { content } } ], res, se
     }
 
     const args = {
-      content,
+      content: isUrl(content) ? content : null, // eslint-disable-line no-use-before-define
       width: width * 2,
       height: height * 2
     };
@@ -126,4 +126,13 @@ function getImagesObj (target, obj) {
   }
   img[e] = { src, ...obj }; // eslint-disable-line object-property-newline
   return img;
+}
+
+function isUrl (string) {
+  try {
+    new URL(string);
+  } catch {
+    return false;
+  }
+  return true;
 }
