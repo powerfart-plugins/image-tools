@@ -4,29 +4,6 @@ const { getButton } = require('./components/Button');
 const { getQuickLensSettings } = require('./components/QuickLensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
-module.exports.imageModal = function (args, res, settings) {
-  const ImageWrapper = require('./components/ImageWrapper');
-  const patchImageSize = settings.get('patchImageSize', true);
-
-  if (patchImageSize) {
-    const imgComp = res.props.children[0].props;
-    const { height, width } = imgComp;
-    imgComp.height = height * 2;
-    imgComp.width = width * 2;
-    imgComp.maxHeight = 600;
-    imgComp.maxWidth = 1200;
-  }
-
-  res.props.children.unshift(
-    React.createElement(ImageWrapper, {
-      children: res.props.children.shift(),
-      getSetting: settings.get,
-      setSetting: settings.set
-    })
-  );
-  return res;
-};
-
 module.exports.overlay = function (args, res, settings) {
   const Overlay = require('./components/Overlay');
   const patch = () => {
@@ -47,6 +24,29 @@ module.exports.overlay = function (args, res, settings) {
     }
   } catch {}
 
+  return res;
+};
+
+module.exports.imageModal = function (args, res, settings) {
+  const ImageWrapper = require('./components/ImageWrapper');
+  const patchImageSize = settings.get('patchImageSize', true);
+
+  if (patchImageSize) {
+    const imgComp = res.props.children[0].props;
+    const { height, width } = imgComp;
+    imgComp.height = height * 2;
+    imgComp.width = width * 2;
+    imgComp.maxHeight = window.outerHeight * 80 / 100;
+    imgComp.maxWidth = window.outerWidth * 95 / 100;
+  }
+
+  res.props.children.unshift(
+    React.createElement(ImageWrapper, {
+      children: res.props.children.shift(),
+      getSetting: settings.get,
+      setSetting: settings.set
+    })
+  );
   return res;
 };
 
