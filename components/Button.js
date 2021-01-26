@@ -105,16 +105,8 @@ module.exports.getButton = function (images, { get }) {
             onClick: () => openUrl((e.withoutEncode) ? e.url + url : e.url + encodeURIComponent(url))
           })),
         getItems () {
-          this.items.push({ // stub, because the last element crashes
-            type: 'button',
-            disabled: true
-          });
           return this.items;
         }
-      },
-      { // stub, because the last element crashes
-        type: 'button',
-        disabled: true
       }
     ];
   }
