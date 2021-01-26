@@ -1,4 +1,5 @@
-const { React } = require('powercord/webpack');
+const { React, getModule } = require('powercord/webpack');
+const { inject, uninject } = require('powercord/injector');
 
 const borders = {
   lensRadius: [ 50, 700 ],
@@ -12,6 +13,7 @@ module.exports = class ImageWrapper extends React.Component {
     this.getLensRadius = () => this.props.getSetting('lensRadius', 100);
     this.getZooming = () => this.props.getSetting('zoomRatio', 2);
     this.imgRef = React.createRef();
+    this.injected = false;
 
     this.baseLensStyle = {
       borderColor: this.props.getSetting('lensColor', null)
@@ -29,11 +31,33 @@ module.exports = class ImageWrapper extends React.Component {
       showLens: false
     };
 
-    this.onWheel = this.onWheel.bind(this);
     this.updatePos = this.updatePos.bind(this);
-    this.updateSize = this.updateSize.bind(this);
-    this.updateStatus = this.updateStatus.bind(this);
     this.onMouseDownUp = this.onMouseDownUp.bind(this);
+    this.uninjectLazyImage = this.uninjectLazyImage.bind(this);
+  }
+
+  injectToLazyImage () {
+    const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
+    if (this.injected) {
+      return;
+    }
+
+    inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
+      if ((res.props.readyState === 'READY') && !res.props.src.includes('?format=png')) {
+        if (res.props.original && (res.props.original.split('.').pop() === 'png')) {
+          this.setState({ src:  res.props.original });
+        } else {
+          this.setState({ src:  res.props.src });
+        }
+        this.uninjectLazyImage();
+      }
+      return res;
+    });
+    this.injected = true;
+  }
+
+  uninjectLazyImage () {
+    uninject('image-tools-wrapper-lazy-image');
   }
 
   updatePos (e) {
@@ -113,40 +137,36 @@ module.exports = class ImageWrapper extends React.Component {
     this.updateStatus(e);
   }
 
-  lazyLoadImg (src) {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      this.setState({ src });
-    };
-  }
-
   componentDidMount () {
-    this.lazyLoadImg(this.props.children.props.src);
-
     if (this.props.overlay) {
-      this.props.overlay.setEventListener('onWheel', this.onWheel);
+      this.props.overlay.setEventListener('onWheel', this.onWheel.bind(this));
       this.props.overlay.setEventListener('onMouseMove', this.updatePos);
       this.props.overlay.setEventListener('onMouseUp', this.onMouseDownUp);
       this.props.overlay.setEventListener('onMouseLeave', this.onMouseDownUp);
       this.updateSize();
     } else {
-      console.error('overlay offline');
+      // console.error('overlay offline');
     }
   }
 
+  componentWillUnmount () {
+    this.uninjectLazyImage();
+  }
+
   render () {
-    // console.log(this.props.children);
+    this.injectToLazyImage();
+
     return <>
-      { this.state.showLens && this.state.src &&
-      <div
-        className="image-tools-lens"
-        style={{
-          backgroundImage:`url(${this.state.src})`,
-          ...this.baseLensStyle,
-          ...this.state.lensStyle
-        }}
-      />
+      { this.state.src &&
+        <div
+          className="image-tools-lens"
+          style={{
+            backgroundImage: `url(${this.state.src})`,
+            display: (this.state.showLens) ? 'block' : 'none',
+            ...this.baseLensStyle,
+            ...this.state.lensStyle
+          }}
+        />
       }
       <div
         onMouseDown={this.onMouseDownUp}

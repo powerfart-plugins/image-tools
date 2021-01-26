@@ -34,6 +34,7 @@ module.exports = class ImageTools extends Plugin {
     this.uninjectIDs.forEach((id) => uninject(id));
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
+    uninject('image-tools-wrapper-lazy-image');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 
