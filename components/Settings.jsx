@@ -57,6 +57,11 @@ module.exports = class Settings extends React.Component {
           initialValue={ getSetting('lensRadius', 50) }
           note={Messages.LENS_RADIUS_NOTE}
         >{Messages.LENS_RADIUS}</SliderInput>
+        <SwitchItem
+          value={ getSetting('disableAntiAliasing', false) }
+          onChange={ () => toggleSetting('disableAntiAliasing', false) }
+          note={ Messages.DISABLE_ANTI_ALIASING_NOTE }
+        >{Messages.DISABLE_ANTI_ALIASING}</SwitchItem>
       </Category>
       <Category
         name={Messages.REVERSE_SEARCH_IMAGES_SERVICES}

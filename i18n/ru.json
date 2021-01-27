@@ -6,6 +6,8 @@
   "HIDE_NATIVE_BUTTONS": "Скрыть встроенные кнопки",
   "HIDE_NATIVE_BUTTONS_NOTE": "Скрыть кнопки изображений контекстного меню в сообщении",
   "HIDE_WEBP": "Скрыть расширение WEBP",
+  "DISABLE_ANTI_ALIASING": "Отключить сглаживание",
+  "DISABLE_ANTI_ALIASING_NOTE": "Отключить сглаживание изображения в линзе",
   "RESIZE_IMAGES": "Изменить размер изображений",
   "RESIZE_IMAGES_NOTE": "Увеличить размер изображений в модальных окнах",
   "LENS_SETTINGS": "Настройки линзы",

@@ -16,7 +16,8 @@ module.exports = class ImageWrapper extends React.Component {
     this.injected = false;
 
     this.baseLensStyle = {
-      borderColor: this.props.getSetting('lensColor', null)
+      borderColor: this.props.getSetting('lensColor', null),
+      imageRendering: this.props.getSetting('disableAntiAliasing', null) ? 'pixelated' : null
     };
     this.state = {
       lensStyle: {

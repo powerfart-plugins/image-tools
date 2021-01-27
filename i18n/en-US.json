@@ -6,6 +6,8 @@
   "HIDE_NATIVE_BUTTONS": "Hide native buttons",
   "HIDE_NATIVE_BUTTONS_NOTE": "Hide image buttons in messages context menu",
   "HIDE_WEBP": "Hide WEBP extension",
+  "DISABLE_ANTI_ALIASING": "Disable anti-aliasing",
+  "DISABLE_ANTI_ALIASING_NOTE": "Disable anti aliasing image in lens",
   "RESIZE_IMAGES": "Resize images",
   "RESIZE_IMAGES_NOTE": "Increase the size of images in modals",
   "LENS_SETTINGS": "Lens settings",
