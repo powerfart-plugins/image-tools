@@ -20,5 +20,7 @@
   "DISABLE_LENS": "Disable lens",
   "IMAGE_COPIED": "Image copied",
   "IMAGE_LINK_COPIED": "Image link copied",
-  "CANT_COPY": "Can't copy"
+  "CANT_COPY": "Can't copy",
+  "FAILED_TO_SAVE": "Failed to save",
+  "FAILED_TO_SAVE_NOTE": "The image is probably not hosted by Discord"
 }

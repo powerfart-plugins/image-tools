@@ -116,7 +116,7 @@ function output (content, type, buttons) {
   const id = Math.random().toString(10).substr(2);
   powercord.api.notices.sendToast(`ImageToolsMsg-${id}`, {
     header: 'Image Tools',
-    timeout: 3e3,
+    timeout: 4e3,
     content,
     type,
     buttons
@@ -132,16 +132,18 @@ function success (msg) {
   };
   output(msg, 'success', [ button ]);
 }
-function error (msg, addButton) {
+function error (msg, addButton = null) {
   const buttons = [
     {
       text: 'okay',
       color: 'red',
-      size: 'small',
+      size: (addButton) ? 'small' : 'medium',
       look: 'outlined'
-    },
-    addButton
+    }
   ];
+  if (addButton) {
+    buttons.push(addButton);
+  }
   output(msg, 'danger', buttons);
 }
 
@@ -182,5 +184,9 @@ function copyUrl (url) {
 
 async function saveAs (url) {
   const { saveImage } = await getModule([ 'saveImage' ]);
-  saveImage(url);
+  saveImage(url)
+    .catch((e) => {
+      error(`${Messages.FAILED_TO_SAVE} \n ${Messages.FAILED_TO_SAVE_NOTE}`);
+      console.error(e);
+    });
 }
