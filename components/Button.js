@@ -66,7 +66,7 @@ module.exports.getButton = function (images, { get }) {
         type: 'button',
         name: (items.length > 1) ? `${Messages.COPY_IMAGE} (PNG)` : Messages.COPY_IMAGE,
         disabled: disabled.includes('copyImage'),
-        onClick: () => copyImg(images.png.src)
+        onClick: () => copyImg((images.png) ? images.png.src : url)
       },
       {
         type: 'button',
@@ -112,19 +112,37 @@ module.exports.getButton = function (images, { get }) {
   }
 };
 
-function output (msg) {
-  powercord.api.notices.sendToast('ImageToolsMsg', {
+function output (content, type, buttons) {
+  const id = Math.random().toString(10).substr(2);
+  powercord.api.notices.sendToast(`ImageToolsMsg-${id}`, {
     header: 'Image Tools',
-    content: msg,
-    type: 'info',
     timeout: 3e3,
-    buttons: [ {
-      text: 'OK',
-      color: 'green',
-      size: 'medium',
-      look: 'outlined'
-    } ]
+    content,
+    type,
+    buttons
   });
+}
+
+function success (msg) {
+  const button = {
+    text: 'OK',
+    color: 'green',
+    size: 'medium',
+    look: 'outlined'
+  };
+  output(msg, 'success', [ button ]);
+}
+function error (msg, addButton) {
+  const buttons = [
+    {
+      text: 'okay',
+      color: 'red',
+      size: 'small',
+      look: 'outlined'
+    },
+    addButton
+  ];
+  output(msg, 'danger', buttons);
 }
 
 async function openImg (image) {
@@ -132,9 +150,21 @@ async function openImg (image) {
 }
 
 async function copyImg (url) {
+  const e = url.split('.').pop();
   const { copyImage } = await getModule([ 'copyImage' ]);
-  copyImage(url);
-  output(Messages.IMAGE_COPIED);
+
+  if (e === 'png') {
+    copyImage(url);
+    success(Messages.IMAGE_COPIED);
+  } else {
+    const actionButton = {
+      text: Messages.COPY_LINK,
+      size: 'small',
+      look: 'outlined',
+      onClick: () => copyUrl(url)
+    };
+    error(`${Messages.CANT_COPY} : ${e.toUpperCase()}`, actionButton);
+  }
 }
 
 function openUrl (url) {
@@ -143,7 +173,7 @@ function openUrl (url) {
 
 function copyUrl (url) {
   clipboard.writeText(url);
-  output(Messages.IMAGE_LINK_COPIED);
+  success(Messages.IMAGE_LINK_COPIED);
 }
 
 // async function save (url) {

@@ -19,5 +19,6 @@
   "REVERSE_SEARCH_IMAGES_SERVICES": "Сервисы поиска изображений",
   "DISABLE_LENS": "Отключить линзу",
   "IMAGE_COPIED": "Изображение скопировано",
-  "IMAGE_LINK_COPIED": "Ссылка на изображение скопирована"
+  "IMAGE_LINK_COPIED": "Ссылка на изображение скопирована",
+  "CANT_COPY": "Не могу скопировать"
 }

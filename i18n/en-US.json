@@ -19,5 +19,6 @@
   "REVERSE_SEARCH_IMAGES_SERVICES": "Reverse search images services",
   "DISABLE_LENS": "Disable lens",
   "IMAGE_COPIED": "Image copied",
-  "IMAGE_LINK_COPIED": "Image link copied"
+  "IMAGE_LINK_COPIED": "Image link copied",
+  "CANT_COPY": "Can't copy"
 }
