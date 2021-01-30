@@ -37,14 +37,23 @@ module.exports = class ImageWrapper extends React.Component {
 
   injectToLazyImage () {
     const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
+    const { offsetWidth, offsetHeight } = this.imgRef.current;
+    let { src } = this.props.children.props;
+    src = `${src}${src.includes('?') ? '&' : '?'}width=${offsetWidth}&height=${offsetHeight}`;
+    this.setState({ src });
+
     inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
-      if ((res.props.readyState === 'READY') && !res.props.src.includes('?format=png')) {
-        if (res.props.original && (res.props.original.split('.').pop() === 'png')) {
-          this.setState({ src:  res.props.original });
-        } else {
-          this.setState({ src:  res.props.src });
+      const { props } = res;
+
+      if (props.readyState === 'READY' &&
+          props.src.includes(this.props.children.props.src) &&
+          !props.src.includes('?format=')
+      ) {
+        if (props.src.includes('.gif')) {
+          this.setState({
+            src: props.src
+          });
         }
-        this.uninjectLazyImage();
       }
       return res;
     });

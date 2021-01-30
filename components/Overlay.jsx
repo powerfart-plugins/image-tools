@@ -30,7 +30,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   onClose () {
-    console.log('onClose');
     if (this.state.onClose) {
       this.state.onClose();
     }
