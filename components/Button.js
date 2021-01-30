@@ -152,7 +152,7 @@ async function openImg (image) {
 }
 
 async function copyImg (url) {
-  const e = url.split('.').pop();
+  const e = url.split('?').shift().split('.').pop();
   const { copyImage } = await getModule([ 'copyImage' ]);
 
   if (e === 'png') {

@@ -11,14 +11,11 @@ module.exports = class ImageToolsOverlay extends React.Component {
       infoFromImage: {}
     };
 
-    this.uninjectImageModal = this.uninjectImageModal.bind(this);
+    this.onClose = this.onClose.bind(this);
+    this.injectToImageModal();
   }
 
   injectToImageModal () {
-    if (this.injected) {
-      return;
-    }
-
     const ImageModal = getModule((m) => m.default && m.default.displayName === 'ImageModal', false);
     const backdrop = this.props.children.props.children[0];
 
@@ -29,12 +26,14 @@ module.exports = class ImageToolsOverlay extends React.Component {
       };
       return res;
     });
-    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.uninjectImageModal);
-
-    this.injected = true;
+    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.onClose);
   }
 
-  uninjectImageModal () {
+  onClose () {
+    console.log('onClose');
+    if (this.state.onClose) {
+      this.state.onClose();
+    }
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
     return true;
@@ -69,8 +68,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   render () {
-    this.injectToImageModal();
-
     return (
       <div
         onMouseMove={this.state.onMouseMove}
@@ -79,7 +76,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
         onMouseLeave={this.state.onMouseLeave}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
-            this.uninjectImageModal();
+            this.onClose();
           }
         }}
       >
