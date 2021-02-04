@@ -156,21 +156,22 @@ module.exports.getButton = function (images, { get }) {
   }
 
   async function copyImg (url) {
-    const e = url.split('?').shift().split('.').pop();
     const { copyImage } = await getModule([ 'copyImage' ]);
+    const actionButton = {
+      text: Messages.COPY_LINK,
+      size: 'small',
+      look: 'outlined',
+      onClick: () => copyUrl(url)
+    };
 
-    if (e === 'png') {
-      copyImage(url);
-      success(Messages.IMAGE_COPIED);
-    } else {
-      const actionButton = {
-        text: Messages.COPY_LINK,
-        size: 'small',
-        look: 'outlined',
-        onClick: () => copyUrl(url)
-      };
-      error(`${Messages.CANT_COPY} : ${e.toUpperCase()}`, actionButton);
-    }
+    copyImage(url)
+      .then(() => {
+        success(Messages.IMAGE_COPIED);
+      })
+      .catch((e) => {
+        error(`${Messages.CANT_COPY} \n ${Messages.NOT_HOSTING_DISCORD}`, actionButton);
+        console.error(e);
+      });
   }
 
   function openUrl (url) {
@@ -190,7 +191,7 @@ module.exports.getButton = function (images, { get }) {
     const { saveImage } = await getModule([ 'saveImage' ]);
     saveImage(url)
       .catch((e) => {
-        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.FAILED_TO_SAVE_NOTE}`);
+        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.NOT_HOSTING_DISCORD}`);
         console.error(e);
       });
   }
