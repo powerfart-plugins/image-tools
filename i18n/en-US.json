@@ -24,5 +24,9 @@
   "FAILED_TO_SAVE": "Failed to save",
   "NOT_HOSTING_DISCORD": "The image is probably not hosted by Discord",
   "QUIET_EXECUTION": "Quiet execution",
-  "QUIET_EXECUTION_NOTE": "Hide success toasts"
+  "QUIET_EXECUTION_NOTE": "Hide success toasts",
+  "IMAGE_SAVED_SUCCESSFULLY": "Image saved successfully",
+  "IMAGE_SAVING_PATH": "Image saving path",
+  "IMAGE_SAVING_PATH_NOTE": "By default, saves to the downloads folder, otherwise to the plugin folder (Due to technical limitations, only manual input is available)",
+  "CANNOT_FIND_PATH": "Cannot find path"
 }

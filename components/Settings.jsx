@@ -1,12 +1,29 @@
-const { SwitchItem, Category, ColorPickerInput, SliderInput } = require('powercord/components/settings');
+const { SwitchItem, TextInput, Category, ColorPickerInput, SliderInput } = require('powercord/components/settings');
 const { React, getModule, i18n: { Messages }, constants: { DEFAULT_ROLE_COLOR } } = require('powercord/webpack');
-const { hex2int, int2hex } = getModule([ 'isValidHex' ], false);
+const { existsSync } = require('fs');
 
+const { hex2int, int2hex } = getModule([ 'isValidHex' ], false);
+const getDownloadPath = require('../utils/getDownloadPath');
 const imageSearchServices = require('../ReverseImageSearchServices.json');
 
 module.exports = class Settings extends React.Component {
+  constructor () {
+    super();
+    this.state = {
+      errorSavePath: null
+    };
+  }
+
   render () {
     const { getSetting, toggleSetting, updateSetting, settings } = this.props;
+    const savePathSave = global._.debounce((path) => {
+      if (!existsSync(path)) {
+        this.setState({ errorSavePath: Messages.CANNOT_FIND_PATH });
+        return;
+      }
+      this.setState({ errorSavePath: null });
+      updateSetting('pathSave', path);
+    }, 250);
 
     if (!getSetting('disabledImageSearchServices')) {
       updateSetting('disabledImageSearchServices', []);
@@ -32,6 +49,12 @@ module.exports = class Settings extends React.Component {
         value={ getSetting('disableWebp', true) }
         onChange={ () => toggleSetting('disableWebp', true) }
       >{Messages.HIDE_WEBP}</SwitchItem>
+      <TextInput
+        defaultValue={getDownloadPath(getSetting('pathSave', null))}
+        note={Messages.IMAGE_SAVING_PATH_NOTE}
+        onChange={savePathSave}
+        error={this.state.errorSavePath}
+      >{Messages.IMAGE_SAVING_PATH}</TextInput>
       <Category
         name={Messages.LENS_SETTINGS}
         opened={true}

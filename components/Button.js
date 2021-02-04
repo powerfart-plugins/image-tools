@@ -1,13 +1,19 @@
 const { getModule, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
+
+const { existsSync } = require('fs');
+const { join } = require('path');
+const { writeFile } = require('fs').promises;
 const { clipboard, shell } = require('electron');
 
+const getDownloadPath = require('../utils/getDownloadPath');
 const imageSearchServices = require('../ReverseImageSearchServices.json');
 
 /* eslint-disable no-use-before-define */
 module.exports.getButton = function (images, { get }) {
   const baseExtensions = Object.keys(images);
   const disabledISS = get('disabledImageSearchServices', []);
+  const downloadPath = getDownloadPath(get('pathSave', null));
   const disabled = {
     webp: get('disableWebp', true),
     mp4: [ 'openImage', 'copyImage', 'saveAs', 'searchImage' ]
@@ -81,11 +87,12 @@ module.exports.getButton = function (images, { get }) {
         disabled: disabled.includes('copyLink'),
         onClick: () => copyUrl(url)
       },
-      // {
-      //   type: 'button',
-      //   name: Messages.SAVE,
-      //   onClick: () => save(url)
-      // },
+      {
+        type: 'button',
+        name: Messages.SAVE_IMAGE_MENU_ITEM,
+        subtext: downloadPath,
+        onClick: () => save(url)
+      },
       {
         type: 'button',
         name: Messages.SAVE_IMAGE_AS,
@@ -183,9 +190,33 @@ module.exports.getButton = function (images, { get }) {
     success(Messages.IMAGE_LINK_COPIED);
   }
 
-  // async function save (url) {
-  //
-  // };
+  async function save (url) {
+    const fileName = new URL(url).pathname.split('/').pop();
+    const arrayBuffer = await fetch(url)
+      .then((e) => e.arrayBuffer())
+      .catch((e) => {
+        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.NOT_HOSTING_DISCORD}`);
+        console.error(e);
+      });
+
+    let num = 1;
+    let pathSave = join(downloadPath, fileName);
+    while (existsSync(pathSave)) {
+      pathSave = join(
+        downloadPath,
+        fileName.replace(/(.+?)\./, `$1 (${num}).`)
+      );
+      num++;
+    }
+
+    if (arrayBuffer) {
+      writeFile(pathSave, Buffer.from(arrayBuffer))
+        .then(() => {
+          success(`${Messages.IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
+        })
+        .catch(console.error);
+    }
+  }
 
   async function saveAs (url) {
     const { saveImage } = await getModule([ 'saveImage' ]);
