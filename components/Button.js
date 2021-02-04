@@ -110,83 +110,88 @@ module.exports.getButton = function (images, { get }) {
       }
     ];
   }
-};
 
-function output (content, type, buttons) {
-  const id = Math.random().toString(10).substr(2);
-  powercord.api.notices.sendToast(`ImageToolsMsg-${id}`, {
-    header: 'Image Tools',
-    timeout: 4e3,
-    content,
-    type,
-    buttons
-  });
-}
-
-function success (msg) {
-  const button = {
-    text: 'OK',
-    color: 'green',
-    size: 'medium',
-    look: 'outlined'
-  };
-  output(msg, 'success', [ button ]);
-}
-function error (msg, addButton = null) {
-  const buttons = [
-    {
-      text: 'okay',
-      color: 'red',
-      size: (addButton) ? 'small' : 'medium',
-      look: 'outlined'
-    }
-  ];
-  if (addButton) {
-    buttons.push(addButton);
-  }
-  output(msg, 'danger', buttons);
-}
-
-async function openImg (image) {
-  require('../components/ImageModal').open(image);
-}
-
-async function copyImg (url) {
-  const e = url.split('?').shift().split('.').pop();
-  const { copyImage } = await getModule([ 'copyImage' ]);
-
-  if (e === 'png') {
-    copyImage(url);
-    success(Messages.IMAGE_COPIED);
-  } else {
-    const actionButton = {
-      text: Messages.COPY_LINK,
-      size: 'small',
-      look: 'outlined',
-      onClick: () => copyUrl(url)
-    };
-    error(`${Messages.CANT_COPY} : ${e.toUpperCase()}`, actionButton);
-  }
-}
-
-function openUrl (url) {
-  shell.openExternal(url);
-}
-
-function copyUrl (url) {
-  clipboard.writeText(url);
-  success(Messages.IMAGE_LINK_COPIED);
-}
-
-// async function save (url) {
-//
-// };
-
-async function saveAs (url) {
-  const { saveImage } = await getModule([ 'saveImage' ]);
-  saveImage(url)
-    .catch((e) => {
-      error(`${Messages.FAILED_TO_SAVE} \n ${Messages.FAILED_TO_SAVE_NOTE}`);
-      console.error(e);
+  function output (content, type, buttons) {
+    const id = Math.random().toString(10).substr(2);
+    powercord.api.notices.sendToast(`ImageToolsMsg-${id}`, {
+      header: 'Image Tools',
+      timeout: 4e3,
+      content,
+      type,
+      buttons
     });
-}
+  }
+
+  function success (msg) {
+    const button = {
+      text: 'OK',
+      color: 'green',
+      size: 'medium',
+      look: 'outlined'
+    };
+
+    if (get('hideSuccessToasts', false)) {
+      return;
+    }
+    output(msg, 'success', [ button ]);
+  }
+
+  function error (msg, addButton = null) {
+    const buttons = [
+      {
+        text: 'okay',
+        color: 'red',
+        size: (addButton) ? 'small' : 'medium',
+        look: 'outlined'
+      }
+    ];
+    if (addButton) {
+      buttons.push(addButton);
+    }
+    output(msg, 'danger', buttons);
+  }
+
+  async function openImg (image) {
+    require('../components/ImageModal').open(image);
+  }
+
+  async function copyImg (url) {
+    const e = url.split('?').shift().split('.').pop();
+    const { copyImage } = await getModule([ 'copyImage' ]);
+
+    if (e === 'png') {
+      copyImage(url);
+      success(Messages.IMAGE_COPIED);
+    } else {
+      const actionButton = {
+        text: Messages.COPY_LINK,
+        size: 'small',
+        look: 'outlined',
+        onClick: () => copyUrl(url)
+      };
+      error(`${Messages.CANT_COPY} : ${e.toUpperCase()}`, actionButton);
+    }
+  }
+
+  function openUrl (url) {
+    shell.openExternal(url);
+  }
+
+  function copyUrl (url) {
+    clipboard.writeText(url);
+    success(Messages.IMAGE_LINK_COPIED);
+  }
+
+  // async function save (url) {
+  //
+  // };
+
+  async function saveAs (url) {
+    const { saveImage } = await getModule([ 'saveImage' ]);
+    saveImage(url)
+      .catch((e) => {
+        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.FAILED_TO_SAVE_NOTE}`);
+        console.error(e);
+      });
+  }
+};

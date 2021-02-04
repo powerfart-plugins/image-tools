@@ -24,6 +24,11 @@ module.exports = class Settings extends React.Component {
         note={ Messages.RESIZE_IMAGES_NOTE }
       >{Messages.RESIZE_IMAGES}</SwitchItem>
       <SwitchItem
+        value={ getSetting('hideSuccessToasts', false) }
+        onChange={ () => toggleSetting('hideSuccessToasts', false) }
+        note={Messages.QUIET_EXECUTION_NOTE}
+      >{Messages.QUIET_EXECUTION}</SwitchItem>
+      <SwitchItem
         value={ getSetting('disableWebp', true) }
         onChange={ () => toggleSetting('disableWebp', true) }
       >{Messages.HIDE_WEBP}</SwitchItem>

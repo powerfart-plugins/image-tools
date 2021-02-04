@@ -22,5 +22,7 @@
   "IMAGE_LINK_COPIED": "Image link copied",
   "CANT_COPY": "Can't copy",
   "FAILED_TO_SAVE": "Failed to save",
-  "FAILED_TO_SAVE_NOTE": "The image is probably not hosted by Discord"
+  "FAILED_TO_SAVE_NOTE": "The image is probably not hosted by Discord",
+  "QUIET_EXECUTION": "Quiet execution",
+  "QUIET_EXECUTION_NOTE": "Hide success toasts"
 }
