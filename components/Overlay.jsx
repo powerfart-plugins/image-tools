@@ -85,8 +85,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
           <div
             className={`image-tools-lens-info ${this.state.showLensInfo ? null : 'image-tools-lens-info-hide'}`}
           >
-            <p>{Messages.ZOOM_RATIO}: {this.state.infoFromImage.lens.lensRadius}px</p>
-            <p>{Messages.LENS_RADIUS}: {this.state.infoFromImage.lens.zoomRatio}x</p>
+            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {this.state.infoFromImage.lens.lensRadius}px</p>
+            <p>{Messages.IMAGE_TOOLS_LENS_RADIUS}: {this.state.infoFromImage.lens.zoomRatio}x</p>
           </div>
         }
       </div>

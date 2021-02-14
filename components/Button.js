@@ -64,13 +64,13 @@ module.exports.getButton = function (images, { get }) {
     return [
       {
         type: 'button',
-        name: Messages.OPEN_IMAGE,
+        name: Messages.IMAGE_TOOLS_OPEN_IMAGE,
         disabled: disabled.includes('openImage'),
         onClick: () => openImg(image)
       },
       {
         type: 'button',
-        name: (items.length > 1) ? `${Messages.COPY_IMAGE} (PNG)` : Messages.COPY_IMAGE,
+        name: (items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE,
         disabled: disabled.includes('copyImage'),
         onClick: () => copyImg((images.png) ? images.png.src : url)
       },
@@ -95,13 +95,13 @@ module.exports.getButton = function (images, { get }) {
       },
       {
         type: 'button',
-        name: Messages.SAVE_IMAGE_AS,
+        name: Messages.IMAGE_TOOLS_SAVE_IMAGE_AS,
         disabled: disabled.includes('saveAs'),
         onClick: () => saveAs(url)
       },
       {
         type: 'submenu',
-        name: Messages.IMAGE_SEARCH,
+        name: Messages.IMAGE_TOOLS_IMAGE_SEARCH,
         disabled: disabled.includes('searchImage'),
         items: imageSearchServices
           .filter((e) => !disabledISS.includes(e.id))
@@ -173,10 +173,10 @@ module.exports.getButton = function (images, { get }) {
 
     copyImage(url)
       .then(() => {
-        success(Messages.IMAGE_COPIED);
+        success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
       })
       .catch((e) => {
-        error(`${Messages.CANT_COPY} \n ${Messages.NOT_HOSTING_DISCORD}`, actionButton);
+        error(`${Messages.IMAGE_TOOLS_CANT_COPY} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`, actionButton);
         console.error(e);
       });
   }
@@ -195,7 +195,7 @@ module.exports.getButton = function (images, { get }) {
     const arrayBuffer = await fetch(url)
       .then((e) => e.arrayBuffer())
       .catch((e) => {
-        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.NOT_HOSTING_DISCORD}`);
+        error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
         console.error(e);
       });
 
@@ -212,7 +212,7 @@ module.exports.getButton = function (images, { get }) {
     if (arrayBuffer) {
       writeFile(pathSave, Buffer.from(arrayBuffer))
         .then(() => {
-          success(`${Messages.IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
+          success(`${Messages.IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
         })
         .catch(console.error);
     }
@@ -222,7 +222,7 @@ module.exports.getButton = function (images, { get }) {
     const { saveImage } = await getModule([ 'saveImage' ]);
     saveImage(url)
       .catch((e) => {
-        error(`${Messages.FAILED_TO_SAVE} \n ${Messages.NOT_HOSTING_DISCORD}`);
+        error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
         console.error(e);
       });
   }

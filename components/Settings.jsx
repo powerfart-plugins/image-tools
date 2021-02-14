@@ -18,7 +18,7 @@ module.exports = class Settings extends React.Component {
     const { getSetting, toggleSetting, updateSetting, settings } = this.props;
     const savePathSave = global._.debounce((path) => {
       if (!existsSync(path)) {
-        this.setState({ errorSavePath: Messages.CANNOT_FIND_PATH });
+        this.setState({ errorSavePath: Messages.IMAGE_TOOLS_CANNOT_FIND_PATH });
         return;
       }
       this.setState({ errorSavePath: null });
@@ -33,28 +33,28 @@ module.exports = class Settings extends React.Component {
       <SwitchItem
         value={ getSetting('hideNativeButtons', true) }
         onChange={ () => toggleSetting('hideNativeButtons', true) }
-        note={ Messages.HIDE_NATIVE_BUTTONS_NOTE }
-      >{Messages.HIDE_NATIVE_BUTTONS}</SwitchItem>
+        note={ Messages.IMAGE_TOOLS_HIDE_NATIVE_BUTTONS_NOTE }
+      >{Messages.IMAGE_TOOLS_HIDE_NATIVE_BUTTONS}</SwitchItem>
       <SwitchItem
         value={ getSetting('patchImageSize', true) }
         onChange={ () => toggleSetting('patchImageSize', true) }
-        note={ Messages.RESIZE_IMAGES_NOTE }
-      >{Messages.RESIZE_IMAGES}</SwitchItem>
+        note={ Messages.IMAGE_TOOLS_RESIZE_IMAGES_NOTE }
+      >{Messages.IMAGE_TOOLS_RESIZE_IMAGES}</SwitchItem>
       <SwitchItem
         value={ getSetting('hideSuccessToasts', false) }
         onChange={ () => toggleSetting('hideSuccessToasts', false) }
-        note={Messages.QUIET_EXECUTION_NOTE}
-      >{Messages.QUIET_EXECUTION}</SwitchItem>
+        note={Messages.IMAGE_TOOLS_QUIET_EXECUTION_NOTE}
+      >{Messages.IMAGE_TOOLS_QUIET_EXECUTION}</SwitchItem>
       <SwitchItem
         value={ getSetting('disableWebp', true) }
         onChange={ () => toggleSetting('disableWebp', true) }
       >{Messages.HIDE_WEBP}</SwitchItem>
       <TextInput
         defaultValue={getDownloadPath(getSetting('pathSave', null))}
-        note={Messages.IMAGE_SAVING_PATH_NOTE}
+        note={Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE}
         onChange={savePathSave}
         error={this.state.errorSavePath}
-      >{Messages.IMAGE_SAVING_PATH}</TextInput>
+      >{Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH}</TextInput>
       <Category
         name={Messages.LENS_SETTINGS}
         opened={true}
@@ -63,8 +63,8 @@ module.exports = class Settings extends React.Component {
         <ColorPickerInput
           value={hex2int(getSetting('lensColor', '000000'))}
           onChange={(v) => updateSetting('lensColor', (v === DEFAULT_ROLE_COLOR) ? null : int2hex(v))}
-          note={Messages.LENS_BORDER_COLOR_NOTE}
-        >{Messages.LENS_BORDER_COLOR}</ColorPickerInput>
+          note={Messages.IMAGE_TOOLS_LENS_BORDER_COLOR_NOTE}
+        >{Messages.IMAGE_TOOLS_LENS_BORDER_COLOR}</ColorPickerInput>
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
@@ -73,8 +73,8 @@ module.exports = class Settings extends React.Component {
           onValueChange={(v) => updateSetting('zoomRatio', v)}
           defaultValue={ getSetting('zoomRatio', 1) }
           initialValue={ getSetting('zoomRatio', 1) }
-          note={Messages.ZOOM_RATIO_NOTE}
-        >{Messages.ZOOM_RATIO}</SliderInput>
+          note={Messages.IMAGE_TOOLS_ZOOM_RATIO_NOTE}
+        >{Messages.IMAGE_TOOLS_ZOOM_RATIO}</SliderInput>
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
@@ -83,16 +83,16 @@ module.exports = class Settings extends React.Component {
           onValueChange={(v) => updateSetting('lensRadius', v)}
           defaultValue={ getSetting('lensRadius', 50) }
           initialValue={ getSetting('lensRadius', 50) }
-          note={Messages.LENS_RADIUS_NOTE}
-        >{Messages.LENS_RADIUS}</SliderInput>
+          note={Messages.IMAGE_TOOLS_LENS_RADIUS_NOTE}
+        >{Messages.IMAGE_TOOLS_LENS_RADIUS}</SliderInput>
         <SwitchItem
           value={ getSetting('disableAntiAliasing', false) }
           onChange={ () => toggleSetting('disableAntiAliasing', false) }
-          note={ Messages.DISABLE_ANTI_ALIASING_NOTE }
-        >{Messages.DISABLE_ANTI_ALIASING}</SwitchItem>
+          note={ Messages.IMAGE_TOOLS_DISABLE_ANTI_ALIASING_NOTE }
+        >{Messages.IMAGE_TOOLS_DISABLE_ANTI_ALIASING}</SwitchItem>
       </Category>
       <Category
-        name={Messages.REVERSE_SEARCH_IMAGES_SERVICES}
+        name={Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES}
         opened={true}
         onChange={() => null}
       >

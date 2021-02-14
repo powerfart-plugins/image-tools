@@ -12,7 +12,7 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
       // },
       {
         type: 'slider',
-        name: Messages.ZOOM_RATIO,
+        name: Messages.IMAGE_TOOLS_ZOOM_RATIO,
         value: get('zoomRatio', 2),
         minValue: 1,
         maxValue: 15,
@@ -20,7 +20,7 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
       },
       {
         type: 'slider',
-        name: Messages.LENS_RADIUS,
+        name: Messages.IMAGE_TOOLS_LENS_RADIUS,
         value: get('lensRadius', 50),
         minValue: 50,
         maxValue: 700,
