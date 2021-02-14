@@ -5,7 +5,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
     super(props);
 
-    this.injected = false;
     this.state = {
       showLensInfo: false,
       infoFromImage: {}
@@ -27,6 +26,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
       return res;
     });
     inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.onClose);
+    ImageModal.default.displayName = 'ImageModal';
   }
 
   onClose () {
@@ -85,8 +85,9 @@ module.exports = class ImageToolsOverlay extends React.Component {
           <div
             className={`image-tools-lens-info ${this.state.showLensInfo ? null : 'image-tools-lens-info-hide'}`}
           >
-            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {this.state.infoFromImage.lens.lensRadius}px</p>
-            <p>{Messages.IMAGE_TOOLS_LENS_RADIUS}: {this.state.infoFromImage.lens.zoomRatio}x</p>
+            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {this.state.infoFromImage.lens.zoomRatio}x</p>
+            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {this.state.infoFromImage.lens.lensRadius}px</p>
+            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {this.state.infoFromImage.lens.wheelStep}</p>
           </div>
         }
       </div>

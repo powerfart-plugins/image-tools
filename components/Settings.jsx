@@ -48,7 +48,7 @@ module.exports = class Settings extends React.Component {
       <SwitchItem
         value={ getSetting('disableWebp', true) }
         onChange={ () => toggleSetting('disableWebp', true) }
-      >{Messages.HIDE_WEBP}</SwitchItem>
+      >{Messages.IMAGE_TOOLS_HIDE_WEBP}</SwitchItem>
       <TextInput
         defaultValue={getDownloadPath(getSetting('pathSave', null))}
         note={Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE}
@@ -56,7 +56,7 @@ module.exports = class Settings extends React.Component {
         error={this.state.errorSavePath}
       >{Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH}</TextInput>
       <Category
-        name={Messages.LENS_SETTINGS}
+        name={Messages.IMAGE_TOOLS_LENS_SETTINGS}
         opened={true}
         onChange={() => null}
       >
@@ -68,28 +68,23 @@ module.exports = class Settings extends React.Component {
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
-          markers={[ 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]}
+          markers={Array.from({ length: 10 }, (_, i) => (i + 1) * 5)}
           onMarkerRender={(e) => `${e}x`}
-          onValueChange={(v) => updateSetting('zoomRatio', v)}
-          defaultValue={ getSetting('zoomRatio', 1) }
-          initialValue={ getSetting('zoomRatio', 1) }
+          onValueChange={(v) => updateSetting('maxZoomRatio', v)}
+          defaultValue={ getSetting('maxZoomRatio', 15) }
+          initialValue={ getSetting('maxZoomRatio', 15) }
           note={Messages.IMAGE_TOOLS_ZOOM_RATIO_NOTE}
-        >{Messages.IMAGE_TOOLS_ZOOM_RATIO}</SliderInput>
+        >{Messages.IMAGE_TOOLS_MAX_ZOOM_RATIO}</SliderInput>
         <SliderInput
           stickToMarkers
           keyboardStep= {1}
-          markers={[ 50, 100, 200, 300, 400, 500, 600, 700 ]}
+          markers={Array.from({ length: 10 }, (_, i) => (i + 1) * 100)}
           onMarkerRender={(e) => `${e}px`}
-          onValueChange={(v) => updateSetting('lensRadius', v)}
-          defaultValue={ getSetting('lensRadius', 50) }
-          initialValue={ getSetting('lensRadius', 50) }
+          onValueChange={(v) => updateSetting('maxLensRadius', v)}
+          defaultValue={ getSetting('maxLensRadius', 700) }
+          initialValue={ getSetting('maxLensRadius', 700) }
           note={Messages.IMAGE_TOOLS_LENS_RADIUS_NOTE}
-        >{Messages.IMAGE_TOOLS_LENS_RADIUS}</SliderInput>
-        <SwitchItem
-          value={ getSetting('disableAntiAliasing', false) }
-          onChange={ () => toggleSetting('disableAntiAliasing', false) }
-          note={ Messages.IMAGE_TOOLS_DISABLE_ANTI_ALIASING_NOTE }
-        >{Messages.IMAGE_TOOLS_DISABLE_ANTI_ALIASING}</SwitchItem>
+        >{Messages.IMAGE_TOOLS_MAX_LENS_RADIUS}</SliderInput>
       </Category>
       <Category
         name={Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES}

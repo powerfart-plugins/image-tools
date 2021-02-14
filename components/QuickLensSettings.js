@@ -21,7 +21,7 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         name: Messages.IMAGE_TOOLS_ZOOM_RATIO,
         value: get('zoomRatio', 2),
         minValue: 1,
-        maxValue: 15,
+        maxValue: get('maxZoomRatio', 15),
         onChange: (v) => set('zoomRatio', v.toFixed(1)),
         renderValue: (v) => `${v.toFixed(1)}x`
       },
@@ -30,9 +30,18 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         name: Messages.IMAGE_TOOLS_LENS_RADIUS,
         value: get('lensRadius', 50),
         minValue: 50,
-        maxValue: 700,
+        maxValue: get('maxLensRadius', 700),
         onChange: (v) => set('lensRadius', v.toFixed(1)),
         renderValue: (v) => `${v.toFixed(1)}px`
+      },
+      {
+        type: 'slider',
+        name: Messages.IMAGE_TOOLS_SCROLL_STEP,
+        value: get('wheelStep', 1),
+        minValue: 1,
+        maxValue: 5,
+        onChange: (v) => set('wheelStep', v.toFixed()),
+        renderValue: (v) => `${v.toFixed()}`
       }
     ])
   ];

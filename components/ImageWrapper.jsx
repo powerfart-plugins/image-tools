@@ -1,11 +1,6 @@
 const { React, getModule } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
 
-const borders = {
-  lensRadius: [ 50, 700 ],
-  zoomRatio: [ 1, 15 ]
-};
-
 module.exports = class ImageWrapper extends React.Component {
   constructor ({ getSetting }) {
     super();
@@ -168,21 +163,31 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   onWheel (e) {
+    const { getSetting, setSetting, overlay } = this.props;
     const current = {
       lensRadius: this._getLensRadius(),
-      zoomRatio: this._getZooming()
+      zoomRatio: this._getZooming(),
+      wheelStep: getSetting('wheelStep', 1)
+    };
+    const borders = {
+      lensRadius: [ 50, getSetting('maxLensRadius', 700) ],
+      zoomRatio: [ 1, getSetting('maxZoomRatio', 15) ],
+      wheelStep: [ 1, 5 ]
     };
     const change = (target) => {
-      const [ step ] = borders[target];
+      const [ min ] = borders[target];
+      const step = (target === 'wheelStep') ? min : (current.wheelStep * min);
       const plus = (e.deltaY < 0) ? step : (step * -1);
-      current[target] = fixConfines(current[target], borders[target], plus);
 
-      this.props.setSetting(target, current[target]);
-      this.props.overlay.sendInfo({ lens: current });
+      current[target] = fixConfines(current[target], borders[target], plus);
+      setSetting(target, current[target]);
+      overlay.sendInfo({ lens: current });
     };
 
     if (e.ctrlKey) {
       change('lensRadius');
+    } else if (e.shiftKey) {
+      change('wheelStep');
     } else {
       change('zoomRatio');
     }

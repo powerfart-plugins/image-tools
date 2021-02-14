@@ -28,5 +28,8 @@
   "IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY": "Изображение успешно сохранено",
   "IMAGE_TOOLS_IMAGE_SAVING_PATH": "Путь сохранения изображений",
   "IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE": "По умолчанию сохраняет в папку загрузок, в противном случае в папку плагина (Из-за технических ограничений пока только ручной ввод)",
-  "IMAGE_TOOLS_CANNOT_FIND_PATH": "Невозможно обнаружить путь"
+  "IMAGE_TOOLS_CANNOT_FIND_PATH": "Невозможно обнаружить путь",
+  "IMAGE_TOOLS_SCROLL_STEP": "Шаг прокрутки",
+  "IMAGE_TOOLS_MAX_LENS_RADIUS": "Максимальный радиус линзы",
+  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Максимальный коэффициент зума"
 }
