@@ -88,7 +88,8 @@ module.exports.user = function ([ { user } ], res, settings) {
     gif:  ImageResolve.hasAnimatedAvatar(user) ? { src: ImageResolve.getUserAvatarURL(user, 'gif', 2048) } : null,
     webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
   };
-  res.props.children.props.children.splice(6, 0, getButton(images, settings));
+  const start = res.props.children.props.children.length - 1;
+  res.props.children.props.children.splice(start, 0, getButton(images, settings));
   return res;
 };
 

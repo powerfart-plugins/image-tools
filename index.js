@@ -22,6 +22,7 @@ module.exports = class ImageTools extends Plugin {
     await this.inject('MessageContextMenu.default', patches.message);
     await this.inject('GuildChannelUserContextMenu.default', patches.user);
     await this.inject('DMUserContextMenu.default', patches.user);
+    await this.inject('UserGenericContextMenu.default', patches.user);
     await this.inject('GuildContextMenu.default', patches.guild);
     await this.inject('NativeImageContextMenu.default', patches.image);
   }

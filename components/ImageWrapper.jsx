@@ -47,20 +47,14 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   render () {
-    let style;
-    if (this.state.showLens) {
-      style = {
-        ...this.state.lensStyle,
-        ...this.baseLensStyle
-      };
-    }
+    // eslint-disable-next-line object-property-newline
+    const style = (this.state.showLens) ? { display: 'block', ...this.state.lensStyle, ...this.baseLensStyle } : {};
 
     return <>
       { this.state.src &&
       <div
         className="image-tools-lens"
         style={{
-          display: (this.state.showLens) ? 'block' : 'none',
           backgroundImage: `url(${this.state.src})`,
           ...style
         }}
@@ -97,6 +91,7 @@ module.exports = class ImageWrapper extends React.Component {
       }
       return res;
     });
+    LazyImage.default.displayName = 'LazyImage';
   }
 
   uninjectLazyImage () {
