@@ -7,16 +7,17 @@ const borders = {
 };
 
 module.exports = class ImageWrapper extends React.Component {
-  constructor (props) {
-    super(props);
+  constructor ({ getSetting }) {
+    super();
 
-    this.getLensRadius = () => this.props.getSetting('lensRadius', 100);
-    this.getZooming = () => this.props.getSetting('zoomRatio', 2);
+    this._getLensRadius = () => getSetting('lensRadius', 100);
+    this._getZooming = () => getSetting('zoomRatio', 2);
+    this._getImageRendering = () => getSetting('disableAntiAliasing', null) ? 'pixelated' : null;
+    this._getIsLensDisable = () => getSetting('disableLens', false);
     this.imgRef = React.createRef();
 
     this.baseLensStyle = {
-      borderColor: this.props.getSetting('lensColor', null),
-      imageRendering: this.props.getSetting('disableAntiAliasing', null) ? 'pixelated' : null
+      borderColor: getSetting('lensColor', null)
     };
     this.state = {
       lensStyle: {
@@ -35,7 +36,51 @@ module.exports = class ImageWrapper extends React.Component {
     this.onMouseDownUp = this.onMouseDownUp.bind(this);
   }
 
-  injectToLazyImage () {
+  componentDidMount () {
+    if (this.props.overlay) {
+      const { setEventListener } = this.props.overlay;
+      setEventListener('onWheel', this.onWheel.bind(this));
+      setEventListener('onMouseMove', this.updatePos);
+      setEventListener('onMouseUp', this.onMouseDownUp);
+      setEventListener('onMouseLeave', this.onMouseDownUp);
+      setEventListener('onClose', this.uninjectLazyImage); // надёжнее componentWillUnmount()
+      this._injectToLazyImage();
+      this.updateSize();
+    } else {
+      // console.error('overlay offline');
+    }
+  }
+
+  render () {
+    let style;
+    if (this.state.showLens) {
+      style = {
+        ...this.state.lensStyle,
+        ...this.baseLensStyle
+      };
+    }
+
+    return <>
+      { this.state.src &&
+      <div
+        className="image-tools-lens"
+        style={{
+          display: (this.state.showLens) ? 'block' : 'none',
+          backgroundImage: `url(${this.state.src})`,
+          ...style
+        }}
+      />
+      }
+      <div
+        onMouseDown={this.onMouseDownUp}
+        ref={this.imgRef}
+      >
+        {this.props.children}
+      </div>
+    </>;
+  }
+
+  _injectToLazyImage () {
     const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
     const { offsetWidth, offsetHeight } = this.imgRef.current;
     let { src } = this.props.children.props;
@@ -66,8 +111,8 @@ module.exports = class ImageWrapper extends React.Component {
   updatePos (e) {
     /* eslint-disable no-use-before-define */
     const rect = this.imgRef.current.firstChild.firstChild.getBoundingClientRect();
-    const lensRadius = this.getLensRadius();
-    const zooming = this.getZooming();
+    const lensRadius = this._getLensRadius();
+    const zooming = this._getZooming();
     const X = fixConfines(e.clientX, [ rect.left, rect.right ]) - rect.left;
     const Y = fixConfines(e.clientY, [ rect.top, rect.bottom ]) - rect.top;
 
@@ -84,8 +129,8 @@ module.exports = class ImageWrapper extends React.Component {
 
   updateSize () {
     const { offsetWidth, offsetHeight } = this.imgRef.current.firstChild.firstChild;
-    const lensRadius = this.getLensRadius();
-    const zooming = this.getZooming();
+    const lensRadius = this._getLensRadius();
+    const zooming = this._getZooming();
 
     this.setState((prevState) => ({
       lensStyle: {
@@ -108,9 +153,13 @@ module.exports = class ImageWrapper extends React.Component {
     if (e.button === 2) {
       return;
     }
-    this.setState({
-      showLens: isMouseDown
-    });
+    this.setState((prevState) => ({
+      showLens: isMouseDown && !this._getIsLensDisable(),
+      lensStyle: {
+        ...prevState.lensStyle,
+        imageRendering: this._getImageRendering()
+      }
+    }));
 
     if (isMouseDown) {
       this.updateStatus(e);
@@ -120,8 +169,8 @@ module.exports = class ImageWrapper extends React.Component {
 
   onWheel (e) {
     const current = {
-      lensRadius: this.getLensRadius(),
-      zoomRatio: this.getZooming()
+      lensRadius: this._getLensRadius(),
+      zoomRatio: this._getZooming()
     };
     const change = (target) => {
       const [ step ] = borders[target];
@@ -138,43 +187,6 @@ module.exports = class ImageWrapper extends React.Component {
       change('zoomRatio');
     }
     this.updateStatus(e);
-  }
-
-  componentDidMount () {
-    if (this.props.overlay) {
-      const { setEventListener } = this.props.overlay;
-      setEventListener('onWheel', this.onWheel.bind(this));
-      setEventListener('onMouseMove', this.updatePos);
-      setEventListener('onMouseUp', this.onMouseDownUp);
-      setEventListener('onMouseLeave', this.onMouseDownUp);
-      setEventListener('onClose', this.uninjectLazyImage); // надёжнее componentWillUnmount()
-      this.injectToLazyImage();
-      this.updateSize();
-    } else {
-      // console.error('overlay offline');
-    }
-  }
-
-  render () {
-    return <>
-      { this.state.src &&
-        <div
-          className="image-tools-lens"
-          style={{
-            backgroundImage: `url(${this.state.src})`,
-            display: (this.state.showLens) ? 'block' : 'none',
-            ...this.baseLensStyle,
-            ...this.state.lensStyle
-          }}
-        />
-      }
-      <div
-        onMouseDown={this.onMouseDownUp}
-        ref={this.imgRef}
-      >
-        {this.props.children}
-      </div>
-    </>;
   }
 };
 

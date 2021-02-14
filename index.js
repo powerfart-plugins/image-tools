@@ -26,10 +26,6 @@ module.exports = class ImageTools extends Plugin {
     await this.inject('NativeImageContextMenu.default', patches.image);
   }
 
-  // TODO
-  // нужен патч MenuControlItem
-  // { MenuControlItem } = getModule([ 'MenuGroup' ], false)
-
   pluginWillUnload () {
     this.uninjectIDs.forEach((id) => uninject(id));
     uninject('image-tools-overlay-image-modal');
