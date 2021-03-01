@@ -164,6 +164,11 @@ module.exports.getButton = function (images, { get }) {
 
   async function copyImg (url) {
     const { copyImage } = await getModule([ 'copyImage' ]);
+    const parseUrl = new URL(url);
+
+    if (parseUrl.hostname === 'media.discordapp.net') {
+      parseUrl.hostname = 'cdn.discordapp.com';
+    }
     const actionButton = {
       text: Messages.COPY_LINK,
       size: 'small',
@@ -171,7 +176,7 @@ module.exports.getButton = function (images, { get }) {
       onClick: () => copyUrl(url)
     };
 
-    copyImage(url)
+    copyImage(parseUrl.href)
       .then(() => {
         success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
       })
@@ -187,7 +192,7 @@ module.exports.getButton = function (images, { get }) {
 
   function copyUrl (url) {
     clipboard.writeText(url);
-    success(Messages.IMAGE_LINK_COPIED);
+    success(Messages.IMAGE_TOOLS_IMAGE_LINK_COPIED);
   }
 
   async function save (url) {
@@ -220,6 +225,11 @@ module.exports.getButton = function (images, { get }) {
 
   async function saveAs (url) {
     const { saveImage } = await getModule([ 'saveImage' ]);
+    const parseUrl = new URL(url);
+
+    if (parseUrl.hostname === 'media.discordapp.net') {
+      parseUrl.hostname = 'cdn.discordapp.com';
+    }
     saveImage(url)
       .catch((e) => {
         error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
