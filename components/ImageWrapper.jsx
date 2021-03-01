@@ -83,11 +83,14 @@ module.exports = class ImageWrapper extends React.Component {
           props.src.includes(this.props.children.props.src) &&
           !props.src.includes('?format=')
       ) {
-        if (props.src.includes('.gif')) {
-          this.setState({
-            src: props.src
-          });
-        }
+        // if (props.src.includes('.gif')) {
+        //   this.setState({
+        //     src: props.src
+        //   });
+        // }
+        this.setState({
+          src: props.src
+        });
       }
       return res;
     });

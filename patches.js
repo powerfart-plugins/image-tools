@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 const { React, getModule } = require('powercord/webpack');
 
 const { getButton } = require('./components/Button');
@@ -50,7 +51,7 @@ module.exports.imageModal = function (args, res, settings) {
   return res;
 };
 
-module.exports.message = function ([ { target, message: { content } } ], res, settings) {
+module.exports.messageCM = function ([ { target, message: { content } } ], res, settings) {
   if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop)) {
     const { width, height } = target;
     const menu = res.props.children;
@@ -68,13 +69,13 @@ module.exports.message = function ([ { target, message: { content } } ], res, se
     }
 
     const args = {
-      content: isUrl(content) ? content : null, // eslint-disable-line no-use-before-define
+      content: isUrl(content) ? content : null,
       width: width * 2,
       height: height * 2
     };
     menu.splice(
       3, 0, getButton(
-        getImagesObj(target, args), // eslint-disable-line no-use-before-define
+        getImagesObj(target, args),
         settings
       )
     );
@@ -82,18 +83,21 @@ module.exports.message = function ([ { target, message: { content } } ], res, se
   return res;
 };
 
-module.exports.user = function ([ { user } ], res, settings) {
+module.exports.userCM = function (args, res, settings) {
+  const [ { user, channelId } ] = args;
+  const start = res.props.children.props.children.length - 1;
   const images = {
     png: { src: ImageResolve.getUserAvatarURL(user, 'png', 2048) },
     gif:  ImageResolve.hasAnimatedAvatar(user) ? { src: ImageResolve.getUserAvatarURL(user, 'gif', 2048) } : null,
     webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
   };
-  const start = res.props.children.props.children.length - 1;
+  // const messages = (channelId) ? getMessages(channelId) : null;
+
   res.props.children.props.children.splice(start, 0, getButton(images, settings));
   return res;
 };
 
-module.exports.guild = function ([ { guild } ], res, settings) {
+module.exports.guildCM = function ([ { guild } ], res, settings) {
   const opts = {
     id: guild.id,
     icon: guild.icon,
@@ -108,8 +112,8 @@ module.exports.guild = function ([ { guild } ], res, settings) {
   return res;
 };
 
-module.exports.image = function ([ { target } ], res, settings) {
-  const images = getImagesObj(target); // eslint-disable-line no-use-before-define
+module.exports.imageCM = function ([ { target } ], res, settings) {
+  const images = getImagesObj(target);
   const button = getButton(images, settings);
 
   button.props.children[0].props.disabled = true; // "open image"
