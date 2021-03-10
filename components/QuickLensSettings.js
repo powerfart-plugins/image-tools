@@ -38,10 +38,10 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         type: 'slider',
         name: Messages.IMAGE_TOOLS_SCROLL_STEP,
         value: get('wheelStep', 1),
-        minValue: 1,
+        minValue: 0.1,
         maxValue: 5,
-        onChange: (v) => set('wheelStep', v.toFixed()),
-        renderValue: (v) => `${v.toFixed()}`
+        onChange: (v) => set('wheelStep', v.toFixed(2)),
+        renderValue: (v) => `${v.toFixed(2)}`
       }
     ])
   ];

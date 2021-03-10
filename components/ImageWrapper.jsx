@@ -167,7 +167,7 @@ module.exports = class ImageWrapper extends React.Component {
     const borders = {
       lensRadius: [ 50, getSetting('maxLensRadius', 700) ],
       zoomRatio: [ 1, getSetting('maxZoomRatio', 15) ],
-      wheelStep: [ 1, 5 ]
+      wheelStep: [ 0.1, 5 ]
     };
     const change = (target) => {
       const [ min ] = borders[target];
@@ -191,9 +191,9 @@ module.exports = class ImageWrapper extends React.Component {
 };
 
 
-function fixConfines (number, borders, plus = 0) {
+function fixConfines (num, borders, plus = 0) {
   const [ min, max ] = borders;
-  let val = Math.round(number) + plus;
+  let val = Math.floor((num + plus) * 100) / 100;
 
   if (val < min) {
     val = min;
