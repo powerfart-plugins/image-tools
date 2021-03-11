@@ -174,7 +174,7 @@ module.exports = class ImageWrapper extends React.Component {
       const step = (target === 'wheelStep') ? min : (current.wheelStep * min);
       const plus = (e.deltaY < 0) ? step : (step * -1);
 
-      current[target] = fixConfines(current[target], borders[target], plus);
+      current[target] = fixConfines(Number(current[target]), borders[target], plus);
       setSetting(target, current[target]);
       overlay.sendInfo({ lens: current });
     };
@@ -193,7 +193,7 @@ module.exports = class ImageWrapper extends React.Component {
 
 function fixConfines (num, borders, plus = 0) {
   const [ min, max ] = borders;
-  let val = Math.floor((num + plus) * 100) / 100;
+  let val = num + plus;
 
   if (val < min) {
     val = min;

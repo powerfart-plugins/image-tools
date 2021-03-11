@@ -7,7 +7,9 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
     this.state = {
       showLensInfo: false,
-      infoFromImage: {}
+      infoFromImage: {
+        lens: {}
+      }
     };
 
     this.onClose = this.onClose.bind(this);
@@ -67,6 +69,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   render () {
+    const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
+
     return (
       <div
         onMouseMove={this.state.onMouseMove}
@@ -81,13 +85,13 @@ module.exports = class ImageToolsOverlay extends React.Component {
       >
         {this.props.children}
 
-        {this.state.infoFromImage.lens &&
+        {(zoomRatio && lensRadius && wheelStep) &&
           <div
             className={`image-tools-lens-info ${this.state.showLensInfo ? null : 'image-tools-lens-info-hide'}`}
           >
-            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {this.state.infoFromImage.lens.zoomRatio}x</p>
-            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {this.state.infoFromImage.lens.lensRadius}px</p>
-            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {this.state.infoFromImage.lens.wheelStep}</p>
+            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {zoomRatio.toFixed(1)}x</p>
+            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {lensRadius.toFixed()}px</p>
+            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {wheelStep.toFixed(2)}</p>
           </div>
         }
       </div>
