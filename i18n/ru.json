@@ -31,5 +31,7 @@
   "IMAGE_TOOLS_CANNOT_FIND_PATH": "Невозможно обнаружить путь",
   "IMAGE_TOOLS_SCROLL_STEP": "Шаг прокрутки",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Максимальный радиус линзы",
-  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Максимальный коэффициент зума"
+  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Максимальный коэффициент зума",
+  "IMAGE_TOOLS_WARNING_BIV": "Возможны проблемы и конфликты с \"BetterImageViewer\". Сделай свой выбор",
+  "IMAGE_TOOLS_DISABLE": "Отключить {name}"
 }

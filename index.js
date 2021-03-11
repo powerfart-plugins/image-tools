@@ -1,6 +1,6 @@
 const { Plugin } = require('powercord/entities');
 const { inject, uninject } = require('powercord/injector');
-const { getModule } = require('powercord/webpack');
+const { getModule, i18n: { Messages } } = require('powercord/webpack');
 
 const Settings = require('./components/Settings');
 const patches = require('./patches');
@@ -16,6 +16,7 @@ module.exports = class ImageTools extends Plugin {
     powercord.api.i18n.loadAllStrings(i18n);
     this.loadStylesheet('style.scss');
     this.registerSettings();
+    this.detectAndWarningBIV();
 
     await this.inject('TransitionGroup.default.prototype.render', patches.overlay);
     await this.inject('ImageModal.default.prototype.render', patches.imageModal);
@@ -70,5 +71,32 @@ module.exports = class ImageTools extends Plugin {
       }
       return obj;
     }
+  }
+
+  detectAndWarningBIV () {
+    // const { colorRed, colorBrand } = getModule([ 'colorRed' ], false);
+    //
+    // if (powercord.pluginManager.plugins.has('bdCompat')) {
+    //   // document.addEventListener('DOMContentLoaded', () => {
+    //   //   console.log('123', BdApi.Plugins.list);
+    //   //   if (window?.BdApi?.Plugins?.list?.BetterImageViewer) {
+    //   //     powercord.api.notices.sendToast('ImageToolsMsg-WarningBIV', {
+    //   //       header: 'Image Tools',
+    //   //       type: 'warning',
+    //   //       content: `${Messages.IMAGE_TOOLS_WARNING_BIV}`,
+    //   //       buttons: [
+    //   //         {
+    //   //           text: Messages.IMAGE_TOOLS_DISABLE.format({ name: 'BIV' }),
+    //   //           color: colorBrand
+    //   //         },
+    //   //         {
+    //   //           text: Messages.IMAGE_TOOLS_DISABLE.format({ name: 'IT' }),
+    //   //           color: colorRed
+    //   //         }
+    //   //       ]
+    //   //     });
+    //   //   }
+    //   // });
+    // }
   }
 };
