@@ -12,9 +12,9 @@ A [Powercord](https://powercord.dev/) plugin that adds new features to images
 - Reverse image search
 
 ### TODO
-- Rotate the image
-- Gallery mode
 - Basic image information
+- Rotate the image
+- Gallery mode (deferred to "v3", the likelihood of a more convenient tool for a better result)
 
 ### Similar plugins
 - [Image To Clipboard](https://github.com/Sidemen19/image-to-clipboard)
