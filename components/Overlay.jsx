@@ -11,7 +11,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
       showLensInfo: false,
       infoFromImage: {
         lens: {}
-      }
+      },
+      currentImgIndex: null
     };
 
     this._onClose = this._onClose.bind(this);
@@ -33,6 +34,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
   render () {
     const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
+    const { currentImgIndex } = this.state;
+    const { name, size, resolution, url } = (currentImgIndex !== null) ? this.images[currentImgIndex].formatted : {};
 
     return (
       <div
@@ -48,15 +51,27 @@ module.exports = class ImageToolsOverlay extends React.Component {
       >
         {this.props.children}
 
-        {(zoomRatio && lensRadius && wheelStep) &&
-          <div
-            className={`image-tools-lens-info ${this.state.showLensInfo ? null : 'image-tools-lens-info-hide'}`}
-          >
-            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {zoomRatio.toFixed(1)}x</p>
-            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {lensRadius.toFixed()}px</p>
-            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {wheelStep.toFixed(2)}</p>
-          </div>
-        }
+        <div className='image-tools-overlay-info'>
+          {(zoomRatio && lensRadius && wheelStep) &&
+            <div
+              className={`lens ${this.state.showLensInfo ? null : 'lens-hide'}`}
+            >
+              <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {zoomRatio.toFixed(1)}x</p>
+              <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {lensRadius.toFixed()}px</p>
+              <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {wheelStep.toFixed(2)}</p>
+            </div>
+          }
+          {(name && size && resolution && url) &&
+            <div
+              className={'image-info'}
+            >
+              <p>{Messages.IMAGE_TOOLS_NAME}: {name}</p>
+              <p>{Messages.IMAGE_TOOLS_SIZE}: {size}</p>
+              <p>{Messages.IMAGE_TOOLS_RESOLUTION}: {resolution}</p>
+              <p>URL: {url}</p>
+            </div>
+          }
+        </div>
       </div>
     );
   }
@@ -92,11 +107,22 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   getInfo (obj) {
+    if (obj.currentImageSrc) {
+      this._updateCurrentImg(obj.currentImageSrc);
+      return;
+    }
     this.setState((prevState) => ({
       infoFromImage: {
         ...prevState.infoFromImage,
         ...obj
       }
     }));
+  }
+
+  _updateCurrentImg (img) {
+    const result = this.images.findIndex((i) => i.proxy_url === img);
+    this.setState({
+      currentImgIndex: (result === -1) ? null : result
+    });
   }
 };

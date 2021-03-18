@@ -35,15 +35,25 @@ module.exports = class ImageWrapper extends React.Component {
   componentDidMount () {
     if (this.props.overlay) {
       const { setEventListener } = this.props.overlay;
+
       setEventListener('onWheel', this.onWheel.bind(this));
       setEventListener('onMouseMove', this.updatePos);
       setEventListener('onMouseUp', this.onMouseDownUp);
       setEventListener('onMouseLeave', this.onMouseDownUp);
       setEventListener('onClose', this.uninjectLazyImage); // надёжнее componentWillUnmount()
+
       this._injectToLazyImage();
       this.updateSize();
     } else {
       // console.error('overlay offline');
+    }
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    if (prevState.src !== this.state.src) {
+      this.props.overlay.sendInfo({
+        currentImageSrc: this.state.src
+      });
     }
   }
 

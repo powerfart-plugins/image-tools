@@ -12,7 +12,6 @@ A [Powercord](https://powercord.dev/) plugin that adds new features to images
 - Reverse image search
 
 ### TODO
-- Basic image information
 - Rotate the image
 - Gallery mode (deferred to "v3", the likelihood of a more convenient tool for a better result)
 
