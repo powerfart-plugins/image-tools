@@ -1,6 +1,6 @@
 const { Plugin } = require('powercord/entities');
 const { inject, uninject } = require('powercord/injector');
-const { getModule, i18n: { Messages } } = require('powercord/webpack');
+const { getModule } = require('powercord/webpack');
 
 const Settings = require('./components/Settings');
 const patches = require('./patches');
@@ -24,6 +24,7 @@ module.exports = class ImageTools extends Plugin {
     await this.inject('GuildChannelUserContextMenu.default', patches.userCM);
     await this.inject('DMUserContextMenu.default', patches.userCM);
     await this.inject('UserGenericContextMenu.default', patches.userCM);
+    await this.inject('GroupDMUserContextMenu.default', patches.userCM);
     await this.inject('GroupDMContextMenu.default', patches.groupDMCM);
     // await this.inject('SpotifyContextMenu.default', patches.user); // TODO
     await this.inject('GuildContextMenu.default', patches.guildCM);

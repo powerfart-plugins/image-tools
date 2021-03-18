@@ -1,10 +1,12 @@
+/* eslint-disable no-use-before-define */
+
 const { React, getModule } = require('powercord/webpack');
 
 const { getButton } = require('./components/Button');
 const { getQuickLensSettings } = require('./components/QuickLensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
-module.exports.overlay = function (args, res, settings) {
+module.exports.overlay = function (args, res) {
   const Overlay = require('./components/Overlay');
   const patch = () => {
     res = React.createElement(Overlay, {
@@ -68,13 +70,13 @@ module.exports.messageCM = function ([ { target, message: { content } } ], res, 
     }
 
     const args = {
-      content: isUrl(content) ? content : null, // eslint-disable-line no-use-before-define
+      content: isUrl(content) ? content : null,
       width: width * 2,
       height: height * 2
     };
     menu.splice(
       3, 0, getButton(
-        getImagesObj(target, args), // eslint-disable-line no-use-before-define
+        getImagesObj(target, args),
         settings
       )
     );
@@ -109,7 +111,7 @@ module.exports.guildCM = function ([ { guild } ], res, settings) {
 };
 
 module.exports.imageCM = function ([ { target } ], res, settings) {
-  const images = getImagesObj(target); // eslint-disable-line no-use-before-define
+  const images = getImagesObj(target);
   const button = getButton(images, settings);
 
   button.props.children[0].props.disabled = true; // "open image"

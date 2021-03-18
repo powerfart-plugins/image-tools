@@ -14,47 +14,8 @@ module.exports = class ImageToolsOverlay extends React.Component {
       }
     };
 
-    this.onClose = this.onClose.bind(this);
-    this.injectToImageModal();
-  }
-
-  injectToImageModal () {
-    const ImageModal = getModule((m) => m.default && m.default.displayName === 'ImageModal', false);
-    const backdrop = this.props.children.props.children[0];
-
-    inject('image-tools-overlay-image-modal', ImageModal.default.prototype, 'render', (args, res) => {
-      res.props.children[0].props.overlay = { // inject to ImageWrapper
-        setEventListener: this.setEventListener.bind(this),
-        sendInfo: this.getInfo.bind(this)
-      };
-      return res;
-    });
-    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.onClose);
-    ImageModal.default.displayName = 'ImageModal';
-  }
-
-  _onClose () {
-    if (this.state.onClose) {
-      this.state.onClose();
-    }
-    uninject('image-tools-overlay-image-modal');
-    uninject('image-tools-overlay-backdrop');
-    return true;
-  }
-
-  setEventListener (type, callback) {
-    this.setState({
-      [type]: callback
-    });
-  }
-
-  getInfo (obj) {
-    this.setState((prevState) => ({
-      infoFromImage: {
-        ...prevState.infoFromImage,
-        ...obj
-      }
-    }));
+    this._onClose = this._onClose.bind(this);
+    this._injectToImageModal();
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -98,5 +59,44 @@ module.exports = class ImageToolsOverlay extends React.Component {
         }
       </div>
     );
+  }
+
+  _injectToImageModal () {
+    const ImageModal = getModule((m) => m.default && m.default.displayName === 'ImageModal', false);
+    const backdrop = this.props.children.props.children[0];
+
+    inject('image-tools-overlay-image-modal', ImageModal.default.prototype, 'render', (args, res) => {
+      res.props.children[0].props.overlay = { // inject to ImageWrapper
+        setEventListener: this.setEventListener.bind(this),
+        sendInfo: this.getInfo.bind(this)
+      };
+      return res;
+    });
+    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this._onClose);
+    ImageModal.default.displayName = 'ImageModal';
+  }
+
+  _onClose () {
+    if (this.state.onClose) {
+      this.state.onClose();
+    }
+    uninject('image-tools-overlay-image-modal');
+    uninject('image-tools-overlay-backdrop');
+    return true;
+  }
+
+  setEventListener (type, callback) {
+    this.setState({
+      [type]: callback
+    });
+  }
+
+  getInfo (obj) {
+    this.setState((prevState) => ({
+      infoFromImage: {
+        ...prevState.infoFromImage,
+        ...obj
+      }
+    }));
   }
 };
