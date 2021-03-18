@@ -1,10 +1,12 @@
-const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
+const { React, getModule, i18n: { Messages }, channels: { getChannelId } } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
+const { getImages } = require('../utils');
 
 module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
     super(props);
 
+    this.images = getImages(getChannelId());
     this.state = {
       showLensInfo: false,
       infoFromImage: {
@@ -31,7 +33,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
     ImageModal.default.displayName = 'ImageModal';
   }
 
-  onClose () {
+  _onClose () {
     if (this.state.onClose) {
       this.state.onClose();
     }
@@ -79,7 +81,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
         onMouseLeave={this.state.onMouseLeave}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
-            this.onClose();
+            this._onClose();
           }
         }}
       >

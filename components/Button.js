@@ -6,7 +6,7 @@ const { join } = require('path');
 const { writeFile } = require('fs').promises;
 const { clipboard, shell } = require('electron');
 
-const getDownloadPath = require('../utils/getDownloadPath');
+const { getDownloadPath } = require('../utils');
 const imageSearchServices = require('../ReverseImageSearchServices.json');
 
 /* eslint-disable no-use-before-define */
