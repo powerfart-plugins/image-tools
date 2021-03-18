@@ -33,6 +33,7 @@ module.exports = class ImageTools extends Plugin {
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-wrapper-lazy-image');
+    uninject('image-tools-disable-media-proxy-sizes');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 

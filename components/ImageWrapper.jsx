@@ -5,6 +5,7 @@ module.exports = class ImageWrapper extends React.Component {
   constructor ({ getSetting }) {
     super();
 
+    this._imageDiscordUtils = getModule([ 'getImageSrc' ], false);
     this._getLensRadius = () => getSetting('lensRadius', 100);
     this._getZooming = () => getSetting('zoomRatio', 2);
     this._getImageRendering = () => getSetting('disableAntiAliasing', null) ? 'pixelated' : null;
@@ -71,11 +72,19 @@ module.exports = class ImageWrapper extends React.Component {
 
   _injectToLazyImage () {
     const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
-    const { offsetWidth, offsetHeight } = this.imgRef.current;
-    let { src } = this.props.children.props;
-    src = `${src}${src.includes('?') ? '&' : '?'}width=${offsetWidth}&height=${offsetHeight}`;
-    this.setState({ src });
+    // const { offsetWidth, offsetHeight } = this.imgRef.current;
+    // let { src } = this.props.children.props;
+    // src = `${src}${src.includes('?') ? '&' : '?'}width=${offsetWidth}&height=${offsetHeight}`;
+    this.setState({
+      src: this.props.children.props.src
+    });
 
+    inject('image-tools-disable-media-proxy-sizes', this._imageDiscordUtils, 'getImageSrc', (args, res) => {
+      const url = new URL(res); // это бутет надёжнее, чем просто "return args[0]"
+      url.searchParams.delete('width');
+      url.searchParams.delete('height');
+      return url.href;
+    });
     inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
       const { props } = res;
 
@@ -96,6 +105,7 @@ module.exports = class ImageWrapper extends React.Component {
 
   uninjectLazyImage () {
     uninject('image-tools-wrapper-lazy-image');
+    uninject('image-tools-disable-media-proxy-sizes');
   }
 
   updatePos (e) {
