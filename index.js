@@ -20,12 +20,14 @@ module.exports = class ImageTools extends Plugin {
 
     await this.inject('TransitionGroup.default.prototype.render', patches.overlay);
     await this.inject('ImageModal.default.prototype.render', patches.imageModal);
-    await this.inject('MessageContextMenu.default', patches.message);
-    await this.inject('GuildChannelUserContextMenu.default', patches.user);
-    await this.inject('DMUserContextMenu.default', patches.user);
-    await this.inject('UserGenericContextMenu.default', patches.user);
-    await this.inject('GuildContextMenu.default', patches.guild);
-    await this.inject('NativeImageContextMenu.default', patches.image);
+    await this.inject('MessageContextMenu.default', patches.messageCM);
+    await this.inject('GuildChannelUserContextMenu.default', patches.userCM);
+    await this.inject('DMUserContextMenu.default', patches.userCM);
+    await this.inject('UserGenericContextMenu.default', patches.userCM);
+    await this.inject('GroupDMContextMenu.default', patches.groupDMCM);
+    // await this.inject('SpotifyContextMenu.default', patches.user); // TODO
+    await this.inject('GuildContextMenu.default', patches.guildCM);
+    await this.inject('NativeImageContextMenu.default', patches.imageCM);
   }
 
   pluginWillUnload () {
