@@ -45,6 +45,22 @@ module.exports.getButton = function (images, { get }) {
     ])
   ][0];
 
+  // return React.createElement(Clickable, { // TODO быстро открыть изображение
+  //   onClick: () => console.log('123')
+  // },
+  // ...ContextMenu.renderRawItems([
+  //   {
+  //     type: 'submenu',
+  //     id: 'image-tools-button',
+  //     name: Messages.IMAGE,
+  //     items: getSubItems(),
+  //     getItems () {
+  //       return this.items;
+  //     }
+  //   }
+  // ])
+  // );
+
   function getSubItems () {
     if (items.length > 1) {
       return items.map((e) => ({

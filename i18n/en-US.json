@@ -33,8 +33,5 @@
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
   "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio",
   "IMAGE_TOOLS_WARNING_BIV": "Possible problems and conflicts with \"BetterImageViewer\". Make your choice",
-  "IMAGE_TOOLS_DISABLE": "Disable {name}",
-  "IMAGE_TOOLS_NAME": "Name",
-  "IMAGE_TOOLS_SIZE": "Size",
-  "IMAGE_TOOLS_RESOLUTION": "Resolution"
+  "IMAGE_TOOLS_DISABLE": "Disable {name}"
 }

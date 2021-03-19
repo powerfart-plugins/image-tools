@@ -2,6 +2,8 @@ const { React, getModule, i18n: { Messages }, channels: { getChannelId } } = req
 const { inject, uninject } = require('powercord/injector');
 const { getImages } = require('../utils');
 
+const Copy = require('./Copyable.jsx');
+
 module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
     super(props);
@@ -65,10 +67,10 @@ module.exports = class ImageToolsOverlay extends React.Component {
             <div
               className={'image-info'}
             >
-              <p>{Messages.IMAGE_TOOLS_NAME}: {name}</p>
-              <p>{Messages.IMAGE_TOOLS_SIZE}: {size}</p>
-              <p>{Messages.IMAGE_TOOLS_RESOLUTION}: {resolution}</p>
-              <p>URL: {url}</p>
+              <p><Copy>{name}</Copy></p>
+              <p><Copy>{size}</Copy></p>
+              <p><Copy>{resolution}</Copy></p>
+              <p><Copy>{url}</Copy></p>
             </div>
           }
         </div>

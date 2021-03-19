@@ -14,14 +14,13 @@
 .image-tools-overlay-info {
     color: white;
     font-size: 15px;
-
     text-align: right;
     opacity: 1;
 
-    p {
+    p, .image-info > div {
         margin: 5px;
     }
-    div {
+    > div {
         position: absolute;
         z-index: 1003;
     }
@@ -37,6 +36,10 @@
         font-size: 14px;
         bottom: 10px;
         right: 0;
+
+        > p > div {
+            display: inline-block;
+        }
     }
 }
 //.image-tools-arrows button {
