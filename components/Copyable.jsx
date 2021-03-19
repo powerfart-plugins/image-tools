@@ -2,7 +2,7 @@ const { clipboard } = require('electron');
 const { React, i18n: { Messages } } = require('powercord/webpack');
 const { Clickable, Tooltip } = require('powercord/components');
 
-module.exports = class Copy extends React.PureComponent {
+module.exports = class Copyable extends React.PureComponent {
   constructor () {
     super();
     this.state = {

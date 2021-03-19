@@ -3,6 +3,7 @@ const { inject, uninject } = require('powercord/injector');
 const { getImages } = require('../utils');
 
 const Copy = require('./Copyable.jsx');
+// const BasePopout = getModuleByDisplayName('BasePopout', false);
 
 module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
@@ -122,7 +123,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   _updateCurrentImg (img) {
-    const result = this.images.findIndex((i) => i.proxy_url === img);
+    const result = this.images.findIndex(({ proxy_url }) => proxy_url === img);
     this.setState({
       currentImgIndex: (result === -1) ? null : result
     });

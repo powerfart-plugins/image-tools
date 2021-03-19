@@ -1,16 +1,17 @@
-const { React, getModule } = require('powercord/webpack');
-const { inject, uninject } = require('powercord/injector');
+const { React } = require('powercord/webpack');
 
-module.exports = class ImageWrapper extends React.Component {
-  constructor ({ getSetting }) {
+const { fixConfines } = require('../utils');
+
+module.exports = class ImageWrapperLens extends React.PureComponent {
+  constructor ({ getSetting, image, setOnMouseDown }) {
     super();
 
-    this._imageDiscordUtils = getModule([ 'getImageSrc' ], false);
+    setOnMouseDown(this.onMouseDownUp.bind(this));
+
     this._getLensRadius = () => getSetting('lensRadius', 100);
     this._getZooming = () => getSetting('zoomRatio', 2);
     this._getImageRendering = () => getSetting('disableAntiAliasing', null) ? 'pixelated' : null;
     this._getIsLensDisable = () => getSetting('disableLens', false);
-    this.imgRef = React.createRef();
 
     this.baseLensStyle = {
       borderColor: getSetting('lensColor', null)
@@ -24,7 +25,7 @@ module.exports = class ImageWrapper extends React.Component {
         left: null,
         top: null
       },
-      src: null,
+      src: image,
       showLens: false
     };
 
@@ -40,95 +41,37 @@ module.exports = class ImageWrapper extends React.Component {
       setEventListener('onMouseMove', this.updatePos);
       setEventListener('onMouseUp', this.onMouseDownUp);
       setEventListener('onMouseLeave', this.onMouseDownUp);
-      setEventListener('onClose', this.uninjectLazyImage); // надёжнее componentWillUnmount()
 
-      this._injectToLazyImage();
       this.updateSize();
     } else {
       // console.error('overlay offline');
     }
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (prevState.src !== this.state.src) {
-      this.props.overlay.sendInfo({
-        currentImageSrc: this.state.src
-      });
-    }
-  }
-
   render () {
-    // eslint-disable-next-line object-property-newline
-    const style = (this.state.showLens) ? { display: 'block', ...this.state.lensStyle, ...this.baseLensStyle } : {};
-
-    return <>
-      { this.state.src &&
-      <div
-        className="image-tools-lens"
-        style={{
-          backgroundImage: `url(${this.state.src})`,
-          ...style
-        }}
-      />
+    const style = (this.state.showLens)
+      ? {
+        display: 'block',
+        ...this.state.lensStyle,
+        ...this.baseLensStyle
       }
-      <div
-        onMouseDown={this.onMouseDownUp}
-        ref={this.imgRef}
-      >
-        {this.props.children}
-      </div>
-    </>;
-  }
+      : {};
 
-  _injectToLazyImage () {
-    const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
-    // const { offsetWidth, offsetHeight } = this.imgRef.current;
-    // let { src } = this.props.children.props;
-    // src = `${src}${src.includes('?') ? '&' : '?'}width=${offsetWidth}&height=${offsetHeight}`;
-    this.setState({
-      src: this.props.children.props.src
-    });
-
-    inject('image-tools-disable-media-proxy-sizes', this._imageDiscordUtils, 'getImageSrc', (args, res) => {
-      const url = new URL(res); // это бутет надёжнее, чем просто "return args[0]"
-      url.searchParams.delete('width');
-      url.searchParams.delete('height');
-      return url.href;
-    });
-    inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
-      const { props } = res;
-
-      if (props.readyState === 'READY' &&
-          props.src.includes(this.props.children.props.src) &&
-          !props.src.includes('?format=')
-      ) {
-        // if (props.src.includes('.gif')) {
-        //   this.setState({
-        //     src: props.src
-        //   });
-        // }
-        this.setState({
-          src: props.src
-        });
-      }
-      return res;
-    });
-    LazyImage.default.displayName = 'LazyImage';
-  }
-
-  uninjectLazyImage () {
-    uninject('image-tools-wrapper-lazy-image');
-    uninject('image-tools-disable-media-proxy-sizes');
+    return <div
+      className="image-tools-lens"
+      style={{
+        backgroundImage: `url(${this.state.src})`,
+        ...style
+      }}
+    />;
   }
 
   updatePos (e) {
-    /* eslint-disable no-use-before-define */
-    const rect = this.imgRef.current.firstChild.firstChild.getBoundingClientRect();
+    const rect = this.props.imageRef.current.firstChild.firstChild.getBoundingClientRect();
     const lensRadius = this._getLensRadius();
     const zooming = this._getZooming();
     const X = fixConfines(e.clientX, [ rect.left, rect.right ]) - rect.left;
     const Y = fixConfines(e.clientY, [ rect.top, rect.bottom ]) - rect.top;
-
 
     this.setState((prevState) => ({
       lensStyle: {
@@ -141,7 +84,7 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   updateSize () {
-    const { offsetWidth, offsetHeight } = this.imgRef.current.firstChild.firstChild;
+    const { offsetWidth, offsetHeight } = this.props.imageRef.current.firstChild.firstChild;
     const lensRadius = this._getLensRadius();
     const zooming = this._getZooming();
 
@@ -176,7 +119,7 @@ module.exports = class ImageWrapper extends React.Component {
 
     if (isMouseDown) {
       this.updateStatus(e);
-      this.imgRef.current.click(); // do not interfere with other handlers
+      this.props.imageRef.current.click(); // do not interfere with other handlers
     }
   }
 
@@ -209,20 +152,7 @@ module.exports = class ImageWrapper extends React.Component {
     } else {
       change('zoomRatio');
     }
+
     this.updateStatus(e);
   }
 };
-
-
-function fixConfines (num, borders, plus = 0) {
-  const [ min, max ] = borders;
-  let val = num + plus;
-
-  if (val < min) {
-    val = min;
-  }
-  if (val > max) {
-    val = max;
-  }
-  return val;
-}

@@ -30,7 +30,7 @@ module.exports.overlay = function (args, res) {
 };
 
 module.exports.imageModal = function (args, res, settings) {
-  const ImageWrapper = require('./components/ImageWrapper');
+  const ImageModalWrapper = require('./components/ImageModalWrapper');
   const patchImageSize = settings.get('patchImageSize', true);
 
   if (patchImageSize) {
@@ -43,7 +43,7 @@ module.exports.imageModal = function (args, res, settings) {
   }
 
   res.props.children.unshift(
-    React.createElement(ImageWrapper, {
+    React.createElement(ImageModalWrapper, {
       children: res.props.children.shift(),
       getSetting: settings.get,
       setSetting: settings.set

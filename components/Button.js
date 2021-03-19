@@ -6,7 +6,7 @@ const { join } = require('path');
 const { writeFile } = require('fs').promises;
 const { clipboard, shell } = require('electron');
 
-const { getDownloadPath } = require('../utils');
+const { getDownloadPath, openImageModal } = require('../utils');
 const imageSearchServices = require('../ReverseImageSearchServices.json');
 
 /* eslint-disable no-use-before-define */
@@ -174,8 +174,8 @@ module.exports.getButton = function (images, { get }) {
     output(msg, 'danger', buttons);
   }
 
-  async function openImg (image) {
-    require('../components/ImageModal').open(image);
+  async function openImg (...args) {
+    openImageModal(...args);
   }
 
   async function copyImg (url) {
