@@ -35,7 +35,7 @@ module.exports = function (channelId) {
       formatted: {
         name: e.filename || e.url.split('/').pop(),
         size: (e.size) ? bytes2Str(e.size) : '-',
-        resolution: `${e.width}x${e.height}`,
+        resolution: `${e.width}×${e.height}`,
         url: e.url
       }
     }));

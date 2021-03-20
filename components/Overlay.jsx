@@ -2,8 +2,7 @@ const { React, getModule, i18n: { Messages }, channels: { getChannelId } } = req
 const { inject, uninject } = require('powercord/injector');
 const { getImages } = require('../utils');
 
-const Copy = require('./Copyable.jsx');
-// const BasePopout = getModuleByDisplayName('BasePopout', false);
+const ImageFooter = require('./ImageModalFooter.jsx');
 
 module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
@@ -37,8 +36,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
   render () {
     const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
-    const { currentImgIndex } = this.state;
-    const { name, size, resolution, url } = (currentImgIndex !== null) ? this.images[currentImgIndex].formatted : {};
 
     return (
       <div
@@ -64,16 +61,6 @@ module.exports = class ImageToolsOverlay extends React.Component {
               <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {wheelStep.toFixed(2)}</p>
             </div>
           }
-          {(name && size && resolution && url) &&
-            <div
-              className={'image-info'}
-            >
-              <p><Copy>{name}</Copy></p>
-              <p><Copy>{size}</Copy></p>
-              <p><Copy>{resolution}</Copy></p>
-              <p><Copy>{url}</Copy></p>
-            </div>
-          }
         </div>
       </div>
     );
@@ -88,6 +75,18 @@ module.exports = class ImageToolsOverlay extends React.Component {
         setEventListener: this.setEventListener.bind(this),
         sendInfo: this.getInfo.bind(this)
       };
+
+      res.props.children[1] = React.createElement(ImageFooter, {
+        children: res.props.children[1],
+
+        // TODO нужен способ получше, мб v3
+        setForceUpdate: (callback) => this.setEventListener('forceUpdateFooter', callback),
+
+        getData: () => {
+          const { currentImgIndex } = this.state;
+          return (currentImgIndex !== null) ? this.images[currentImgIndex].formatted : {};
+        }
+      });
       return res;
     });
     inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this._onClose);
@@ -124,8 +123,9 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
   _updateCurrentImg (img) {
     const result = this.images.findIndex(({ proxy_url }) => proxy_url === img);
-    this.setState({
-      currentImgIndex: (result === -1) ? null : result
-    });
+    this.setState(
+      { currentImgIndex: (result === -1) ? null : result },
+      () => this.state.forceUpdateFooter()
+    );
   }
 };
