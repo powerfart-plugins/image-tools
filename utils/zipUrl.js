@@ -1,31 +1,20 @@
 module.exports = function (oldUrl) {
   const url = new URL(oldUrl);
-  const maxDubs = 2;
   const maxName = 20;
-  let dubsNum = 0;
+  const maxLettersOneSide = 8;
 
   url.pathname = url.pathname
     .split('/')
-    .map((e, i, arr) => {
-      if (i === (arr.length - 1)) {
-        const ex = e.substr(e.lastIndexOf('.') + 1, e.length);
-        let name = e.substr(0, e.lastIndexOf('.'));
+    .slice(-1)
+    .map((e) => {
+      const ex = e.substr(e.lastIndexOf('.') + 1, e.length);
+      let name = e.substr(0, e.lastIndexOf('.'));
+      const nl = name.length;
 
-        if (name.length > maxName) {
-          name = `${name.substr(0, 8)}...${name.substr(name.length - 8, name.length)}`;
-        }
-        return `${name}.${ex}`;
+      if (nl > maxName) {
+        name = `${name.substr(0, maxLettersOneSide)}...${name.substr(nl - maxLettersOneSide, nl)}`;
       }
-      return '...';
-    })
-    .filter((e) => {
-      if (e === '...') {
-        if (dubsNum === maxDubs) {
-          return;
-        }
-        dubsNum++;
-      }
-      return true;
+      return `.../${name}.${ex}`;
     })
     .join('/');
 
