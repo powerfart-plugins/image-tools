@@ -2,8 +2,8 @@
 
 const { React, getModule } = require('powercord/webpack');
 
-const { getButton } = require('./components/Button');
-const { getQuickLensSettings } = require('./components/QuickLensSettings');
+const Button = require('./components/Button');
+const LensSettings = require('./components/LensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
 module.exports.overlay = function (args, res) {
@@ -75,10 +75,10 @@ module.exports.messageCM = function ([ { target, message: { content } } ], res, 
       height: height * 2
     };
     menu.splice(
-      3, 0, getButton(
-        getImagesObj(target, args),
+      3, 0, Button.render({
+        images: getImagesObj(target, args),
         settings
-      )
+      })
     );
   }
   return res;
@@ -91,7 +91,11 @@ module.exports.userCM = function ([ { user } ], res, settings) {
     webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
   };
   const start = res.props.children.props.children.length - 1;
-  res.props.children.props.children.splice(start, 0, getButton(images, settings));
+  res.props.children.props.children
+    .splice(start, 0, Button.render({
+      images,
+      settings
+    }));
   return res;
 };
 
@@ -106,17 +110,22 @@ module.exports.guildCM = function ([ { guild } ], res, settings) {
     gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(opts).replace('.webp?', '.gif?') } : null,
     webp: { src: ImageResolve.getGuildIconURL(opts) }
   };
-  res.props.children.splice(6, 0, getButton(images, settings));
+  res.props.children.splice(6, 0, Button.render({
+    images,
+    settings
+  }));
   return res;
 };
 
 module.exports.imageCM = function ([ { target } ], res, settings) {
   const images = getImagesObj(target);
-  const button = getButton(images, settings);
-
+  const button = Button.render({
+    images,
+    settings
+  });
   button.props.children[0].props.disabled = true; // "open image"
   res.props.children = button.props.children;
-  res.props.children.push(getQuickLensSettings(settings));
+  res.props.children.push(LensSettings.render(settings));
   return res;
 };
 
@@ -126,7 +135,10 @@ module.exports.groupDMCM = function ([ { channel } ], res, settings) {
     webp: { src },
     png: { src: src.replace('.webp?', '.png?') }
   };
-  res.props.children.splice(4, 0, getButton(images, settings));
+  res.props.children.splice(4, 0, Button.render({
+    images,
+    settings
+  }));
   return res;
 };
 

@@ -31,7 +31,5 @@
   "IMAGE_TOOLS_CANNOT_FIND_PATH": "Cannot find path",
   "IMAGE_TOOLS_SCROLL_STEP": "Scroll step",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
-  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio",
-  "IMAGE_TOOLS_WARNING_BIV": "Possible problems and conflicts with \"BetterImageViewer\". Make your choice",
-  "IMAGE_TOOLS_DISABLE": "Disable {name}"
+  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio"
 }

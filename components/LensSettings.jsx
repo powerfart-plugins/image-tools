@@ -1,9 +1,11 @@
-const { i18n: { Messages } } = require('powercord/webpack');
+const { React, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
 
-module.exports.getQuickLensSettings = function ({ get, set }) {
-  return [
-    ...ContextMenu.renderRawItems([
+class LensSettings extends React.PureComponent {
+  static render (props) {
+    const { get, set } = props;
+
+    return ContextMenu.renderRawItems([
       {
         type: 'checkbox',
         name: Messages.IMAGE_TOOLS_DISABLE_LENS,
@@ -43,6 +45,8 @@ module.exports.getQuickLensSettings = function ({ get, set }) {
         onChange: (v) => set('wheelStep', v),
         renderValue: (v) => `${v.toFixed(2)}`
       }
-    ])
-  ];
-};
+    ]);
+  }
+}
+
+module.exports = LensSettings;
