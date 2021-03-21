@@ -36,20 +36,20 @@
 .image-tools-modal-footer {
     opacity: 1;
     width: 100%;
-    min-width: 700px;
-    margin-top: 10px;
+    min-width: 500px;
     padding: 10px 0 10px;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    pointer-events: none;
 
     a {
         position: relative;
+        pointer-events: all;
     }
 
     .content {
         display: flex;
-        padding: 10px;
         justify-content: space-between;
 
         > * {
@@ -67,6 +67,7 @@
                    margin: 2px;
                    width: 30px;
                    height: 30px;
+                   pointer-events: all;
 
                    &:hover {
                        background-color: #1f2024;
@@ -84,6 +85,7 @@
 
                 > div {
                     padding: 0 8px;
+                    pointer-events: all;
                 }
             }
         }
