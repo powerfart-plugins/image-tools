@@ -1,10 +1,12 @@
-const { React, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack');
-const { Clickable, ContextMenu } = require('powercord/components');
+const { React, i18n: { Messages } } = require('powercord/webpack');
+const { ContextMenu } = require('powercord/components');
+const { findInReactTree } = require('powercord/util');
 
 const { getDownloadPath, OutputManager } = require('../utils');
 const actions = require('../tools/actions');
 
 const imageSearchServices = require('../ReverseImageSearchServices.json');
+const priority = [ 'gif', 'png', 'webp' ];
 
 class ImageToolsButton extends React.PureComponent {
   constructor (props) {
@@ -60,6 +62,11 @@ class ImageToolsButton extends React.PureComponent {
         return this.items;
       }
     } ]);
+    const prioritySort = priority.filter((e) => this.items.includes(e)); // избежать лишних проходов
+    const parentTree = this._findInTreeByPriority(res, prioritySort);
+    const { props } = findInReactTree(parentTree, ({ props }) => props?.id === 'open-image');
+
+    res.props.action = props.action;
     return res;
   }
 
@@ -71,18 +78,21 @@ class ImageToolsButton extends React.PureComponent {
     return [
       {
         type: 'button',
+        id: 'open-image',
         name: Messages.IMAGE_TOOLS_OPEN_IMAGE,
         disabled: disabled.includes('openImage'),
         onClick: () => actions.openImg(image)
       },
       {
         type: 'button',
+        id: 'copy-image',
         name: (this.items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE,
         disabled: disabled.includes('copyImage'),
         onClick: () => actions.copyImg(((images.png) ? images.png.src : url), this.output)
       },
       {
         type: 'button',
+        id: 'open-link',
         name: Messages.OPEN_LINK,
         disabled: disabled.includes('openLink'),
         onClick: () => actions.openUrl(url)
@@ -90,24 +100,28 @@ class ImageToolsButton extends React.PureComponent {
       },
       {
         type: 'button',
+        id: 'copy-link',
         name: Messages.COPY_LINK,
         disabled: disabled.includes('copyLink'),
         onClick: () => actions.copyUrl(url, this.output)
       },
       {
         type: 'button',
+        id: 'save',
         name: Messages.SAVE_IMAGE_MENU_ITEM,
         subtext: this.downloadPath,
         onClick: () => actions.save(url, this.output, this.downloadPath)
       },
       {
         type: 'button',
+        id: 'save-as',
         name: Messages.IMAGE_TOOLS_SAVE_IMAGE_AS,
         disabled: disabled.includes('saveAs'),
         onClick: () => actions.saveAs(url, this.output)
       },
       {
         type: 'submenu',
+        id: 'search-image',
         name: Messages.IMAGE_TOOLS_IMAGE_SEARCH,
         disabled: disabled.includes('searchImage'),
         getItems () {
@@ -131,6 +145,7 @@ class ImageToolsButton extends React.PureComponent {
     if (items.length > 1) {
       return items.map((e) => ({
         type: 'submenu',
+        id: `sub-${e}`,
         name: e.toUpperCase(),
         items: this.getBaseMenu(images[e], this.getDisabledMethods(e)),
         getItems () {
@@ -139,6 +154,18 @@ class ImageToolsButton extends React.PureComponent {
       }));
     }
     return this.getBaseMenu(images[items[0]], this.getDisabledMethods(items[0]));
+  }
+
+  _findInTreeByPriority (tree, arr) {
+    if (arr.length === 1) {
+      return tree;
+    }
+    for (const e of arr) {
+      const res = findInReactTree(tree, ({ props }) => props?.id === `sub-${e}`);
+      if (res) {
+        return res;
+      }
+    }
   }
 }
 
