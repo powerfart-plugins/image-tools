@@ -6,7 +6,7 @@ const { getDownloadPath, OutputManager } = require('../utils');
 const actions = require('../tools/actions');
 
 const imageSearchServices = require('../ReverseImageSearchServices.json');
-const priority = [ 'gif', 'png', 'webp' ];
+const priority = [ 'gif', 'png', 'jpg', 'webp' ];
 
 class ImageToolsButton extends React.PureComponent {
   constructor (props) {

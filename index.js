@@ -25,7 +25,6 @@ module.exports = class ImageTools extends Plugin {
     await this.inject('UserGenericContextMenu.default', patches.userCM);
     await this.inject('GroupDMUserContextMenu.default', patches.userCM);
     await this.inject('GroupDMContextMenu.default', patches.groupDMCM);
-    // await this.inject('SpotifyContextMenu.default', patches.user); // TODO
     await this.inject('GuildContextMenu.default', patches.guildCM);
     await this.inject('NativeImageContextMenu.default', patches.imageCM);
   }
@@ -52,8 +51,7 @@ module.exports = class ImageTools extends Plugin {
     const moduleName = path.shift();
     const injectFunc = path.pop();
     const injectId = `image-tools${moduleName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
-
-    const module = await getModule((m) => m.default && m.default.displayName === moduleName, false);
+    const module = getModule((m) => m.default && m.default.displayName === moduleName, false);
     const injectTo = getModulePath(); // eslint-disable-line no-use-before-define
 
     inject(injectId, injectTo, injectFunc, (...args) => patch(...args, this.settings));

@@ -1,12 +1,13 @@
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, object-property-newline */
 
 const { React, getModule } = require('powercord/webpack');
+const { findInReactTree } = require('powercord/util');
 
 const Button = require('./components/Button');
 const LensSettings = require('./components/LensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
-module.exports.overlay = function (args, res) {
+function overlay (args, res) {
   const Overlay = require('./components/Overlay');
   const patch = () => {
     res = React.createElement(Overlay, {
@@ -27,9 +28,9 @@ module.exports.overlay = function (args, res) {
   } catch {}
 
   return res;
-};
+}
 
-module.exports.imageModal = function (args, res, settings) {
+function imageModal (args, res, settings) {
   const ImageModalWrapper = require('./components/ImageModalWrapper');
   const patchImageSize = settings.get('patchImageSize', true);
 
@@ -50,9 +51,9 @@ module.exports.imageModal = function (args, res, settings) {
     })
   );
   return res;
-};
+}
 
-module.exports.messageCM = function ([ { target, message: { content } } ], res, settings) {
+function messageCM ([ { target, message: { content } } ], res, settings) {
   if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop)) {
     const { width, height } = target;
     const menu = res.props.children;
@@ -74,32 +75,27 @@ module.exports.messageCM = function ([ { target, message: { content } } ], res, 
       width: width * 2,
       height: height * 2
     };
-    menu.splice(
-      3, 0, Button.render({
-        images: getImagesObj(target, args),
-        settings
-      })
-    );
+
+    initButton(menu, {
+      images: getImagesObj(target, args),
+      settings
+    });
   }
   return res;
-};
+}
 
-module.exports.userCM = function ([ { user } ], res, settings) {
+function userCM ([ { user } ], res, settings) {
   const images = {
     png: { src: ImageResolve.getUserAvatarURL(user, 'png', 2048) },
     gif:  ImageResolve.hasAnimatedAvatar(user) ? { src: ImageResolve.getUserAvatarURL(user, 'gif', 2048) } : null,
     webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
   };
-  const start = res.props.children.props.children.length - 1;
-  res.props.children.props.children
-    .splice(start, 0, Button.render({
-      images,
-      settings
-    }));
-  return res;
-};
 
-module.exports.guildCM = function ([ { guild } ], res, settings) {
+  initButton(res.props.children.props.children, { images, settings });
+  return res;
+}
+
+function guildCM ([ { guild } ], res, settings) {
   const opts = {
     id: guild.id,
     icon: guild.icon,
@@ -110,44 +106,42 @@ module.exports.guildCM = function ([ { guild } ], res, settings) {
     gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(opts).replace('.webp?', '.gif?') } : null,
     webp: { src: ImageResolve.getGuildIconURL(opts) }
   };
-  res.props.children.splice(6, 0, Button.render({
-    images,
-    settings
-  }));
-  return res;
-};
 
-module.exports.imageCM = function ([ { target } ], res, settings) {
+  initButton(res.props.children, { images, settings });
+  return res;
+}
+
+function imageCM ([ { target } ], res, settings) {
   const images = getImagesObj(target);
-  const button = Button.render({
-    images,
-    settings
-  });
-  button.props.children[0].props.disabled = true; // "open image"
-  res.props.children = button.props.children;
-  res.props.children.push(LensSettings.render(settings));
-  return res;
-};
+  const button = Button.render({ images, settings });
 
-module.exports.groupDMCM = function ([ { channel } ], res, settings) {
+  const openImage = findInReactTree(button, ({ props }) => props?.id === 'open-image');
+
+  openImage.props.disabled = true;
+  res.props.children = [
+    ...button.props.children,
+    ...LensSettings.render(settings)
+  ];
+  return res;
+}
+
+function groupDMCM ([ { channel } ], res, settings) {
   const [ src ] = ImageResolve.getChannelIconURL(channel).split('?');
   const images = {
     webp: { src },
-    png: { src: src.replace('.webp?', '.png?') }
+    png: { src: src.replace('.webp', '.png') }
   };
-  res.props.children.splice(4, 0, Button.render({
-    images,
-    settings
-  }));
+
+  initButton(res.props.children, { images, settings });
   return res;
-};
+}
 
 function getImagesObj (target, obj) {
   const img = {};
   const src = target.src.split('?').shift();
-  let e = src.split('.').pop();
+  let e = src.substr(src.lastIndexOf('.') + 1, src.length);
   if (e.length > 3) {
-    e = src.split('/').pop();
+    e = 'png';
   }
   img[e] = { src, ...obj }; // eslint-disable-line object-property-newline
   return img;
@@ -161,3 +155,18 @@ function isUrl (string) {
   }
   return true;
 }
+
+function initButton (menu, args) {
+  menu.splice(menu.length - 1, 0, Button.render(args));
+  return menu;
+}
+
+module.exports = {
+  overlay,
+  imageModal,
+  messageCM,
+  userCM,
+  groupDMCM,
+  guildCM,
+  imageCM
+};
