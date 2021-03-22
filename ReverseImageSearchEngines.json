@@ -1,7 +1,8 @@
 [
   {
     "name": "Google Images",
-    "url": "https://www.google.com/searchbyimage?image_url="
+    "url": "https://www.google.com/searchbyimage?image_url=",
+    "note": "Just a Google"
   },
   {
     "name": "Karmadecay",
@@ -11,6 +12,11 @@
   {
     "name": "Tineye",
     "url": "https://tineye.com/search?url="
+  },
+  {
+    "name": "Bing Visual Search",
+    "url": "https://www.bing.com/images/search?view=detailv2&q=imgurl:",
+    "note": "Find Similar Images"
   },
   {
     "name": "Trace",

@@ -31,5 +31,6 @@
   "IMAGE_TOOLS_CANNOT_FIND_PATH": "Cannot find path",
   "IMAGE_TOOLS_SCROLL_STEP": "Scroll step",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
-  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio"
+  "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio",
+  "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Search everywhere"
 }

@@ -16,6 +16,10 @@ class ImageToolsButton extends React.PureComponent {
       hideSuccessToasts: props.settings.get('hideSuccessToasts', false)
     });
     this.disabledISE = props.settings.get('disabledImageSearchEngines', []);
+    this.imageSearchEngines = imageSearchEngines.filter(({ name }) => {
+      const id = name.replace(' ', '-').toLowerCase();
+      return !this.disabledISE.includes(id);
+    });
   }
 
   static render (props) {
@@ -127,14 +131,22 @@ class ImageToolsButton extends React.PureComponent {
         getItems () {
           return this.items;
         },
-        items: imageSearchEngines
-          .filter(({ name }) => this._isDisabledISE(name))
-          .map((e) => ({
+        items: [
+          ...this.imageSearchEngines.map((e) => ({
             type: 'button',
             name: e.name,
             subtext: e.note,
             onClick: () => actions.openUrl(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)))
-          }))
+          })),
+          {
+            type: 'button',
+            color: 'colorDanger',
+            name: Messages.IMAGE_TOOLS_SEARCH_EVERYWHERE,
+            onClick: () => this.imageSearchEngines.forEach((e) => {
+              actions.openUrl(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)));
+            })
+          }
+        ]
       }
     ];
   }
@@ -157,7 +169,7 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   _findInTreeByPriority (tree, arr) {
-    if (arr.length === 1) {
+    if (arr.length === 0 || arr.length === 1) {
       return tree;
     }
     for (const e of arr) {
@@ -166,11 +178,6 @@ class ImageToolsButton extends React.PureComponent {
         return res;
       }
     }
-  }
-
-  _isDisabledISE (name) {
-    const id = name.replace(' ', '-').toLowerCase();
-    return !this.disabledISE.includes(id);
   }
 }
 
