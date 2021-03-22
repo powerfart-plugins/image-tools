@@ -26,9 +26,17 @@ module.exports = class ImageFooter extends React.PureComponent {
 
           <div className='image-info'>
             { (resolution && size && name && url) && <>
-              <p><Copy>{name}</Copy></p>
-              <p><Copy>{resolution}</Copy> | <Copy>{size}</Copy></p>
-              <p><Copy text={url}>{zipUrl(url)}</Copy></p>
+              <p>
+                <Copy>{name}</Copy>
+              </p>
+              <p>
+                <Copy>{resolution}</Copy>
+                <div className='separator'/>
+                <Copy>{size}</Copy>
+              </p>
+              <p>
+                <Copy text={url}>{zipUrl(url)}</Copy>
+              </p>
             </>}
           </div>
         </div>

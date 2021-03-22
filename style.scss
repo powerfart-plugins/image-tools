@@ -47,14 +47,10 @@
         position: relative;
         pointer-events: all;
     }
-
     .content {
         display: flex;
         justify-content: space-between;
 
-        > * {
-            padding-right:  12px;
-        }
         .buttons {
            div {
                display: flex;
@@ -76,21 +72,28 @@
            }
         }
         .image-info {
-            font-size: 13px;
-
             p {
                 margin: 0;
                 display: flex;
                 justify-content: flex-end;
                 height: 25px;
-                opacity: .5;
 
-                &:hover {
-                    opacity: 1;
-                }
                 > div {
                     padding: 0 8px;
                     pointer-events: all;
+                    opacity: .5;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+                .separator {
+                    pointer-events: none;
+                    padding: 0;
+
+                    &:after {
+                        content: '|';
+                    }
                 }
             }
         }
