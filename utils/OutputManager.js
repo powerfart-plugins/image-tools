@@ -18,7 +18,7 @@ module.exports = class OutputManager {
     this._main(msg, 'success', [ button ]);
   }
 
-  error (msg, addButton = null) {
+  error (msg, addButton = {}) {
     const buttons = [
       {
         text: 'okay',
@@ -27,7 +27,7 @@ module.exports = class OutputManager {
         look: 'outlined'
       }
     ];
-    if (addButton) {
+    if (Object.keys(addButton).length) {
       buttons.push(addButton);
     }
     this._main(msg, 'danger', buttons);

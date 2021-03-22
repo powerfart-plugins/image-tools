@@ -5,7 +5,7 @@ const { findInReactTree } = require('powercord/util');
 const { getDownloadPath, OutputManager } = require('../utils');
 const actions = require('../tools/actions');
 
-const imageSearchServices = require('../ReverseImageSearchServices.json');
+const imageSearchEngines = require('../ReverseImageSearchEngines.json');
 const priority = [ 'gif', 'png', 'jpg', 'webp' ];
 
 class ImageToolsButton extends React.PureComponent {
@@ -15,6 +15,7 @@ class ImageToolsButton extends React.PureComponent {
     this.output = new OutputManager('ImageToolsMsg', {
       hideSuccessToasts: props.settings.get('hideSuccessToasts', false)
     });
+    this.disabledISE = props.settings.get('disabledImageSearchEngines', []);
   }
 
   static render (props) {
@@ -72,8 +73,7 @@ class ImageToolsButton extends React.PureComponent {
 
   getBaseMenu (image, disabled) {
     const url = (image.content) ? image.content : image.src;
-    const { images, settings: { get } } = this.props;
-    const disabledISS = get('disabledImageSearchServices', []);
+    const { images } = this.props;
 
     return [
       {
@@ -127,13 +127,13 @@ class ImageToolsButton extends React.PureComponent {
         getItems () {
           return this.items;
         },
-        items: imageSearchServices
-          .filter((e) => !disabledISS.includes(e.id))
+        items: imageSearchEngines
+          .filter(({ name }) => this._isDisabledISE(name))
           .map((e) => ({
             type: 'button',
             name: e.name,
             subtext: e.note,
-            onClick: () => actions.openUrl((e.withoutEncode) ? e.url + url : e.url + encodeURIComponent(url))
+            onClick: () => actions.openUrl(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)))
           }))
       }
     ];
@@ -166,6 +166,11 @@ class ImageToolsButton extends React.PureComponent {
         return res;
       }
     }
+  }
+
+  _isDisabledISE (name) {
+    const id = name.replace(' ', '-').toLowerCase();
+    return !this.disabledISE.includes(id);
   }
 }
 

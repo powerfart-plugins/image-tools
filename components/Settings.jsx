@@ -3,15 +3,18 @@ const { React, getModule, i18n: { Messages }, constants: { DEFAULT_ROLE_COLOR } 
 const { existsSync } = require('fs');
 
 const { hex2int, int2hex } = getModule([ 'isValidHex' ], false);
-const getDownloadPath = require('../utils/getDownloadPath');
-const imageSearchServices = require('../ReverseImageSearchServices.json');
+const { getDownloadPath } = require('../utils');
+const imageSearchServices = require('../ReverseImageSearchEngines.json');
 
 module.exports = class Settings extends React.Component {
-  constructor () {
+  constructor ({ getSetting, updateSetting }) {
     super();
     this.state = {
       errorSavePath: null
     };
+    if (!getSetting('disabledImageSearchEngines')) {
+      updateSetting('disabledImageSearchEngines', []);
+    }
   }
 
   render () {
@@ -24,10 +27,6 @@ module.exports = class Settings extends React.Component {
       this.setState({ errorSavePath: null });
       updateSetting('pathSave', path);
     }, 250);
-
-    if (!getSetting('disabledImageSearchServices')) {
-      updateSetting('disabledImageSearchServices', []);
-    }
 
     return <>
       <SwitchItem
@@ -92,23 +91,35 @@ module.exports = class Settings extends React.Component {
         onChange={() => null}
       >
         {
-          imageSearchServices.map((service) => (
+          imageSearchServices.map(({ name, note }) => (
             <SwitchItem
-              value={ !getSetting('disabledImageSearchServices').includes(service.id) }
+              value={ this.isEnableEngine(name) }
               onChange={ (v) => {
-                const arr =  settings.disabledImageSearchServices;
+                const arr = settings.disabledImageSearchEngines;
+                const id = this.getEngineId(name);
+
                 if (v) {
-                  arr.splice(arr.indexOf(service.id), 1);
+                  arr.splice(arr.indexOf(id), 1);
                 } else {
-                  arr.push(service.id);
+                  arr.push(id);
                 }
-                updateSetting('disabledImageSearchServices', arr);
-              } }
-              note={ service.note }
-            >{service.name}</SwitchItem>
+                updateSetting('disabledImageSearchEngines', arr);
+              }}
+              note={ note }
+            >{name}</SwitchItem>
           ))
         }
       </Category>
     </>;
+  }
+
+  getEngineId (name) {
+    return name
+      .replace(' ', '-')
+      .toLowerCase();
+  }
+
+  isEnableEngine (name) {
+    return !this.props.getSetting('disabledImageSearchEngines').includes(this.getEngineId(name));
   }
 };

@@ -77,12 +77,17 @@
         }
         .image-info {
             font-size: 13px;
+
             p {
                 margin: 0;
                 display: flex;
                 justify-content: flex-end;
                 height: 25px;
+                opacity: .5;
 
+                &:hover {
+                    opacity: 1;
+                }
                 > div {
                     padding: 0 8px;
                     pointer-events: all;

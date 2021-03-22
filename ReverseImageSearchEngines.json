@@ -1,34 +1,28 @@
 [
   {
     "name": "Google Images",
-    "id": "google",
     "url": "https://www.google.com/searchbyimage?image_url="
   },
   {
     "name": "Karmadecay",
-    "id": "karmadecay",
     "url": "http://karmadecay.com/search?q=",
     "note": "Reddit"
   },
   {
     "name": "Tineye",
-    "id": "tineye",
     "url": "https://tineye.com/search?url="
   },
   {
     "name": "Trace",
-    "id": "trace",
     "url": "https://trace.moe/?url=",
     "note": "What is the anime"
   },
   {
     "name": "IQDB",
-    "id": "iqdb",
     "url": "https://iqdb.org/?url="
   },
   {
     "name": "SauceNAO",
-    "id": "saucenao",
     "url": "https://saucenao.com/search.php?db=999&url="
   },
   {
@@ -38,7 +32,6 @@
   },
   {
     "name": "ImgOps",
-    "id": "imgops",
     "url": "https://imgops.com/",
     "note": "A Ton of Image Tools",
     "withoutEncode": true
