@@ -7,8 +7,15 @@ const { getModule, i18n: { Messages } } = require('powercord/webpack');
 
 const { openImageModal } = require('../utils');
 
-module.exports.openImg = function (...args) {
-  openImageModal(...args);
+module.exports.openImg = function (args) {
+  const defaultArgs = {
+    height: 780,
+    width: 780
+  };
+  openImageModal({
+    ...defaultArgs,
+    ...args
+  });
 };
 
 module.exports.copyImg = function (url, output) {

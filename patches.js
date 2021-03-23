@@ -7,13 +7,15 @@ const Button = require('./components/Button');
 const LensSettings = require('./components/LensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
-function overlay (args, res) {
+function overlay (args, res, settings, isOpenModal) {
   const Overlay = require('./components/Overlay');
   const patch = () => {
     res = React.createElement(Overlay, {
       children: res
     });
+    isOpenModal(true);
   };
+  isOpenModal(false);
 
   try { // NativeModal
     if (res.props.children[1].props.render().props.children.type.displayName === 'ImageModal') {
@@ -96,15 +98,11 @@ function userCM ([ { user } ], res, settings) {
 }
 
 function guildCM ([ { guild } ], res, settings) {
-  const opts = {
-    id: guild.id,
-    icon: guild.icon,
-    size: 4096
-  };
+  guild.size = 4096;
   const images = {
-    png: { src: ImageResolve.getGuildIconURL(opts).replace('.webp?', '.png?') },
-    gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(opts).replace('.webp?', '.gif?') } : null,
-    webp: { src: ImageResolve.getGuildIconURL(opts) }
+    png: { src: ImageResolve.getGuildIconURL(guild).replace('.webp?', '.png?') },
+    gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(guild).replace('.webp?', '.gif?') } : null,
+    webp: { src: ImageResolve.getGuildIconURL(guild) }
   };
 
   initButton(res.props.children, { images, settings });

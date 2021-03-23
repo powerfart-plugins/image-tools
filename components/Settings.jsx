@@ -6,7 +6,7 @@ const { hex2int, int2hex } = getModule([ 'isValidHex' ], false);
 const { getDownloadPath } = require('../utils');
 const imageSearchServices = require('../ReverseImageSearchEngines.json');
 
-module.exports = class Settings extends React.Component {
+module.exports = class Settings extends React.PureComponent {
   constructor ({ getSetting, updateSetting }) {
     super();
     this.state = {

@@ -10,6 +10,7 @@ module.exports = class ImageTools extends Plugin {
   constructor () {
     super();
     this.uninjectIDs = [];
+    this.modalIsOpen = false;
   }
 
   async startPlugin () {
@@ -17,16 +18,19 @@ module.exports = class ImageTools extends Plugin {
     this.loadStylesheet('style.scss');
     this.registerSettings();
 
-    await this.inject('TransitionGroup.default.prototype.render', patches.overlay);
-    await this.inject('ImageModal.default.prototype.render', patches.imageModal);
-    await this.inject('MessageContextMenu.default', patches.messageCM);
-    await this.inject('GuildChannelUserContextMenu.default', patches.userCM);
-    await this.inject('DMUserContextMenu.default', patches.userCM);
-    await this.inject('UserGenericContextMenu.default', patches.userCM);
-    await this.inject('GroupDMUserContextMenu.default', patches.userCM);
-    await this.inject('GroupDMContextMenu.default', patches.groupDMCM);
-    await this.inject('GuildContextMenu.default', patches.guildCM);
-    await this.inject('NativeImageContextMenu.default', patches.imageCM);
+    this.inject('TransitionGroup.default.prototype.render', (...args) => (
+      patches.overlay(...args, (v) => (this.isModalOpen = v))
+    ));
+    this.inject('ImageModal.default.prototype.render', patches.imageModal);
+    this.inject('MessageContextMenu.default', patches.messageCM);
+    this.inject('GuildChannelUserContextMenu.default', patches.userCM);
+    this.inject('DMUserContextMenu.default', patches.userCM);
+    this.inject('UserGenericContextMenu.default', patches.userCM);
+    this.inject('GroupDMUserContextMenu.default', patches.userCM);
+    this.inject('GroupDMContextMenu.default', patches.groupDMCM);
+    this.inject('GuildContextMenu.default', patches.guildCM);
+    this.inject('NativeImageContextMenu.default', patches.imageCM);
+    this.injectToGetImageSrc('image-tools-media-proxy-sizes');
   }
 
   pluginWillUnload () {
@@ -34,7 +38,6 @@ module.exports = class ImageTools extends Plugin {
     uninject('image-tools-overlay-image-modal');
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-wrapper-lazy-image');
-    uninject('image-tools-disable-media-proxy-sizes');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 
@@ -46,7 +49,18 @@ module.exports = class ImageTools extends Plugin {
     });
   }
 
-  async inject (funcPath, patch) {
+  injectToGetImageSrc (id) {
+    const imageDiscordUtils = getModule([ 'getImageSrc' ], false);
+    inject(id, imageDiscordUtils, 'getImageSrc', (args) => {
+      if (this.isModalOpen) {
+        args[3] = 1; // отменить коэффициент размеров
+      }
+      return args;
+    }, true);
+    this.uninjectIDs.push(id);
+  }
+
+  inject (funcPath, patch) {
     const path = funcPath.split('.');
     const moduleName = path.shift();
     const injectFunc = path.pop();

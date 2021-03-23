@@ -3,9 +3,7 @@ const { inject, uninject } = require('powercord/injector');
 
 const Lens = require('./ImageModalWrapperLens.jsx');
 
-const imageDiscordUtils = getModule([ 'getImageSrc' ], false);
-
-module.exports = class ImageWrapper extends React.PureComponent {
+module.exports = class ImageWrapper extends React.Component {
   constructor () {
     super();
     this.imgRef = React.createRef();
@@ -23,6 +21,7 @@ module.exports = class ImageWrapper extends React.PureComponent {
       // console.error('overlay offline');
     }
     this._injectToLazyImage();
+    // console.log(this.imgRef.current.children[0].children);
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -64,13 +63,6 @@ module.exports = class ImageWrapper extends React.PureComponent {
       src: this.props.children.props.src
     });
 
-    inject('image-tools-disable-media-proxy-sizes', imageDiscordUtils, 'getImageSrc', (args, res) => {
-      const url = new URL(res); // это бутет надёжнее, чем просто "return args[0]"
-      url.searchParams.delete('width');
-      url.searchParams.delete('height');
-      return url.href;
-    });
-
     inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
       const { props } = res;
 
@@ -89,6 +81,5 @@ module.exports = class ImageWrapper extends React.PureComponent {
 
   uninjectAll () {
     uninject('image-tools-wrapper-lazy-image');
-    uninject('image-tools-disable-media-proxy-sizes');
   }
 };
