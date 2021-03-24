@@ -3,10 +3,13 @@ const { inject, uninject } = require('powercord/injector');
 
 const Lens = require('./ImageModalWrapperLens.jsx');
 
+const { imagePlaceholder } = getModule([ 'imagePlaceholder' ], false);
+
 module.exports = class ImageWrapper extends React.Component {
   constructor () {
     super();
     this.imgRef = React.createRef();
+    this.$image = null;
 
     this.state = {
       src: null,
@@ -21,16 +24,19 @@ module.exports = class ImageWrapper extends React.Component {
       // console.error('overlay offline');
     }
     this._injectToLazyImage();
-    // console.log(this.imgRef.current.children[0].children);
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (prevState.src !== this.state.src) {
-      if (this.props?.overlay) {
-        this.props.overlay.sendInfo({
-          currentImageSrc: this.state.src
-        });
+  componentDidUpdate () {
+    if (this.props?.overlay) {
+      if (!this.$image) {
+        const $image = this.imgRef.current.querySelector('img');
+        if ($image && !$image.classList.contains(imagePlaceholder)) {
+          this.$image = $image;
+          this.props.overlay.sendInfo({ $image });
+        }
       }
+    } else {
+      // console.error('overlay offline');
     }
   }
 

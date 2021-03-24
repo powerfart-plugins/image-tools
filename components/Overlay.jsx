@@ -1,5 +1,7 @@
 const { React, getModule, i18n: { Messages }, channels: { getChannelId } } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
+const { findInReactTree } = require('powercord/util');
+
 const { getImages } = require('../utils');
 
 const ImageFooter = require('./ImageModalFooter.jsx');
@@ -9,6 +11,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
     super(props);
 
     this.images = getImages(getChannelId());
+    this.$image = null;
     this.state = {
       showLensInfo: false,
       infoFromImage: {
@@ -68,38 +71,25 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
   _injectToImageModal () {
     const ImageModal = getModule((m) => m.default && m.default.displayName === 'ImageModal', false);
-    const backdrop = this.props.children.props.children[0];
+    const backdrop = findInReactTree(this.props.children, ({ props }) => props?.onClose);
 
     inject('image-tools-overlay-image-modal', ImageModal.default.prototype, 'render', (args, res) => {
-      res.props.children[0].props.overlay = { // inject to ImageWrapper
+      const ImageWrapper = findInReactTree(res, ({ type }) => type?.name === 'ImageWrapper');
+
+      ImageWrapper.props.overlay = {
         setEventListener: this.setEventListener.bind(this),
         sendInfo: this.getInfo.bind(this)
       };
 
       res.props.children[1] = React.createElement(ImageFooter, {
         children: res.props.children[1],
-
-        // TODO нужен способ получше, мб v3
-        setForceUpdate: (callback) => this.setEventListener('forceUpdateFooter', callback),
-
-        getData: () => {
-          const { currentImgIndex } = this.state;
-          return (currentImgIndex !== null) ? this.images[currentImgIndex].formatted : {};
-        }
+        sendDataToFooter: (callback) => this.setEventListener('sendDataToFooter', callback)
       });
+
       return res;
     });
-    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this._onClose);
+    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this._onClose, true);
     ImageModal.default.displayName = 'ImageModal';
-  }
-
-  _onClose () {
-    if (this.state.onClose) {
-      this.state.onClose();
-    }
-    uninject('image-tools-overlay-image-modal');
-    uninject('image-tools-overlay-backdrop');
-    return true;
   }
 
   setEventListener (type, callback) {
@@ -109,23 +99,42 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   getInfo (obj) {
-    if (obj.currentImageSrc) {
-      this._updateCurrentImg(obj.currentImageSrc);
+    if (obj.$image) {
+      this._updateCurrentImg(obj.$image);
       return;
     }
-    this.setState((prevState) => ({
+    this.setState(({ infoFromImage }) => ({
       infoFromImage: {
-        ...prevState.infoFromImage,
+        ...infoFromImage,
         ...obj
       }
     }));
   }
 
   _updateCurrentImg (img) {
-    const result = this.images.findIndex(({ proxy_url }) => proxy_url === img);
+    const result = this.images.findIndex(({ proxy_url }) => proxy_url === img.src);
+
+    this.$image = img;
     this.setState(
       { currentImgIndex: (result === -1) ? null : result },
-      () => this.state.forceUpdateFooter()
+      () => this._updateFooter()
     );
+  }
+
+  _updateFooter () {
+    const { currentImgIndex } = this.state;
+    this.state.sendDataToFooter({
+      $image: this.$image,
+      attachment: (currentImgIndex !== null) ? this.images[currentImgIndex] : {}
+    });
+  }
+
+  _onClose () {
+    if (this.state.onClose) {
+      this.state.onClose();
+    }
+    uninject('image-tools-overlay-image-modal');
+    uninject('image-tools-overlay-backdrop');
+    return [ true ];
   }
 };
