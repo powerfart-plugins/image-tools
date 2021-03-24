@@ -30,9 +30,12 @@ module.exports = class ImageWrapper extends React.Component {
     if (this.props?.overlay) {
       if (!this.$image) {
         const $image = this.imgRef.current.querySelector('img');
+
         if ($image && !$image.classList.contains(imagePlaceholder)) {
-          this.$image = $image;
-          this.props.overlay.sendInfo({ $image });
+          $image.onload = () => {
+            this.$image = $image;
+            this.props.overlay.sendInfo({ $image });
+          };
         }
       }
     } else {
