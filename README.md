@@ -4,12 +4,20 @@
 
 A [Powercord](https://powercord.dev/) plugin that adds new features to images
 
-## Features:
+## Features
 - Lens in a modal image viewport
 - Open image as modal in most context menus
 - Copy image / link to image
 - Save Image As
 - Reverse image search
+
+## Known issues
+- Poor mp4 support (mostly built-in GIF from discord)
+- No support for basic SVG information (Native emoji)
+    - SVG has no resolution
+    - The server does not send the file size
+- There is a small chance (~10%) that there will be no image information - reopen the image (Discord for some reason does not always cause the callback of closing the modal, and I can't cancel all injections and everything breaks)
+
 
 ### TODO
 - Rotate the image
