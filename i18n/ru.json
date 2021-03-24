@@ -32,5 +32,10 @@
   "IMAGE_TOOLS_SCROLL_STEP": "Шаг прокрутки",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Максимальный радиус линзы",
   "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Максимальный коэффициент зума",
-  "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Искать везде"
+  "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Искать везде",
+  "IMAGE_TOOLS_HIDE_HINTS": "Скрыть подсказки на кнопках",
+  "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Скрыть вторую строчку на некоторых кнопках для компактности",
+  "IMAGE_TOOLS_DEFAULT_ACTION": "Действие по умолчанию при нажатии на главную кнопку",
+  "IMAGE_TOOLS_DISABLE_ACTIONS": "Функции кнопки",
+  "IMAGE_TOOLS_BUTTON": "Настройка основной кнопки"
 }

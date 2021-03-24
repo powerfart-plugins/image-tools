@@ -7,7 +7,7 @@ const { getModule, i18n: { Messages } } = require('powercord/webpack');
 
 const { openImageModal } = require('../utils');
 
-module.exports.openImg = function (args) {
+module.exports.openImage = function (args) {
   const defaultArgs = {
     height: 780,
     width: 780
@@ -18,7 +18,7 @@ module.exports.openImg = function (args) {
   });
 };
 
-module.exports.copyImg = function (url, output) {
+module.exports.copyImage = function (url, output) {
   const { copyImage } = getModule([ 'copyImage' ], false);
   const parseUrl = new URL(url);
 
@@ -41,16 +41,16 @@ module.exports.copyImg = function (url, output) {
     });
 };
 
-module.exports.openUrl = function (url) {
+module.exports.openLink = function (url) {
   shell.openExternal(url);
 };
 
-module.exports.copyUrl = function (url, output) {
+module.exports.copyLink = function (url, output) {
   clipboard.write({ text: url });
   output.success(Messages.IMAGE_TOOLS_IMAGE_LINK_COPIED);
 };
 
-module.exports.save = async function (url, output, downloadPath) {
+module.exports.save = async function (url, output, { downloadPath }) {
   const fileName = new URL(url).pathname.split('/').pop();
   const arrayBuffer = await fetch(url)
     .then((e) => e.arrayBuffer())

@@ -32,5 +32,10 @@
   "IMAGE_TOOLS_SCROLL_STEP": "Scroll step",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
   "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio",
-  "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Search everywhere"
+  "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Search everywhere",
+  "IMAGE_TOOLS_HIDE_HINTS": "Hide button tips",
+  "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Hide the second line of some buttons for compactness",
+  "IMAGE_TOOLS_DEFAULT_ACTION": "Default action when clicking on the main button",
+  "IMAGE_TOOLS_DISABLE_ACTIONS": "Button actions",
+  "IMAGE_TOOLS_BUTTON": "Primary Button Setting"
 }

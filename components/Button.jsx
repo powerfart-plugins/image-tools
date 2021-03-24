@@ -1,8 +1,8 @@
 const { React, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
-const { findInReactTree } = require('powercord/util');
+const { camelCaseify } = require('powercord/util');
 
-const { getDownloadPath, OutputManager } = require('../utils');
+const { getDownloadPath, OutputManager, baseButtonStructure } = require('../utils');
 const actions = require('../tools/actions');
 
 const imageSearchEngines = require('../ReverseImageSearchEngines.json');
@@ -16,6 +16,7 @@ class ImageToolsButton extends React.PureComponent {
       hideSuccessToasts: props.settings.get('hideSuccessToasts', false)
     });
     this.disabledISE = props.settings.get('disabledImageSearchEngines', []);
+    this.disabledActions = props.settings.get('disabledActions', []);
     this.imageSearchEngines = imageSearchEngines.filter(({ name }) => {
       const id = name.replace(' ', '-').toLowerCase();
       return !this.disabledISE.includes(id);
@@ -45,7 +46,7 @@ class ImageToolsButton extends React.PureComponent {
   get disabled () {
     return {
       webp: this.props.settings.get('disableWebp', true),
-      mp4:[ 'openImage', 'copyImage', 'saveAs', 'searchImage' ]
+      mp4:[ 'open-image', 'copy-image', 'save-as', 'search-image' ]
     };
   }
 
@@ -67,88 +68,11 @@ class ImageToolsButton extends React.PureComponent {
         return this.items;
       }
     } ]);
-    const prioritySort = priority.filter((e) => this.items.includes(e)); // избежать лишних проходов
-    const parentTree = this._findInTreeByPriority(res, prioritySort);
-    const { props } = findInReactTree(parentTree, ({ props }) => props?.id === 'open-image');
+    const prioritySort = priority.filter((e) => this.items.includes(e));
+    const actionId = this.props.settings.get('defaultAction', 'open-image');
 
-    res.props.action = props.action;
+    res.props.action = this.getAction(prioritySort, actionId);
     return res;
-  }
-
-  getBaseMenu (image, disabled) {
-    const url = (image.content) ? image.content : image.src;
-    const { images } = this.props;
-
-    return [
-      {
-        type: 'button',
-        id: 'open-image',
-        name: Messages.IMAGE_TOOLS_OPEN_IMAGE,
-        disabled: disabled.includes('openImage'),
-        onClick: () => actions.openImg(image)
-      },
-      {
-        type: 'button',
-        id: 'copy-image',
-        name: (this.items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE,
-        disabled: disabled.includes('copyImage'),
-        onClick: () => actions.copyImg(((images.png) ? images.png.src : url), this.output)
-      },
-      {
-        type: 'button',
-        id: 'open-link',
-        name: Messages.OPEN_LINK,
-        disabled: disabled.includes('openLink'),
-        onClick: () => actions.openUrl(url)
-
-      },
-      {
-        type: 'button',
-        id: 'copy-link',
-        name: Messages.COPY_LINK,
-        disabled: disabled.includes('copyLink'),
-        onClick: () => actions.copyUrl(url, this.output)
-      },
-      {
-        type: 'button',
-        id: 'save',
-        name: Messages.SAVE_IMAGE_MENU_ITEM,
-        subtext: this.downloadPath,
-        onClick: () => actions.save(url, this.output, this.downloadPath)
-      },
-      {
-        type: 'button',
-        id: 'save-as',
-        name: Messages.IMAGE_TOOLS_SAVE_IMAGE_AS,
-        disabled: disabled.includes('saveAs'),
-        onClick: () => actions.saveAs(url, this.output)
-      },
-      {
-        type: 'submenu',
-        id: 'search-image',
-        name: Messages.IMAGE_TOOLS_IMAGE_SEARCH,
-        disabled: disabled.includes('searchImage'),
-        getItems () {
-          return this.items;
-        },
-        items: [
-          ...this.imageSearchEngines.map((e) => ({
-            type: 'button',
-            name: e.name,
-            subtext: e.note,
-            onClick: () => actions.openUrl(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)))
-          })),
-          {
-            type: 'button',
-            color: 'colorDanger',
-            name: Messages.IMAGE_TOOLS_SEARCH_EVERYWHERE,
-            onClick: () => this.imageSearchEngines.forEach((e) => {
-              actions.openUrl(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)));
-            })
-          }
-        ]
-      }
-    ];
   }
 
   getSubMenuItems () {
@@ -168,16 +92,68 @@ class ImageToolsButton extends React.PureComponent {
     return this.getBaseMenu(images[items[0]], this.getDisabledMethods(items[0]));
   }
 
-  _findInTreeByPriority (tree, arr) {
-    if (arr.length === 0 || arr.length === 1) {
-      return tree;
-    }
-    for (const e of arr) {
-      const res = findInReactTree(tree, ({ props }) => props?.id === `sub-${e}`);
-      if (res) {
-        return res;
+  getBaseMenu (image, disabled) {
+    return baseButtonStructure
+      .filter(({ id }) => !this.disabledActions.includes(id))
+      .map((item) => ({
+        ...item,
+        ...this.getExtraItemsProperties(image, item.id),
+        disabled: disabled.includes(item.id),
+        name: Messages[item.keyName]
+      }));
+  }
+
+  getExtraItemsProperties (image, snakeId) {
+    const id = camelCaseify(snakeId);
+    const url = (image.content) ? image.content : image.src;
+    const allowSubText = !this.props.settings.get('hideHints', false); // надо бы как-то рекурсивно удалять, но мне впаду
+
+    const data =  {
+      openImage: {
+        onClick: () => actions.openImage(image)
+      },
+      copyImage: {
+        name: (this.items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE
+      },
+      save: {
+        subtext: (allowSubText) ? this.downloadPath : null
+      },
+      searchImage: {
+        items: [
+          ...this.imageSearchEngines.map((e) => ({
+            type: 'button',
+            name: e.name,
+            subtext: (allowSubText) ? e.note : null,
+            onClick: () => actions.openLink(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)))
+          })),
+          {
+            type: 'button',
+            color: 'colorDanger',
+            name: Messages.IMAGE_TOOLS_SEARCH_EVERYWHERE,
+            onClick: () => this.imageSearchEngines.forEach((e) => {
+              actions.openLink(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)));
+            })
+          }
+        ],
+        getItems () {
+          return this.items;
+        }
       }
-    }
+    };
+
+    return {
+      onClick: () => actions[id](url, this.output, {
+        downloadPath: this.downloadPath
+      }),
+      ...data[id]
+    };
+  }
+
+  getAction (arr, id) {
+    const key = (arr.length === 1 || arr.length === 0) ? this.items[0] : arr[0];
+    const { onClick } = this.getExtraItemsProperties(this.props.images[key], id);
+
+    return onClick;
   }
 }
 
