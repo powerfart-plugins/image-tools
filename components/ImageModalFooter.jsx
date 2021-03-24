@@ -37,7 +37,7 @@ module.exports = class ImageFooter extends React.PureComponent {
     const name = url.split('/').pop();
 
     if (!size) {
-      this._loadSize(url);
+      this._loadSize($image.src);
     }
 
     return (
