@@ -35,7 +35,7 @@ module.exports.copyImage = function (url, output) {
         text: Messages.COPY_LINK,
         size: 'small',
         look: 'outlined',
-        onClick: () => module.exports.copyUrl(url, output)
+        onClick: () => module.exports.copyLink(url, output)
       });
       console.error(e);
     });

@@ -150,7 +150,7 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   getAction (arr, id) {
-    const key = (arr.length === 1 || arr.length === 0) ? this.items[0] : arr[0];
+    const key = (arr.length === 0) ? this.items[0] : arr[0];
     const { onClick } = this.getExtraItemsProperties(this.props.images[key], id);
 
     return onClick;
