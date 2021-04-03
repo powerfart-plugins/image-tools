@@ -18,9 +18,10 @@ module.exports = class ImageTools extends Plugin {
     this.loadStylesheet('style.scss');
     this.registerSettings();
 
-    this.inject('TransitionGroup.default.prototype.render', (...args) => (
-      patches.overlay(...args, (v) => (this.isModalOpen = v))
-    ));
+    this.inject('TransitionGroup.default.prototype.render', (...args) => {
+      this.isModalOpen = false;
+      return patches.overlay(...args, () => this.isModalOpen = true);
+    });
     this.inject('ImageModal.default.prototype.render', patches.imageModal);
     this.inject('MessageContextMenu.default', patches.messageCM);
     this.inject('GuildChannelUserContextMenu.default', patches.userCM);

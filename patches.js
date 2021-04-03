@@ -7,27 +7,32 @@ const Button = require('./components/Button');
 const LensSettings = require('./components/LensSettings');
 const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
-function overlay (args, res, settings, isOpenModal) {
+function overlay (args, res, settings, switchModal) {
   const Overlay = require('./components/Overlay');
   const patch = () => {
     res = React.createElement(Overlay, {
       children: res
     });
-    isOpenModal(true);
+    switchModal();
   };
-  isOpenModal(false);
 
-  try { // NativeModal
-    if (res.props.children[1].props.render().props.children.type.displayName === 'ImageModal') {
+  const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
+  const nativeModalTree = nativeModalChildren?.props?.render();
+
+  const powercordModalChildren =  findInReactTree(res, ({ props }) => props?.renderModal);
+  const powercordModalTree =  powercordModalChildren?.props?.renderModal();
+
+  if (nativeModalTree) {
+    if (findInReactTree(nativeModalTree, ({ type }) => type?.displayName === 'ImageModal')) {
       patch();
     }
-  } catch {}
+  }
 
-  try { // PowercordModal
-    if (res.props.children[1].props.renderModal().type.prototype.render().type().type.displayName === 'ImageModal') {
+  if (powercordModalTree) {
+    if (powercordModalTree?.type.prototype?.render()?.type()?.type?.displayName === 'ImageModal') {
       patch();
     }
-  } catch {}
+  }
 
   return res;
 }
