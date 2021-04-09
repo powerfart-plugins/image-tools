@@ -34,7 +34,7 @@
   {
     "name": "Yandex",
     "id": "yandex",
-    "url": "https://yandex.ru/images/search?url="
+    "url": "https://yandex.ru/images/search?rpt=imageview&url="
   },
   {
     "name": "ImgOps",
