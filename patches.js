@@ -9,29 +9,37 @@ const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 
 function overlay (args, res, settings, switchModal) {
   const Overlay = require('./components/Overlay');
+  const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
+  const powercordModalChildren = findInReactTree(res, ({ props }) => props?.renderModal);
   const patch = () => {
-    res = React.createElement(Overlay, {
-      children: res
-    });
+    res = React.createElement(Overlay, {}, res);
+    console.log('patch!');
     switchModal();
   };
+  let tree;
 
-  const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
-  const nativeModalTree = nativeModalChildren?.props?.render();
+  try {
+    if (nativeModalChildren) {
+      tree = nativeModalChildren.props.render();
+    } else if (powercordModalChildren) {
+      tree = powercordModalChildren.props.renderModal();
+    } else {
+      tree = null;
+    }
+  } catch {}
 
-  const powercordModalChildren =  findInReactTree(res, ({ props }) => props?.renderModal);
-  const powercordModalTree =  powercordModalChildren?.props?.renderModal();
-
-  if (nativeModalTree) {
-    if (findInReactTree(nativeModalTree, ({ type }) => type?.displayName === 'ImageModal')) {
+  if (nativeModalChildren) {
+    if (findInReactTree(tree, ({ type }) => type?.displayName === 'ImageModal')) {
       patch();
     }
   }
 
-  if (powercordModalTree) {
-    if (powercordModalTree?.type.prototype?.render()?.type()?.type?.displayName === 'ImageModal') {
-      patch();
-    }
+  if (powercordModalChildren) {
+    try {
+      if (tree?.type.prototype?.render()?.type()?.type?.displayName === 'ImageModal') {
+        patch();
+      }
+    } catch {}
   }
 
   return res;

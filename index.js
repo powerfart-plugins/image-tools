@@ -46,6 +46,10 @@ module.exports = class ImageTools extends Plugin {
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 
+  get color () {
+    return '#1D69E4';
+  }
+
   injectToGetImageSrc (id) {
     const imageDiscordUtils = getModule([ 'getImageSrc' ], false);
     inject(id, imageDiscordUtils, 'getImageSrc', (args) => {

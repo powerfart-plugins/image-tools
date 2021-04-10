@@ -96,10 +96,10 @@ class ImageToolsButton extends React.PureComponent {
     return baseButtonStructure
       .filter(({ id }) => !this.disabledActions.includes(id))
       .map((item) => ({
-        ...item,
-        ...this.getExtraItemsProperties(image, item.id),
         disabled: disabled.includes(item.id),
-        name: Messages[item.keyName]
+        name: Messages[item.keyName],
+        ...item,
+        ...this.getExtraItemsProperties(image, item.id)
       }));
   }
 
@@ -150,7 +150,7 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   getAction (arr, id) {
-    const key = (arr.length === 0) ? this.items[0] : arr[0];
+    const key = (arr.length) ? arr[0] : this.items[0];
     const { onClick } = this.getExtraItemsProperties(this.props.images[key], id);
 
     return onClick;
