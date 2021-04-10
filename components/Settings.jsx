@@ -1,192 +1,242 @@
-const { existsSync } = require('fs');
+/** A settings component that does routine work for you
+ * @author Xinos#2003
+ * @licence MIT
+ * @version 1.2
+ * @link https://github.com/powerfart-plugins/Settings-component
+ * @docs https://github.com/powerfart-plugins/Settings-component#documentation
+ * @copyright (c) 2021 Xinos
+ */
 
-const { SwitchItem, TextInput, Category, ColorPickerInput, SliderInput, SelectInput } = require('powercord/components/settings');
-const { React, getModule, i18n: { Messages }, constants: { DEFAULT_ROLE_COLOR } } = require('powercord/webpack');
+const { SwitchItem, TextInput, Category, ColorPickerInput, SliderInput, SelectInput, RadioGroup, CheckboxInput } = require('powercord/components/settings');
+const { React, constants: { DEFAULT_ROLE_COLOR } } = require('powercord/webpack');
 
-const { hex2int, int2hex } = getModule([ 'isValidHex' ], false);
-const { getDownloadPath, baseButtonStructure } = require('../utils');
-const imageSearchServices = require('../ReverseImageSearchEngines.json');
+/* eslint-disable no-undefined, object-property-newline, no-use-before-define */
+// noinspection JSUnusedGlobalSymbols
+class Settings extends React.Component {
+  /**
+   * Automatically register settings
+   * @param {Object} params
+   * @param {String} params.id by default = `entityID-settings`
+   * @param {String} params.entityID
+   * @param {String} params.label by default = entityID to titleCase
+   * @param {Array} params.items
+   */
+  static register ({ id, entityID, label, items }) {
+    id = (id) ? id : `${entityID}-settings`;
+    label = (label) ? label : snake2title(entityID);
 
-/* eslint-disable object-property-newline */
-module.exports = class Settings extends React.PureComponent {
-  constructor ({ getSetting, updateSetting }) {
-    super();
-    this.state = {
-      errorSavePath: null
-    };
-    if (!getSetting('disabledImageSearchEngines')) {
-      updateSetting('disabledImageSearchEngines', []);
-    }
-    if (!getSetting('disabledActions')) {
-      updateSetting('disabledActions', []);
-    }
+    powercord.api.settings.registerSettings(id, {
+      category: entityID,
+      label,
+      render: (settings) => React.createElement(Settings, { ...settings, items })
+    });
   }
 
   render () {
-    const { getSetting, toggleSetting } = this.props;
-
     return <>
-      <SwitchItem
-        value={ getSetting('hideNativeButtons', true) }
-        onChange={ () => toggleSetting('hideNativeButtons', true) }
-        note={ Messages.IMAGE_TOOLS_HIDE_NATIVE_BUTTONS_NOTE }
-      >{Messages.IMAGE_TOOLS_HIDE_NATIVE_BUTTONS}</SwitchItem>
-      <SwitchItem
-        value={ getSetting('patchImageSize', true) }
-        onChange={ () => toggleSetting('patchImageSize', true) }
-        note={ Messages.IMAGE_TOOLS_RESIZE_IMAGES_NOTE }
-      >{Messages.IMAGE_TOOLS_RESIZE_IMAGES}</SwitchItem>
-
-      { this.renderLensCategory() }
-      { this.renderBtnCategory() }
+      { this.renderItems(this.props.items) }
     </>;
   }
 
-  renderLensCategory () {
+  get itemsTypes () {
+    return {
+      switch: this.renderSwitch.bind(this),
+      colorPicker: this.renderColorPicker.bind(this),
+      slider: this.renderSlider.bind(this),
+      select: this.renderSelect.bind(this),
+      text: this.renderText.bind(this),
+      radioGroup: this.renderRadioGroup.bind(this),
+      checkbox: this.renderCheckbox.bind(this),
+      category: this.renderCategory.bind(this)
+    };
+  }
+
+  renderItems (items) {
+    return items.map((item) => {
+      const render = this.itemsTypes[item.type];
+      return (render) ? render(item) : null;
+    });
+  }
+
+  renderSwitch (item) {
+    const { key, def, onClick, name } = item;
+    const { getSetting, toggleSetting } = this.props;
+    const value = this._getValue(item.value);
+
+    return (
+      <SwitchItem
+        {...item}
+        children={name}
+        onChange={(v) => (onClick) ? this._passSetting(v, onClick) : toggleSetting(key, def)}
+        value={(key) ? getSetting(key, def) : value}
+      />
+    );
+  }
+
+  renderColorPicker (item) {
+    const { key, def, onChange } = item;
     const { getSetting, updateSetting } = this.props;
+    const realDef = (def === undefined) ? DEFAULT_ROLE_COLOR : def;
+    const value = this._getValue(item.value);
+
     return (
-      <this.Category2
-        name={Messages.IMAGE_TOOLS_LENS_SETTINGS}
-      >
-        <ColorPickerInput
-          value={hex2int(getSetting('lensColor', '000000'))}
-          onChange={(v) => updateSetting('lensColor', (v === DEFAULT_ROLE_COLOR) ? null : int2hex(v))}
-          note={Messages.IMAGE_TOOLS_LENS_BORDER_COLOR_NOTE}
-        >{Messages.IMAGE_TOOLS_LENS_BORDER_COLOR}</ColorPickerInput>
-        <SliderInput
-          stickToMarkers
-          keyboardStep= {1}
-          markers={Array.from({ length: 10 }, (_, i) => (i + 1) * 5)}
-          onMarkerRender={(e) => `${e}x`}
-          onValueChange={(v) => updateSetting('maxZoomRatio', v)}
-          defaultValue={ getSetting('maxZoomRatio', 15) }
-          initialValue={ getSetting('maxZoomRatio', 15) }
-          note={Messages.IMAGE_TOOLS_ZOOM_RATIO_NOTE}
-        >{Messages.IMAGE_TOOLS_MAX_ZOOM_RATIO}</SliderInput>
-        <SliderInput
-          stickToMarkers
-          keyboardStep= {1}
-          markers={Array.from({ length: 10 }, (_, i) => (i + 1) * 100)}
-          onMarkerRender={(e) => `${e}px`}
-          onValueChange={(v) => updateSetting('maxLensRadius', v)}
-          defaultValue={ getSetting('maxLensRadius', 700) }
-          initialValue={ getSetting('maxLensRadius', 700) }
-          note={Messages.IMAGE_TOOLS_LENS_RADIUS_NOTE}
-        >{Messages.IMAGE_TOOLS_MAX_LENS_RADIUS}</SliderInput>
-      </this.Category2>
+      <ColorPickerInput
+        {...item}
+        value={(key) ? getSetting(key, realDef) : value}
+        onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, ((v === realDef) ? null : v))}
+        children={item.name}
+        default={item.defaultColor}
+        defaultColors={item.defaultColors}
+      />
     );
   }
 
-  renderBtnCategory () {
-    const { getSetting, toggleSetting, updateSetting, settings } = this.props;
-    const savePathSave = global._.debounce((path) => {
-      if (!existsSync(path)) {
-        this.setState({ errorSavePath: Messages.IMAGE_TOOLS_CANNOT_FIND_PATH });
-        return;
-      }
-      this.setState({ errorSavePath: null });
-      updateSetting('pathSave', path);
-    }, 250);
+  renderSlider (item) {
+    const { key, def, sequenceNumsUp, onChange, keyboardStep, stickToMarkers, name } = item;
+    const { getSetting, updateSetting } = this.props;
+    const value = this._getValue(item.value);
 
+    if (sequenceNumsUp) {
+      item.markers = Array.from(
+        { length: sequenceNumsUp },
+        (_, i) => i + 1
+      );
+    }
     return (
-      <this.Category2
-        name={Messages.IMAGE_TOOLS_BUTTON}
-      >
-        <SwitchItem
-          value={ getSetting('hideSuccessToasts', false) }
-          onChange={ () => toggleSetting('hideSuccessToasts', false) }
-          note={Messages.IMAGE_TOOLS_QUIET_EXECUTION_NOTE}
-        >{Messages.IMAGE_TOOLS_QUIET_EXECUTION}</SwitchItem>
-        <SwitchItem
-          value={ getSetting('hideHints', false) }
-          onChange={ () => toggleSetting('hideHints', false) }
-          note={Messages.IMAGE_TOOLS_HIDE_HINTS_NOTE}
-        >{Messages.IMAGE_TOOLS_HIDE_HINTS}</SwitchItem>
-        <SwitchItem
-          value={ getSetting('disableWebp', true) }
-          onChange={ () => toggleSetting('disableWebp', true) }
-        >{Messages.IMAGE_TOOLS_HIDE_WEBP}</SwitchItem>
-        <SelectInput
-          options={baseButtonStructure
-            .filter(({ type }) => type === 'button')
-            .map(({ id, keyName }) => ({
-              label: Messages[keyName],
-              value: id
-            }))}
-          value={getSetting('defaultAction', 'open-image')}
-          onChange={({ value }) => updateSetting('defaultAction', value)}
-        >{Messages.IMAGE_TOOLS_DEFAULT_ACTION}</SelectInput>
-        <TextInput
-          defaultValue={getDownloadPath(getSetting('pathSave', null))}
-          note={Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE}
-          onChange={savePathSave}
-          error={this.state.errorSavePath}
-        >{Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH}</TextInput>
-        <this.Category2
-          name={Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES}
-          opened={false}
-        >
-          {
-            imageSearchServices.map(({ name, note }) => (
-              <SwitchItem
-                value={ this.isEnableEngine(name) }
-                onChange={ (v) => {
-                  const arr = settings.disabledImageSearchEngines;
-                  const id = this.getEngineId(name);
-
-                  if (v) {
-                    arr.splice(arr.indexOf(id), 1);
-                  } else {
-                    arr.push(id);
-                  }
-                  updateSetting('disabledImageSearchEngines', arr);
-                }}
-                note={ note }
-              >{name}</SwitchItem>
-            ))
-          }
-        </this.Category2>
-        <this.Category2
-          name={Messages.IMAGE_TOOLS_DISABLE_ACTIONS}
-          opened={false}
-        >
-          {
-            baseButtonStructure.map(({ id, keyName }) => (
-              <SwitchItem
-                value={!settings.disabledActions.includes(id)}
-                onChange={(v) => {
-                  const arr = settings.disabledActions;
-
-                  if (v) {
-                    arr.splice(arr.indexOf(id), 1);
-                  } else {
-                    arr.push(id);
-                  }
-                  updateSetting('disabledActions', arr);
-                }}
-              >{Messages[keyName]}</SwitchItem>
-            ))
-          }
-        </this.Category2>
-      </this.Category2>
+      <SliderInput
+        {...item}
+        initialValue={(key) ? getSetting(key, def) : value}
+        onValueChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v)}
+        keyboardStep={(keyboardStep === undefined) ? 1 : keyboardStep}
+        stickToMarkers={(stickToMarkers === undefined) ? true : stickToMarkers}
+        children={name}
+      />
     );
   }
 
-  Category2 (props) {
-    const def = (props.opened === undefined) ? true : props.opened; // eslint-disable-line no-undefined
+  renderSelect (item) {
+    const { key, def, onChange, items, name } = item;
+    const { getSetting, updateSetting } = this.props;
+    const value = this._getValue(item.value);
+
+    return (
+      <SelectInput
+        {...item}
+        value={(key) ? getSetting(key, def) : value}
+        onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v.value)}
+        options={items}
+        children={name}
+      />
+    );
+  }
+
+  renderText (item) {
+    const { key, def, name, onChange, debounce } = item;
+    const { getSetting, updateSetting } = this.props;
+    const value = this._getValue(item.value);
+    const defaultValue = this._getValue(item.default);
+    const runDebounce = (() => {
+      let timer = null;
+      return (callback) => {
+        clearTimeout(timer);
+        timer = setTimeout(callback, debounce || 250);
+      };
+    })();
+
+    function WrapTextInput (props) { // It is necessary to expand the functionality, so far only Errors
+      const [ error, onError ] = React.useState(null);
+      const newProps = {
+        ...props,
+        error,
+        onChange: (v) => {
+          onError(null);
+          runDebounce(() => {
+            const res = props.onChange(v);
+            onError(res?.error);
+          });
+        }
+      };
+
+      return <TextInput {...newProps}/>;
+    }
+
+    return (
+      <WrapTextInput
+        {...item}
+        value={(key) ? getSetting(key, def) : value}
+        defaultValue={(key) ? getSetting(key, def) : defaultValue}
+        onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v)}
+        children={name}
+      />
+    );
+  }
+
+  renderRadioGroup (item) {
+    const { key, def, onChange, name, items } = item;
+    const { getSetting, updateSetting } = this.props;
+    const value = this._getValue(item.value);
+
+    return (
+      <RadioGroup
+        {...item}
+        value={(key) ? getSetting(key, def) : value}
+        onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v.value)}
+        options={items}
+        children={name}
+      />
+    );
+  }
+
+  renderCheckbox (item) {
+    const { key, def, onClick, name } = item;
+    const { getSetting, toggleSetting } = this.props;
+    const auto = (key && (def !== undefined));
+
+    return (
+      <CheckboxInput
+        {...item}
+        onChange={(v) => (onClick) ? this._passSetting(v, onClick) : toggleSetting(key, v)}
+        value={(auto) ? getSetting(key, def) : item.value }
+        children={name}
+      />
+    );
+  }
+
+  renderCategory (item) {
+    return (
+      <this._Category2
+        children={this.renderItems(item.items)}
+        {...item}
+      />
+    );
+  }
+
+  _Category2 (props) {
+    const def = (props.opened === undefined) ? true : props.opened;
     const [ opened, onChange ] = React.useState(def);
     props = { ...props, onChange, opened }; // eslint-disable-line object-property-newline
 
     return <Category {...props}/>;
   }
 
-  getEngineId (name) {
-    return name
-      .replace(' ', '-')
-      .toLowerCase();
+  _passSetting (value = null, handler) {
+    const { getSetting, updateSetting, toggleSetting } = this.props;
+    return handler({ getSetting, updateSetting, toggleSetting }, value);
   }
 
-  isEnableEngine (name) {
-    return !this.props.getSetting('disabledImageSearchEngines').includes(this.getEngineId(name));
+  _getValue (v) {
+    return (typeof v === 'function') ? this._passSetting(null, v) : v;
   }
-};
+}
+
+function snake2title (snakeCase) {
+  return snakeCase
+    .toLowerCase()
+    .split('-')
+    .map((str) => (
+      str.charAt(0).toUpperCase() + str.slice(1)
+    ))
+    .join(' ');
+}
+
+module.exports = Settings;

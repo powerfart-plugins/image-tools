@@ -2,7 +2,8 @@ const { Plugin } = require('powercord/entities');
 const { inject, uninject } = require('powercord/injector');
 const { getModule } = require('powercord/webpack');
 
-const Settings = require('./components/Settings');
+const Settings = require('./components/Settings.jsx');
+const { baseSettingStructure } = require('./utils');
 const patches = require('./patches');
 const i18n = require('./i18n');
 
@@ -16,7 +17,10 @@ module.exports = class ImageTools extends Plugin {
   async startPlugin () {
     powercord.api.i18n.loadAllStrings(i18n);
     this.loadStylesheet('style.scss');
-    this.registerSettings();
+    Settings.register({
+      entityID: this.entityID,
+      items: baseSettingStructure()
+    });
 
     this.inject('TransitionGroup.default.prototype.render', (...args) => {
       this.isModalOpen = false;
@@ -40,14 +44,6 @@ module.exports = class ImageTools extends Plugin {
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-wrapper-lazy-image');
     powercord.api.settings.unregisterSettings('image-tools-settings');
-  }
-
-  registerSettings () {
-    powercord.api.settings.registerSettings('image-tools-settings', {
-      category: this.entityID,
-      label: 'Image Tools',
-      render: Settings
-    });
   }
 
   injectToGetImageSrc (id) {
