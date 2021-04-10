@@ -13,7 +13,6 @@ function overlay (args, res, settings, switchModal) {
   const powercordModalChildren = findInReactTree(res, ({ props }) => props?.renderModal);
   const patch = () => {
     res = React.createElement(Overlay, {}, res);
-    console.log('patch!');
     switchModal();
   };
   let tree;
