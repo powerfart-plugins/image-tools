@@ -116,7 +116,7 @@ module.exports = function () {
                 type: 'switch',
                 name,
                 note,
-                value: ({ getSetting }) => !getSetting('disabledImageSearchEngines').includes(id),
+                value: ({ getSetting }) => !getSetting('disabledImageSearchEngines', []).includes(id),
                 onClick: ({ getSetting, updateSetting }, v) => {
                   const arr = getSetting('disabledImageSearchEngines', []);
                   if (v) {
