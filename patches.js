@@ -126,7 +126,7 @@ function guildCM ([ { guild } ], res, settings) {
 function imageCM ([ { target } ], res, settings) {
   const [ e, src ] = getImage(target);
   const button = Button.render({
-    [e]: { src },
+    images: { [e]: { src } },
     settings
   });
 
