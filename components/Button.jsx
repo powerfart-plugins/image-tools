@@ -105,8 +105,11 @@ class ImageToolsButton extends React.PureComponent {
 
   getExtraItemsProperties (image, snakeId) {
     const id = camelCaseify(snakeId);
-    const url = (image.content) ? image.content : image.src;
+    const { src, original } = image;
     const allowSubText = !this.props.settings.get('hideHints', false); // надо бы как-то рекурсивно удалять, но мне впаду
+    const openLink = (url, withoutEncode) => actions.openLink(
+      (url + ((withoutEncode) ? src : encodeURIComponent(src))), null, { original }
+    );
 
     const data =  {
       openImage: {
@@ -124,15 +127,13 @@ class ImageToolsButton extends React.PureComponent {
             type: 'button',
             name: e.name,
             subtext: (allowSubText) ? e.note : null,
-            onClick: () => actions.openLink(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)))
+            onClick: () => openLink(e.url, e.withoutEncode)
           })),
           {
             type: 'button',
             color: 'colorDanger',
             name: Messages.IMAGE_TOOLS_SEARCH_EVERYWHERE,
-            onClick: () => this.imageSearchEngines.forEach((e) => {
-              actions.openLink(e.url + ((e.withoutEncode) ? url : encodeURIComponent(url)));
-            })
+            onClick: () => this.imageSearchEngines.forEach(({ url, withoutEncode }) => openLink(url, withoutEncode))
           }
         ],
         getItems () {
@@ -142,8 +143,9 @@ class ImageToolsButton extends React.PureComponent {
     };
 
     return {
-      onClick: () => actions[id](url, this.output, {
-        downloadPath: this.downloadPath
+      onClick: () => actions[id](image.src, this.output, {
+        downloadPath: this.downloadPath,
+        original
       }),
       ...data[id]
     };

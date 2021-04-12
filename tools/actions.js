@@ -18,7 +18,7 @@ module.exports.openImage = function (args) {
   });
 };
 
-module.exports.copyImage = function (url, output) {
+module.exports.copyImage = function (url, output, params) {
   const { copyImage } = getModule([ 'copyImage' ], false);
   const parseUrl = new URL(url);
 
@@ -35,18 +35,20 @@ module.exports.copyImage = function (url, output) {
         text: Messages.COPY_LINK,
         size: 'small',
         look: 'outlined',
-        onClick: () => module.exports.copyLink(url, output)
+        onClick: () => module.exports.copyLink(url, output, params)
       });
       console.error(e);
     });
 };
 
-module.exports.openLink = function (url) {
-  shell.openExternal(url);
+module.exports.openLink = function (url, output, { original }) {
+  shell.openExternal(original || url);
 };
 
-module.exports.copyLink = function (url, output) {
-  clipboard.write({ text: url });
+module.exports.copyLink = function (url, output, { original }) {
+  clipboard.write({
+    text: original || url
+  });
   output.success(Messages.IMAGE_TOOLS_IMAGE_LINK_COPIED);
 };
 

@@ -72,6 +72,7 @@ function messageCM ([ { target, message: { content } } ], res, settings) {
     const { width, height } = target;
     const menu = res.props.children;
     const hideNativeButtons = settings.get('hideNativeButtons', true);
+    const [ e, src ] = getImage(target);
 
     if (hideNativeButtons) {
       for (let i = menu.length - 1; i >= 0; i -= 1) {
@@ -84,14 +85,15 @@ function messageCM ([ { target, message: { content } } ], res, settings) {
       }
     }
 
-    const args = {
-      content: isUrl(content) ? content : null,
-      width: width * 2,
-      height: height * 2
-    };
-
     initButton(menu, {
-      images: getImagesObj(target, args),
+      images: {
+        [e]: {
+          src,
+          original: isUrl(content) ? content : null,
+          width: width * 2,
+          height: height * 2
+        }
+      },
       settings
     });
   }
@@ -122,8 +124,11 @@ function guildCM ([ { guild } ], res, settings) {
 }
 
 function imageCM ([ { target } ], res, settings) {
-  const images = getImagesObj(target);
-  const button = Button.render({ images, settings });
+  const [ e, src ] = getImage(target);
+  const button = Button.render({
+    [e]: { src },
+    settings
+  });
 
   const openImage = findInReactTree(button, ({ props }) => props?.id === 'open-image');
 
@@ -146,15 +151,13 @@ function groupDMCM ([ { channel } ], res, settings) {
   return res;
 }
 
-function getImagesObj (target, obj) {
-  const img = {};
+function getImage (target) {
   const src = target.src.split('?').shift();
   let e = src.substr(src.lastIndexOf('.') + 1, src.length);
   if (e.length > 3) {
     e = 'png';
   }
-  img[e] = { src, ...obj }; // eslint-disable-line object-property-newline
-  return img;
+  return [ e, src ];
 }
 
 function isUrl (string) {
