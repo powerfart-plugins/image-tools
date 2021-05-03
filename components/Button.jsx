@@ -2,7 +2,8 @@ const { React, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
 const { camelCaseify } = require('powercord/util');
 
-const { getDownloadPath, OutputManager, baseButtonStructure } = require('../utils');
+const { getDownloadPath, OutputManager } = require('../utils');
+const { button } = require('../structures');
 const actions = require('../tools/actions');
 
 const imageSearchEngines = require('../ReverseImageSearchEngines.json');
@@ -93,7 +94,7 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   getBaseMenu (image, disabled) {
-    return baseButtonStructure
+    return button
       .filter(({ id }) => !this.disabledActions.includes(id))
       .map((item) => ({
         disabled: disabled.includes(item.id),

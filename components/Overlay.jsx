@@ -59,9 +59,9 @@ module.exports = class ImageToolsOverlay extends React.Component {
             <div
               className={`lens ${this.state.showLensInfo ? null : 'lens-hide'}`}
             >
-              <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {zoomRatio.toFixed(1)}x</p>
-              <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {lensRadius.toFixed()}px</p>
-              <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {wheelStep.toFixed(2)}</p>
+              <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {Number(zoomRatio).toFixed(1)}x</p>
+              <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {Number(lensRadius).toFixed()}px</p>
+              <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {Number(wheelStep).toFixed(2)}</p>
             </div>
           }
         </div>

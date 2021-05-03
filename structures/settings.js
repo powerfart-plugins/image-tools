@@ -1,7 +1,7 @@
 const { existsSync } = require('fs');
 
-const baseButtonStructure = require('./baseButtonStructure');
-const getDownloadPath = require('./getDownloadPath');
+const buttonStructure = require('./button.js');
+const getDownloadPath = require('../utils/getDownloadPath.js');
 const imageSearchServices = require('../ReverseImageSearchEngines.json');
 
 module.exports = function () {
@@ -81,7 +81,7 @@ module.exports = function () {
           name: Messages.IMAGE_TOOLS_DEFAULT_ACTION,
           key: 'defaultAction',
           def: 'open-image',
-          items: baseButtonStructure
+          items: buttonStructure
             .filter(({ type }) => type === 'button')
             .map(({ id, keyName }) => ({
               label: Messages[keyName],
@@ -135,7 +135,7 @@ module.exports = function () {
           opened: false,
           name: Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES,
           items: [
-            ...baseButtonStructure.map(({ id, keyName }) => (
+            ...buttonStructure.map(({ id, keyName }) => (
               {
                 type: 'switch',
                 name: Messages[keyName],

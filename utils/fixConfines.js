@@ -1,12 +1,11 @@
-module.exports = function (num, borders, plus = 0) {
+module.exports = function (num, borders) {
   const [ min, max ] = borders;
-  let val = num + plus;
 
-  if (val < min) {
-    val = min;
+  if (num < min) {
+    num = min;
   }
-  if (val > max) {
-    val = max;
+  if (num > max) {
+    num = max;
   }
-  return val;
+  return Number(num);
 };

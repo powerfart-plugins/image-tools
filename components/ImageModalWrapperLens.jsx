@@ -140,8 +140,8 @@ module.exports = class ImageWrapperLens extends React.PureComponent {
       const step = (target === 'wheelStep') ? min : (current.wheelStep * min);
       const plus = (e.deltaY < 0) ? step : (step * -1);
 
-      current[target] = fixConfines(Number(current[target]), borders[target], plus);
-      setSetting(target, current[target]);
+      current[target] = fixConfines((current[target] + plus), borders[target]);
+      setSetting(target, Number(current[target]));
       overlay.sendInfo({ lens: current });
     };
 

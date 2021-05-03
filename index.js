@@ -3,7 +3,7 @@ const { inject, uninject } = require('powercord/injector');
 const { getModule } = require('powercord/webpack');
 
 const Settings = require('./components/Settings.jsx');
-const { baseSettingsStructure } = require('./utils');
+const { settings } = require('./structures');
 const patches = require('./patches');
 const i18n = require('./i18n');
 
@@ -19,7 +19,7 @@ module.exports = class ImageTools extends Plugin {
     this.loadStylesheet('style.scss');
     Settings.register({
       entityID: this.entityID,
-      items: baseSettingsStructure()
+      items: settings()
     });
 
     this.inject('TransitionGroup.default.prototype.render', (...args) => {
