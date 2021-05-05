@@ -10,7 +10,9 @@
   "IMAGE_TOOLS_DISABLE_ANTI_ALIASING_NOTE": "Отключить сглаживание изображения в линзе",
   "IMAGE_TOOLS_RESIZE_IMAGES": "Изменить размер изображений",
   "IMAGE_TOOLS_RESIZE_IMAGES_NOTE": "Увеличить размер изображений в модальных окнах",
-  "IMAGE_TOOLS_LENS_SETTINGS": "Настройки линзы",
+  "IMAGE_TOOLS_GENERAL_SETTINGS": "Основные",
+  "IMAGE_TOOLS_LENS_SETTINGS": "Линза",
+  "IMAGE_TOOLS_CONTEXT_MENU_SETTINGS": "Контекстное меню",
   "IMAGE_TOOLS_LENS_BORDER_COLOR": "Цвет обводки линзы",
   "IMAGE_TOOLS_LENS_BORDER_COLOR_NOTE": "По умолчанию используется цвет \"interactive-hover\" вашей темы",
   "IMAGE_TOOLS_ZOOM_RATIO": "Коэффициент зума",
@@ -35,7 +37,7 @@
   "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Искать везде",
   "IMAGE_TOOLS_HIDE_HINTS": "Скрыть подсказки на кнопках",
   "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Скрыть вторую строчку на некоторых кнопках для компактности",
-  "IMAGE_TOOLS_DEFAULT_ACTION": "Действие по умолчанию при нажатии на главную кнопку",
-  "IMAGE_TOOLS_DISABLE_ACTIONS": "Функции кнопки",
-  "IMAGE_TOOLS_BUTTON": "Настройка основной кнопки"
+  "IMAGE_TOOLS_DEFAULT_ACTION": "Действие основной кнопки",
+  "IMAGE_TOOLS_DEFAULT_ACTION_NOTE": "Действие по умолчанию при нажатии на основную кнопку",
+  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Функции кнопки"
 }

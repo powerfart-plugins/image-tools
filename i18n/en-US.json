@@ -10,7 +10,9 @@
   "IMAGE_TOOLS_DISABLE_ANTI_ALIASING_NOTE": "Disable anti aliasing image in lens",
   "IMAGE_TOOLS_RESIZE_IMAGES": "Resize images",
   "IMAGE_TOOLS_RESIZE_IMAGES_NOTE": "Increase the size of images in modals",
-  "IMAGE_TOOLS_LENS_SETTINGS": "Lens settings",
+  "IMAGE_TOOLS_GENERAL_SETTINGS": "General",
+  "IMAGE_TOOLS_LENS_SETTINGS": "Lens",
+  "IMAGE_TOOLS_CONTEXT_MENU_SETTINGS": "Context menu",
   "IMAGE_TOOLS_LENS_BORDER_COLOR": "Lens border color",
   "IMAGE_TOOLS_LENS_BORDER_COLOR_NOTE": "The default is the \"interactive-hover\" color of your theme",
   "IMAGE_TOOLS_ZOOM_RATIO": "Zoom ratio",
@@ -35,7 +37,7 @@
   "IMAGE_TOOLS_SEARCH_EVERYWHERE": "Search everywhere",
   "IMAGE_TOOLS_HIDE_HINTS": "Hide button tips",
   "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Hide the second line of some buttons for compactness",
-  "IMAGE_TOOLS_DEFAULT_ACTION": "Default action when clicking on the main button",
-  "IMAGE_TOOLS_DISABLE_ACTIONS": "Button actions",
-  "IMAGE_TOOLS_BUTTON": "Primary Button Setting"
+  "IMAGE_TOOLS_DEFAULT_ACTION": "General button action",
+  "IMAGE_TOOLS_DEFAULT_ACTION_NOTE": "Default action when clicking on the general button",
+  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Button actions"
 }

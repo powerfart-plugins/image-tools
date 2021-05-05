@@ -1,17 +1,22 @@
-/** A settings component that does routine work for you
+/** Settings component
+ * A component that does routine work for you
  * @author Xinos#2003
  * @licence MIT
- * @version 1.2
+ * @version 1.3.1
  * @link https://github.com/powerfart-plugins/Settings-component
  * @docs https://github.com/powerfart-plugins/Settings-component#documentation
  * @copyright (c) 2021 Xinos
  */
 
-const { SwitchItem, TextInput, Category, ColorPickerInput, SliderInput, SelectInput, RadioGroup, CheckboxInput } = require('powercord/components/settings');
-const { React, constants: { DEFAULT_ROLE_COLOR } } = require('powercord/webpack');
+const { React, getModule, constants: { DEFAULT_ROLE_COLOR } } = require('powercord/webpack');
+const Components = {
+  ...require('powercord/components/settings'),
+  ...require('powercord/components')
+};
 
 /* eslint-disable no-undefined, object-property-newline, no-use-before-define */
-// noinspection JSUnusedGlobalSymbols
+// noinspection JSUnresolvedFunction,JSUnusedGlobalSymbols
+
 class Settings extends React.Component {
   /**
    * Automatically register settings
@@ -32,6 +37,11 @@ class Settings extends React.Component {
     });
   }
 
+  constructor (props) {
+    super(props);
+    this.state = {}; // useState in a TabBar is suck
+  }
+
   render () {
     return <>
       { this.renderItems(this.props.items) }
@@ -40,21 +50,28 @@ class Settings extends React.Component {
 
   get itemsTypes () {
     return {
-      switch: this.renderSwitch.bind(this),
-      colorPicker: this.renderColorPicker.bind(this),
-      slider: this.renderSlider.bind(this),
-      select: this.renderSelect.bind(this),
-      text: this.renderText.bind(this),
-      radioGroup: this.renderRadioGroup.bind(this),
-      checkbox: this.renderCheckbox.bind(this),
-      category: this.renderCategory.bind(this)
+      switch: this.renderSwitch,
+      colorPicker: this.renderColorPicker,
+      slider: this.renderSlider,
+      select: this.renderSelect,
+      text: this.renderText,
+      radioGroup: this.renderRadioGroup,
+      checkbox: this.renderCheckbox,
+      category: this.renderCategory,
+      tabBar: this.renderTabBar
     };
   }
 
   renderItems (items) {
-    return items.map((item) => {
-      const render = this.itemsTypes[item.type];
-      return (render) ? render(item) : null;
+    return items.map((item, index) => {
+      const ownRender = ('type' in item) ? this.itemsTypes[item.type] : null;
+
+      if (ownRender) {
+        return ownRender.call(this, item, index);
+      } else if (typeof item === 'function') {
+        return this._passSetting(null, item);
+      }
+      return null;
     });
   }
 
@@ -64,7 +81,7 @@ class Settings extends React.Component {
     const value = this._getValue(item.value);
 
     return (
-      <SwitchItem
+      <Components.SwitchItem
         {...item}
         children={name}
         onChange={(v) => (onClick) ? this._passSetting(v, onClick) : toggleSetting(key, def)}
@@ -80,7 +97,7 @@ class Settings extends React.Component {
     const value = this._getValue(item.value);
 
     return (
-      <ColorPickerInput
+      <Components.ColorPickerInput
         {...item}
         value={(key) ? getSetting(key, realDef) : value}
         onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, ((v === realDef) ? null : v))}
@@ -103,7 +120,7 @@ class Settings extends React.Component {
       );
     }
     return (
-      <SliderInput
+      <Components.SliderInput
         {...item}
         initialValue={(key) ? getSetting(key, def) : value}
         onValueChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v)}
@@ -115,16 +132,17 @@ class Settings extends React.Component {
   }
 
   renderSelect (item) {
-    const { key, def, onChange, items, name } = item;
+    const { key, def, onChange, items, name, disabled } = item;
     const { getSetting, updateSetting } = this.props;
     const value = this._getValue(item.value);
 
     return (
-      <SelectInput
+      <Components.SelectInput
         {...item}
         value={(key) ? getSetting(key, def) : value}
         onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v.value)}
-        options={items}
+        disabled={(disabled) ? this._passSetting(null, disabled) : null}
+        options={this._getValue(items)}
         children={name}
       />
     );
@@ -143,7 +161,7 @@ class Settings extends React.Component {
       };
     })();
 
-    function WrapTextInput (props) { // It is necessary to expand the functionality, so far only Errors
+    function TextInput2 (props) { // It is necessary to expand the functionality, so far only Errors
       const [ error, onError ] = React.useState(null);
       const newProps = {
         ...props,
@@ -157,11 +175,11 @@ class Settings extends React.Component {
         }
       };
 
-      return <TextInput {...newProps}/>;
+      return <Components.TextInput {...newProps}/>;
     }
 
     return (
-      <WrapTextInput
+      <TextInput2
         {...item}
         value={(key) ? getSetting(key, def) : value}
         defaultValue={(key) ? getSetting(key, def) : defaultValue}
@@ -177,7 +195,7 @@ class Settings extends React.Component {
     const value = this._getValue(item.value);
 
     return (
-      <RadioGroup
+      <Components.RadioGroup
         {...item}
         value={(key) ? getSetting(key, def) : value}
         onChange={(v) => (onChange) ? this._passSetting(v, onChange) : updateSetting(key, v.value)}
@@ -193,7 +211,7 @@ class Settings extends React.Component {
     const auto = (key && (def !== undefined));
 
     return (
-      <CheckboxInput
+      <Components.CheckboxInput
         {...item}
         onChange={(v) => (onClick) ? this._passSetting(v, onClick) : toggleSetting(key, v)}
         value={(auto) ? getSetting(key, def) : item.value }
@@ -203,20 +221,56 @@ class Settings extends React.Component {
   }
 
   renderCategory (item) {
+    const Category2 = (props) => {
+      const def = (props.opened === undefined) ? true : props.opened;
+      const [ opened, onChange ] = React.useState(def);
+      props = { ...props, onChange, opened };
+
+      return <Components.Category {...props}/>;
+    };
+
     return (
-      <this._Category2
-        children={this.renderItems(item.items)}
-        {...item}
-      />
+      <Category2{...item}>
+        {this.renderItems(item.items)}
+      </Category2>
     );
   }
 
-  _Category2 (props) {
-    const def = (props.opened === undefined) ? true : props.opened;
-    const [ opened, onChange ] = React.useState(def);
-    props = { ...props, onChange, opened }; // eslint-disable-line object-property-newline
+  renderTabBar (item, index) {
+    const classes = getModule([ 'topPill', 'item' ], false);
+    const stateKey = `tabBar-${index}`;
+    if (this.state[stateKey] === undefined) {
+      this.state[stateKey] = '0';
+      this.setState({
+        [stateKey]: (item.selected === undefined) ? '0' : item.selected
+      });
+    }
 
-    return <Category {...props}/>;
+    return (
+      <div className='powercord-entities-manage powercord-text'>
+        <div className='powercord-entities-manage-tabs'>
+          <Components.TabBar
+            {...item}
+            type={classes.topPill}
+            selectedItem={this.state[stateKey]}
+            onItemSelect={(v) => this.setState({ [stateKey]: v })}
+          >
+            {
+              item.items.map((item, index) => (
+                <Components.TabBar.Item
+                  id={String(index)}
+                  selectedItem={this.state[stateKey]}
+                  className={classes.item}
+                >
+                  {item.name}
+                </Components.TabBar.Item>
+              ))
+            }
+          </Components.TabBar>
+        </div>
+        { this.renderItems(item.items[this.state[stateKey]].items) }
+      </div>
+    );
   }
 
   _passSetting (value = null, handler) {
