@@ -1,10 +1,10 @@
-const { React, getModule, i18n: { Messages }, channels: { getChannelId } } = require('powercord/webpack');
+const { React, getModule, getModuleByDisplayName, i18n: { Messages }, channels: { getChannelId } } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
 const { findInReactTree } = require('powercord/util');
 
 const { getImages } = require('../utils');
 
-const ImageFooter = require('./ImageModalFooter.jsx');
+const OverlayUI = require('./OverlayUI.jsx');
 
 module.exports = class ImageToolsOverlay extends React.Component {
   constructor (props) {
@@ -26,20 +26,12 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
   componentDidUpdate (prevProps, prevState) {
     if (prevState.infoFromImage.lens !== this.state.infoFromImage.lens) {
-      this.setState({
-        showLensInfo: true
-      });
-      setTimeout(() => {
-        this.setState({
-          showLensInfo: false
-        });
-      }, 2500);
+      this.setState({ showLensInfo: true });
+      setTimeout(() => this.setState({ showLensInfo: false }), 2500);
     }
   }
 
   render () {
-    const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
-
     return (
       <div
         onMouseMove={this.state.onMouseMove}
@@ -53,36 +45,58 @@ module.exports = class ImageToolsOverlay extends React.Component {
         }}
       >
         {this.props.children}
-
-        <div className='image-tools-overlay-info'>
-          {(zoomRatio && lensRadius && wheelStep) &&
-            <div
-              className={`lens ${this.state.showLensInfo ? null : 'lens-hide'}`}
-            >
-              <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {Number(zoomRatio).toFixed(1)}x</p>
-              <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {Number(lensRadius).toFixed()}px</p>
-              <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {Number(wheelStep).toFixed(2)}</p>
-            </div>
-          }
-        </div>
+        {this.renderInfo()}
       </div>
     );
   }
 
+  renderInfo () { // @todo перенести в OverlayUI
+    const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
+    return (
+      <div className='image-tools-overlay-info'>
+        {(zoomRatio && lensRadius && wheelStep) &&
+          <div
+            className={`lens ${this.state.showLensInfo ? null : 'lens-hide'}`}
+          >
+            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {Number(zoomRatio).toFixed(1)}x</p>
+            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {Number(lensRadius).toFixed()}px</p>
+            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {Number(wheelStep).toFixed(2)}</p>
+          </div>
+        }
+      </div>
+    );
+  }
+
+  getButtons () {
+    const Retry = getModuleByDisplayName('Retry', false);
+
+    return [
+      // {
+      //   tooltip: 'rotate',
+      //   Icon: Retry,
+      //   callback: () => console.log('nope')
+      // }
+    ];
+  }
+
   _injectToImageModal () {
-    const ImageModal = getModule((m) => m.default && m.default.displayName === 'ImageModal', false);
+    const ImageModal = getModule((m) => m?.default?.displayName === 'ImageModal', false);
     const backdrop = findInReactTree(this.props.children, ({ props }) => props?.onClose);
+    const { wrapper, downloadLink } = getModule([ 'wrapper', 'downloadLink' ], false);
 
     inject('image-tools-overlay-image-modal', ImageModal.default.prototype, 'render', (args, res) => {
-      const ImageWrapper = findInReactTree(res, ({ type }) => type?.name === 'ImageWrapper');
+      const Wrapper = findInReactTree(res, ({ className }) => className === wrapper);
+      const ImageWrapper = findInReactTree(Wrapper, ({ type }) => type?.name === 'ImageWrapper');
+      const footerIndex = Wrapper.children.findIndex(({ props }) => props?.className === downloadLink);
 
       ImageWrapper.props.overlay = {
         setEventListener: this.setEventListener.bind(this),
-        sendInfo: this.getInfo.bind(this)
+        sendInfo: this.setInfo.bind(this)
       };
 
-      res.props.children[1] = React.createElement(ImageFooter, {
-        children: res.props.children[1],
+      Wrapper.children[footerIndex] = React.createElement(OverlayUI, {
+        headerButtons: this.getButtons(),
+        originalFooter: Wrapper.children[footerIndex],
         sendDataToFooter: (callback) => this.setEventListener('sendDataToFooter', callback)
       });
 
@@ -98,7 +112,7 @@ module.exports = class ImageToolsOverlay extends React.Component {
     });
   }
 
-  getInfo (obj) {
+  setInfo (obj) {
     if (obj.$image) {
       this._updateCurrentImg(obj.$image);
       return;

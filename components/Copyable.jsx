@@ -8,29 +8,22 @@ module.exports = class Copyable extends React.PureComponent {
     this.state = {
       text: null
     };
-    this._openTooltip = this._openTooltip.bind(this);
+    this.openTooltip = this.openTooltip.bind(this);
   }
 
   render () {
     return (
       <Tooltip text={this.state.text} color={'green'} forceOpen={true}>
-        <Clickable onClick={this._openTooltip}>
+        <Clickable onClick={this.openTooltip}>
           { this.props.children }
         </Clickable>
       </Tooltip>
     );
   }
 
-  _openTooltip () {
-    const { text, children } = this.props;
-
+  openTooltip () {
     this.setState({ text: Messages.COPIED });
-    clipboard.write({
-      text: (text) ? text : children
-    });
-
-    setTimeout(() => this.setState({
-      text: null
-    }), 1500);
+    clipboard.write({ text: this.props.text });
+    setTimeout(() => this.setState({ text: null }), 1500);
   }
 };

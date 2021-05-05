@@ -1,9 +1,11 @@
 const { React, getModule } = require('powercord/webpack');
+const { Clickable, Tooltip } = require('powercord/components');
 
 const Copy = require('./Copyable.jsx');
 
 const { downloadLink } = getModule([ 'downloadLink' ], false);
-// const { CarouselPrevious, CarouselNext } = getModule([ 'CarouselPrevious', 'CarouselNext' ], false);
+const { buttons } = getModule([ 'button', 'buttons' ], false);
+const { button, sizeIcon } = getModule([ 'button', 'sizeIcon' ], false);
 
 module.exports = class ImageFooter extends React.PureComponent {
   constructor ({ sendDataToFooter }) {
@@ -18,9 +20,36 @@ module.exports = class ImageFooter extends React.PureComponent {
 
   render () {
     return (
-      <div className={`image-tools-modal-footer ${downloadLink}`}>
+      <div className='image-tools-overlay-ui'>
+        { this.renderHeader() }
+        { this.renderFooter() }
+      </div>
+    );
+  }
+
+  renderHeader () {
+    return (
+      <div className={`header ${buttons}`}>
+        {
+          this.props.headerButtons.map(({ tooltip, callback, Icon }) => (
+            <div className={`${button} ${sizeIcon} button`}>
+              <Tooltip text={tooltip}>
+                <Clickable onClick={callback}>
+                  <Icon/>
+                </Clickable>
+              </Tooltip>
+            </div>
+          ))
+        }
+      </div>
+    );
+  }
+
+  renderFooter () {
+    return (
+      <div className={`footer ${downloadLink}`}>
         <div className='content'>
-          { this.props.children }
+          { this.props.originalFooter }
           { this.renderInfo() }
         </div>
       </div>
@@ -33,26 +62,30 @@ module.exports = class ImageFooter extends React.PureComponent {
     }
 
     const { $image, attachment: { size } } = this.state.data;
-    const [ url ] = this.props.children.props.href.split('?');
-    const name = url.split('/').pop();
+    const { href } = this.props.originalFooter.props;
+
+    const url = new URL(href);
+    const name = url.pathname.split('/').pop();
+    const resolution = `${$image.naturalWidth}x${$image.naturalHeight}`;
+    const strSize = this.bytes2Str(size || this.state.size);
 
     if (!size) {
-      this._loadSize($image.src);
+      this.loadSize($image.src);
     }
 
     return (
       <div className='image-info'>
         { ($image) && <>
           <p>
-            <Copy>{name}</Copy>
+            <Copy text={name}>{name}</Copy>
           </p>
           <p>
-            <Copy>{$image.naturalWidth}x{$image.naturalHeight}</Copy>
+            <Copy text={resolution}>{resolution}</Copy>
             <div className='separator'/>
-            <Copy>{this._bytes2Str(size || this.state.size)}</Copy>
+            <Copy text={strSize}>{strSize}</Copy>
           </p>
           <p>
-            <Copy text={url}>{this._zipUrl(url)}</Copy>
+            <Copy text={url.href}>{this.zipUrl(url.href)}</Copy>
           </p>
         </>}
       </div>
@@ -68,7 +101,7 @@ module.exports = class ImageFooter extends React.PureComponent {
     }));
   }
 
-  _loadSize (url) {
+  loadSize (url) {
     fetch(url)
       .then((resp) => resp.headers.get('content-length'))
       .then((size) => {
@@ -77,7 +110,7 @@ module.exports = class ImageFooter extends React.PureComponent {
       .catch(console.error);
   }
 
-  _zipUrl (oldUrl) {
+  zipUrl (oldUrl) {
     const url = new URL(oldUrl);
     const maxName = 20;
     const maxLettersOneSide = 8;
@@ -100,7 +133,7 @@ module.exports = class ImageFooter extends React.PureComponent {
     return url.href;
   }
 
-  _bytes2Str (bytes) {
+  bytes2Str (bytes) {
     const k = 1024;
     const sizes = [ 'Bytes', 'KB', 'MB', 'GB' ];
 

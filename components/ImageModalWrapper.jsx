@@ -23,7 +23,7 @@ module.exports = class ImageWrapper extends React.Component {
     } else {
       // console.error('overlay offline');
     }
-    this._injectToLazyImage();
+    this.injectToLazyImage();
   }
 
   componentDidUpdate () {
@@ -47,7 +47,6 @@ module.exports = class ImageWrapper extends React.Component {
     const { setSetting, getSetting, overlay } = this.props;
 
     return <>
-
       { (this.state.src) &&
         <Lens
           setSetting={setSetting}
@@ -66,11 +65,9 @@ module.exports = class ImageWrapper extends React.Component {
     </>;
   }
 
-  _injectToLazyImage () {
+  injectToLazyImage () {
     const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
-    this.setState({
-      src: this.props.children.props.src
-    });
+    this.setState({ src: this.props.children.props.src });
 
     inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
       const { props } = res;
@@ -79,10 +76,9 @@ module.exports = class ImageWrapper extends React.Component {
           props.src.includes(this.props.children.props.src) &&
           !props.src.includes('?format=')
       ) {
-        this.setState({
-          src: props.src
-        });
+        this.setState({ src: props.src });
       }
+
       return res;
     });
     LazyImage.default.displayName = 'LazyImage';
