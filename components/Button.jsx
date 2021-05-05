@@ -1,8 +1,8 @@
 const { React, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
-const { camelCaseify } = require('powercord/util');
+const { camelCaseify, findInReactTree } = require('powercord/util');
 
-const { getDownloadPath, OutputManager } = require('../utils');
+const { defaultSaveDir, OutputManager } = require('../utils');
 const { button } = require('../structures');
 const actions = require('../tools/actions');
 
@@ -51,10 +51,6 @@ class ImageToolsButton extends React.PureComponent {
     };
   }
 
-  get downloadPath () {
-    return getDownloadPath(this.props.settings.get('pathSave', null));
-  }
-
   getDisabledMethods (e) {
     return Array.isArray(this.disabled[e]) ? this.disabled[e] : [];
   }
@@ -69,10 +65,17 @@ class ImageToolsButton extends React.PureComponent {
         return this.items;
       }
     } ]);
+
     const prioritySort = priority.filter((e) => this.items.includes(e));
     const actionId = this.props.settings.get('defaultAction', 'open-image');
-
     res.props.action = this.getAction(prioritySort, actionId);
+
+    // ContextMenu.renderRawItems  не поддерживаеит по умолчанию этот реквизит
+    const saveImageBtn = findInReactTree(res, ({ props }) => props?.id === 'save');
+    if (saveImageBtn) {
+      saveImageBtn.props.action = this.getAction(prioritySort, 'save');
+    }
+
     return res;
   }
 
@@ -107,6 +110,7 @@ class ImageToolsButton extends React.PureComponent {
   getExtraItemsProperties (image, snakeId) {
     const id = camelCaseify(snakeId);
     const { src, original } = image;
+    const saveImageDirs = this.props.settings.get('saveImageDirs', []);
     const allowSubText = !this.props.settings.get('hideHints', false); // надо бы как-то рекурсивно удалять, но мне впаду
     const openLink = (url, withoutEncode) => actions.openLink(
       (url + ((withoutEncode) ? src : encodeURIComponent(src))), null, { original }
@@ -120,7 +124,19 @@ class ImageToolsButton extends React.PureComponent {
         name: (this.items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE
       },
       save: {
-        subtext: (allowSubText) ? this.downloadPath : null
+        type: (saveImageDirs.length > 1) ? 'submenu' : 'button',
+        subtext: (allowSubText) ? defaultSaveDir : null,
+        items: saveImageDirs.map(({ name, path }) => ({
+          type: 'button',
+          name,
+          subtext: (allowSubText) ? path : null,
+          onClick: () => actions.save(image.src, this.output, {
+            downloadPath: path
+          })
+        })),
+        getItems () {
+          return this.items;
+        }
       },
       searchImage: {
         items: [
@@ -145,7 +161,7 @@ class ImageToolsButton extends React.PureComponent {
 
     return {
       onClick: () => actions[id](image.src, this.output, {
-        downloadPath: this.downloadPath,
+        downloadPath: defaultSaveDir,
         original
       }),
       ...data[id]

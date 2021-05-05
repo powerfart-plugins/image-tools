@@ -122,3 +122,11 @@
         }
     }
 }
+.image-tools-save-dirs {
+    [class^='divider-'] {
+        display: none;
+    }
+    [class^='inputWrapper-'] {
+        width: 100%;
+    }
+}

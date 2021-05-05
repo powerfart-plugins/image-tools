@@ -28,9 +28,6 @@
   "IMAGE_TOOLS_QUIET_EXECUTION": "Тихое выполнение",
   "IMAGE_TOOLS_QUIET_EXECUTION_NOTE": "Скрыть уведомления об успешном выполнении",
   "IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY": "Изображение успешно сохранено",
-  "IMAGE_TOOLS_IMAGE_SAVING_PATH": "Путь сохранения изображений",
-  "IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE": "По умолчанию сохраняет в папку загрузок, в противном случае в папку плагина (Из-за технических ограничений пока только ручной ввод)",
-  "IMAGE_TOOLS_CANNOT_FIND_PATH": "Невозможно обнаружить путь",
   "IMAGE_TOOLS_SCROLL_STEP": "Шаг прокрутки",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Максимальный радиус линзы",
   "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Максимальный коэффициент зума",
@@ -39,5 +36,8 @@
   "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Скрыть вторую строчку на некоторых кнопках для компактности",
   "IMAGE_TOOLS_DEFAULT_ACTION": "Действие основной кнопки",
   "IMAGE_TOOLS_DEFAULT_ACTION_NOTE": "Действие по умолчанию при нажатии на основную кнопку",
-  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Функции кнопки"
+  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Функции кнопки",
+  "IMAGE_TOOLS_SAVE_DIR": "Папки для сохранения изображений",
+  "IMAGE_TOOLS_SAVE_DIR_NOTE": "Папки, которые будут использоваться для быстрого сохранения изображения ",
+  "IMAGE_TOOLS_SAVE_DIR_ADD": "Добавить новую папку"
 }

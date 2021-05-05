@@ -2,7 +2,7 @@
  * A component that does routine work for you
  * @author Xinos#2003
  * @licence MIT
- * @version 1.3.1
+ * @version 1.4.0
  * @link https://github.com/powerfart-plugins/Settings-component
  * @docs https://github.com/powerfart-plugins/Settings-component#documentation
  * @copyright (c) 2021 Xinos
@@ -58,7 +58,8 @@ class Settings extends React.Component {
       radioGroup: this.renderRadioGroup,
       checkbox: this.renderCheckbox,
       category: this.renderCategory,
-      tabBar: this.renderTabBar
+      tabBar: this.renderTabBar,
+      button: this.renderButton
     };
   }
 
@@ -270,6 +271,18 @@ class Settings extends React.Component {
         </div>
         { this.renderItems(item.items[this.state[stateKey]].items) }
       </div>
+    );
+  }
+
+  renderButton (item) {
+    const { onClick, name } = item;
+
+    return (
+      <Components.ButtonItem
+        {...item}
+        children={name}
+        onClick={() => this._passSetting(null, onClick)}
+      />
     );
   }
 

@@ -28,9 +28,6 @@
   "IMAGE_TOOLS_QUIET_EXECUTION": "Quiet execution",
   "IMAGE_TOOLS_QUIET_EXECUTION_NOTE": "Hide success toasts",
   "IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY": "Image saved successfully",
-  "IMAGE_TOOLS_IMAGE_SAVING_PATH": "Image saving path",
-  "IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE": "By default, saves to the downloads folder, otherwise to the plugin folder (Due to technical limitations, only manual input is available)",
-  "IMAGE_TOOLS_CANNOT_FIND_PATH": "Cannot find path",
   "IMAGE_TOOLS_SCROLL_STEP": "Scroll step",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
   "IMAGE_TOOLS_MAX_ZOOM_RATIO": "Maximum zoom ratio",
@@ -39,5 +36,8 @@
   "IMAGE_TOOLS_HIDE_HINTS_NOTE": "Hide the second line of some buttons for compactness",
   "IMAGE_TOOLS_DEFAULT_ACTION": "General button action",
   "IMAGE_TOOLS_DEFAULT_ACTION_NOTE": "Default action when clicking on the general button",
-  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Button actions"
+  "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Button actions",
+  "IMAGE_TOOLS_SAVE_DIR": "Folders to save images",
+  "IMAGE_TOOLS_SAVE_DIR_NOTE": "Folders to be used to quickly save the image",
+  "IMAGE_TOOLS_SAVE_DIR_ADD": "Add a new folder"
 }

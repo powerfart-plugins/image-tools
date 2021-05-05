@@ -1,8 +1,8 @@
-const { existsSync } = require('fs');
+const { React } = require('powercord/webpack');
 
 const buttonStructure = require('./button.js');
-const getDownloadPath = require('../utils/getDownloadPath.js');
 const imageSearchServices = require('../ReverseImageSearchEngines.json');
+const SaveDirs = require('../components/SaveDirs.jsx');
 
 module.exports = function () {
   const { i18n: { Messages } } = require('powercord/webpack');
@@ -95,23 +95,7 @@ module.exports = function () {
                   value: id
                 }))
             },
-            {
-              type: 'text',
-              name: Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH,
-              note: Messages.IMAGE_TOOLS_IMAGE_SAVING_PATH_NOTE,
-              default: ({ getSetting }) => getDownloadPath(getSetting('pathSave', null)),
-              onChange: ({ updateSetting }, path) => {
-                if (!existsSync(path)) {
-                  return {
-                    error: Messages.IMAGE_TOOLS_CANNOT_FIND_PATH
-                  };
-                }
-                updateSetting('pathSave', path);
-                return {
-                  error: null
-                };
-              }
-            },
+            (props) => React.createElement(SaveDirs, props),
             {
               type: 'category',
               opened: false,
