@@ -2,7 +2,7 @@
  * A component that does routine work for you
  * @author Xinos#2003
  * @licence MIT
- * @version 1.4.0
+ * @version 1.4.1
  * @link https://github.com/powerfart-plugins/Settings-component
  * @docs https://github.com/powerfart-plugins/Settings-component#documentation
  * @copyright (c) 2021 Xinos
@@ -35,6 +35,14 @@ class Settings extends React.Component {
       label,
       render: (settings) => React.createElement(Settings, { ...settings, items })
     });
+  }
+
+  static Category (props) {
+    const def = (props.opened === undefined) ? true : props.opened;
+    const [ opened, onChange ] = React.useState(def);
+    props = { ...props, onChange, opened };
+
+    return <Components.Category {...props}/>;
   }
 
   constructor (props) {
@@ -222,18 +230,10 @@ class Settings extends React.Component {
   }
 
   renderCategory (item) {
-    const Category2 = (props) => {
-      const def = (props.opened === undefined) ? true : props.opened;
-      const [ opened, onChange ] = React.useState(def);
-      props = { ...props, onChange, opened };
-
-      return <Components.Category {...props}/>;
-    };
-
     return (
-      <Category2{...item}>
+      <Settings.Category {...item}>
         {this.renderItems(item.items)}
-      </Category2>
+      </Settings.Category>
     );
   }
 

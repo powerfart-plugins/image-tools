@@ -1,8 +1,9 @@
 const { basename } = require('path');
 
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack');
+const { Category, ButtonItem } = require('powercord/components/settings');
 
-const SettingsRender = require('./Settings.jsx');
+const SettingsRender = require('./SettingsRender.jsx');
 const { defaultSaveDir } = require('../utils');
 
 const RemoveButton = getModuleByDisplayName('RemoveButton', false);
@@ -19,43 +20,33 @@ module.exports = class SaveDirs extends React.PureComponent {
   }
 
   render () {
+    const { marginBottom } = getModule([ 'marginBottom' ], false);
+
     if (!this.state.dirs.length) {
       this.addPath(defaultSaveDir);
     }
 
     return (
-      <SettingsRender
-        items={[ {
-          type: 'category',
-          name: Messages.IMAGE_TOOLS_SAVE_DIR,
-          description: Messages.IMAGE_TOOLS_SAVE_DIR_NOTE,
-          opened: false,
-          items: [
-            () => this.renderBody(),
-            {
-              type: 'button',
-              button: Messages.IMAGE_TOOLS_SAVE_DIR_ADD,
-              onClick: () => {
-                openDirectory()
-                  .then(([ path ]) => {
-                    this.addPath(path);
-                  })
-                  .catch(console.error);
-              }
-            }
-          ]
-        } ]}
-      />
-    );
-  }
-
-  renderBody () {
-    const { marginBottom } = getModule([ 'marginBottom' ], false);
-
-    return (
-      <div className={`${marginBottom} image-tools-save-dirs`}>
-        { this.state.dirs.map((e, i) => this.renderItems(e, i)) }
-      </div>
+      <SettingsRender.Category
+        opened={false}
+        name={Messages.IMAGE_TOOLS_SAVE_DIR}
+        description={Messages.IMAGE_TOOLS_SAVE_DIR_NOTE}
+      >
+        <div className={`${marginBottom} image-tools-save-dirs`}>
+          { this.state.dirs.map((e, i) => this.renderItems(e, i)) }
+        </div>
+        <ButtonItem
+          button={ Messages.IMAGE_TOOLS_SAVE_DIR_ADD}
+          onClick={() => {
+            openDirectory()
+              .then(([ path ]) => {
+                this.addPath(path);
+              })
+              .catch(console.error);
+          }
+          }
+        />
+      </SettingsRender.Category>
     );
   }
 

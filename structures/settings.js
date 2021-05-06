@@ -2,7 +2,9 @@ const { React } = require('powercord/webpack');
 
 const buttonStructure = require('./button.js');
 const imageSearchServices = require('../ReverseImageSearchEngines.json');
+
 const SaveDirs = require('../components/SaveDirs.jsx');
+const SettingsRender = require('../components/SettingsRender.jsx');
 
 module.exports = function () {
   const { i18n: { Messages } } = require('powercord/webpack');
@@ -96,54 +98,58 @@ module.exports = function () {
                 }))
             },
             (props) => React.createElement(SaveDirs, props),
-            {
-              type: 'category',
+            (props) => React.createElement(SettingsRender.Category, {
               opened: false,
               name: Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES,
-              items: [
-                ...imageSearchServices.map(({ name, note }) => {
-                  const id = name.toLowerCase().replace(' ', '-');
-                  return {
-                    type: 'switch',
-                    name,
-                    note,
-                    value: ({ getSetting }) => !getSetting('disabledImageSearchEngines', []).includes(id),
-                    onClick: ({ getSetting, updateSetting }, v) => {
-                      const arr = getSetting('disabledImageSearchEngines', []);
-                      if (v) {
-                        arr.splice(arr.indexOf(id), 1);
-                      } else {
-                        arr.push(id);
+              children: React.createElement(SettingsRender, {
+                ...props,
+                items: [
+                  ...imageSearchServices.map(({ name, note }) => {
+                    const id = name.toLowerCase().replace(' ', '-');
+                    return {
+                      type: 'switch',
+                      name,
+                      note,
+                      value: ({ getSetting }) => !getSetting('disabledImageSearchEngines', []).includes(id),
+                      onClick: ({ getSetting, updateSetting }, v) => {
+                        const arr = getSetting('disabledImageSearchEngines', []);
+                        if (v) {
+                          arr.splice(arr.indexOf(id), 1);
+                        } else {
+                          arr.push(id);
+                        }
+                        updateSetting('disabledImageSearchEngines', arr);
                       }
-                      updateSetting('disabledImageSearchEngines', arr);
-                    }
-                  };
-                })
-              ]
-            },
-            {
-              type: 'category',
+                    };
+                  })
+                ]
+              })
+            }),
+            (props) => React.createElement(SettingsRender.Category, {
               opened: false,
               name: Messages.IMAGE_TOOLS_CONTEXT_MENU_ACTIONS,
-              items: [
-                ...buttonStructure.map(({ id, keyName }) => (
-                  {
-                    type: 'switch',
-                    name: Messages[keyName],
-                    value: ({ getSetting }) => !getSetting('disabledActions', []).includes(id),
-                    onClick: ({ getSetting, updateSetting }, v) => {
-                      const arr = getSetting('disabledActions', []);
-                      if (v) {
-                        arr.splice(arr.indexOf(id), 1);
-                      } else {
-                        arr.push(id);
+              children: React.createElement(SettingsRender, {
+                ...props,
+                items: [
+                  ...buttonStructure.map(({ id, keyName }) => (
+                    {
+                      type: 'switch',
+                      name: Messages[keyName],
+                      value: ({ getSetting }) => !getSetting('disabledActions', []).includes(id),
+                      onClick: ({ getSetting, updateSetting }, v) => {
+                        const arr = getSetting('disabledActions', []);
+                        if (v) {
+                          arr.splice(arr.indexOf(id), 1);
+                        } else {
+                          arr.push(id);
+                        }
+                        updateSetting('disabledActions', arr);
                       }
-                      updateSetting('disabledActions', arr);
                     }
-                  }
-                ))
-              ]
-            }
+                  ))
+                ]
+              })
+            })
           ]
         }
       ]
