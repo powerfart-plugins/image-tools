@@ -4,7 +4,7 @@ const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require
 const { Category, ButtonItem } = require('powercord/components/settings');
 
 const SettingsRender = require('./SettingsRender.jsx');
-const { defaultSaveDir } = require('../utils');
+const { getDefaultSaveDir } = require('../utils');
 
 const RemoveButton = getModuleByDisplayName('RemoveButton', false);
 const openDirectory = () => getModule([ 'showOpenDialog' ], false).showOpenDialog([ 'openDirectory' ]);
@@ -23,7 +23,7 @@ module.exports = class SaveDirs extends React.PureComponent {
     const { marginBottom } = getModule([ 'marginBottom' ], false);
 
     if (!this.state.dirs.length) {
-      this.addPath(defaultSaveDir);
+      this.addPath(getDefaultSaveDir());
     }
 
     return (
