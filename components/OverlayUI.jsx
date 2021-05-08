@@ -1,4 +1,4 @@
-const { React, getModule } = require('powercord/webpack');
+const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
 const { Clickable, Tooltip } = require('powercord/components');
 
 const Copy = require('./Copyable.jsx');
@@ -7,22 +7,43 @@ const { downloadLink } = getModule([ 'downloadLink' ], false);
 const { buttons } = getModule([ 'button', 'buttons' ], false);
 const { button, sizeIcon } = getModule([ 'button', 'sizeIcon' ], false);
 
+/* eslint-disable object-property-newline */
 module.exports = class ImageFooter extends React.PureComponent {
-  constructor ({ sendDataToFooter }) {
+  constructor ({ sendDataToUI }) {
     super();
-    sendDataToFooter(this.getData.bind(this));
+    sendDataToUI(this.getData.bind(this));
 
     this.state = {
-      data: null,
+      data: {},
+      showConfig: false,
       size: 0
     };
+    this.hideConfig = global._.debounce(() => this.setState({ showConfig: false }), 1500);
   }
 
   render () {
     return (
       <div className='image-tools-overlay-ui'>
+        { this.renderLensConfig() }
         { this.renderHeader() }
         { this.renderFooter() }
+      </div>
+    );
+  }
+
+  renderLensConfig () {
+    const { showConfig, data:{ lensConfig } } = this.state;
+    if (!lensConfig) {
+      return null;
+    }
+
+    return (
+      <div className='lens-config'>
+        <div className={`lens ${showConfig ? null : 'lens-hide'}`}>
+          <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {Number(lensConfig.zooming).toFixed(1)}x</p>
+          <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {Number(lensConfig.radius).toFixed()}px</p>
+          <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {Number(lensConfig.wheelStep).toFixed(2)}</p>
+        </div>
       </div>
     );
   }
@@ -57,19 +78,18 @@ module.exports = class ImageFooter extends React.PureComponent {
   }
 
   renderInfo () {
-    if (this.state.data === null) {
-      return;
-    }
-
-    const { $image, attachment: { size } } = this.state.data;
+    const { $image, attachment }  = this.state.data;
     const { href } = this.props.originalFooter.props;
+    if (!$image && !attachment) {
+      return null;
+    }
 
     const url = new URL(href);
     const name = url.pathname.split('/').pop();
     const resolution = `${$image.naturalWidth}x${$image.naturalHeight}`;
-    const strSize = this.bytes2Str(size || this.state.size);
+    const strSize = this.bytes2Str(attachment.size || this.state.size);
 
-    if (!size) {
+    if (!attachment.size) {
       this.loadSize($image.src);
     }
 
@@ -93,12 +113,18 @@ module.exports = class ImageFooter extends React.PureComponent {
   }
 
   getData (obj) {
-    this.setState(({ data }) => ({
-      data: {
-        ...((data === null) ? {} : data),
-        ...obj
+    const onStated = () => {
+      if (obj.lensConfig) {
+        this.setState(() => ({
+          showConfig: true
+        }),
+        this.hideConfig);
       }
-    }));
+    };
+    this.setState(({ data }) => ({
+      data: { ...data, ...obj }
+    }),
+    onStated);
   }
 
   loadSize (url) {

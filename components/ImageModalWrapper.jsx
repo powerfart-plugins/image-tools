@@ -12,8 +12,7 @@ module.exports = class ImageWrapper extends React.Component {
     this.$image = null;
 
     this.state = {
-      src: null,
-      onMouseDownUp: null
+      src: null
     };
   }
 
@@ -27,41 +26,35 @@ module.exports = class ImageWrapper extends React.Component {
   }
 
   componentDidUpdate () {
-    if (this.props?.overlay) {
+    if (this.props.overlay) {
       if (!this.$image) {
         const $image = this.imgRef.current.querySelector('img');
 
         if ($image && !$image.classList.contains(imagePlaceholder)) {
           $image.onload = () => {
             this.$image = $image;
-            this.props.overlay.sendInfo({ $image });
+            this.props.overlay.sendData({ $image });
           };
         }
       }
-    } else {
-      // console.error('overlay offline');
     }
   }
 
   render () {
-    const { setSetting, getSetting, overlay } = this.props;
-
     return <>
       { (this.state.src) &&
         <Lens
-          setSetting={setSetting}
-          getSetting={getSetting}
-          overlay={overlay}
+          onSetConfig={(callback) => this.props.overlay.setEventListener('onSetLensConfig', callback) }
           image={this.state.src}
           imageRef={this.imgRef}
-          setOnMouseDown={(callback) => this.setState({ onMouseDownUp: callback })}
         />
       }
       <div
-        onMouseDown={this.state.onMouseDownUp}
         ref={this.imgRef}
+        onMouseDown={() => {
+          this.imgRef.current.click(); // чтобы скрыть меню перед линзой
+        }}
       >{ this.props.children }</div>
-
     </>;
   }
 

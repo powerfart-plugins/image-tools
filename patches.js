@@ -12,7 +12,10 @@ function overlay (args, res, settings, switchModal) {
   const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
   const powercordModalChildren = findInReactTree(res, ({ props }) => props?.renderModal);
   const patch = () => {
-    res = React.createElement(Overlay, {}, res);
+    res = React.createElement(Overlay, {
+      settings,
+      children: res
+    });
     switchModal();
   };
   let tree;

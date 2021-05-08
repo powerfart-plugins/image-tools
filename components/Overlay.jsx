@@ -1,22 +1,19 @@
-const { React, getModule, getModuleByDisplayName, i18n: { Messages }, channels: { getChannelId } } = require('powercord/webpack');
+const { React, getModule, getModuleByDisplayName, channels: { getChannelId } } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
 const { findInReactTree } = require('powercord/util');
 
 const { getImages } = require('../utils');
 
 const OverlayUI = require('./OverlayUI.jsx');
+const OverlayLensEvents = require('./OverlayLensEvents.jsx');
 
-module.exports = class ImageToolsOverlay extends React.Component {
+module.exports = class ImageToolsOverlay extends OverlayLensEvents {
   constructor (props) {
     super(props);
 
     this.images = getImages(getChannelId());
     this.$image = null;
     this.state = {
-      showLensInfo: false,
-      infoFromImage: {
-        lens: {}
-      },
       currentImgIndex: null
     };
 
@@ -24,20 +21,14 @@ module.exports = class ImageToolsOverlay extends React.Component {
     this._injectToImageModal();
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    if (prevState.infoFromImage.lens !== this.state.infoFromImage.lens) {
-      this.setState({ showLensInfo: true });
-      setTimeout(() => this.setState({ showLensInfo: false }), 2500);
-    }
-  }
-
   render () {
     return (
       <div
-        onMouseMove={this.state.onMouseMove}
-        onWheel={this.state.onWheel}
-        onMouseUp={this.state.onMouseUp}
-        onMouseLeave={this.state.onMouseLeave}
+        onMouseMove={this.onMouseMove}
+        onMouseDown={this.onMouse}
+        onMouseUp={this.onMouse}
+        onMouseLeave={this.onMouse}
+        onWheel={this.onWheel}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
             this._onClose();
@@ -45,35 +36,34 @@ module.exports = class ImageToolsOverlay extends React.Component {
         }}
       >
         {this.props.children}
-        {this.renderInfo()}
       </div>
     );
   }
 
-  renderInfo () { // @todo перенести в OverlayUI
-    const { zoomRatio, lensRadius, wheelStep } = this.state.infoFromImage.lens;
-    return (
-      <div className='image-tools-overlay-info'>
-        {(zoomRatio && lensRadius && wheelStep) &&
-          <div
-            className={`lens ${this.state.showLensInfo ? null : 'lens-hide'}`}
-          >
-            <p>{Messages.IMAGE_TOOLS_ZOOM_RATIO}: {Number(zoomRatio).toFixed(1)}x</p>
-            <p>{`${Messages.IMAGE_TOOLS_LENS_RADIUS} [CTRL]`}: {Number(lensRadius).toFixed()}px</p>
-            <p>{`${Messages.IMAGE_TOOLS_SCROLL_STEP} [SHIFT]`}: {Number(wheelStep).toFixed(2)}</p>
-          </div>
-        }
-      </div>
-    );
+  updateLensConfig (data) {
+    super.updateLensConfig(data);
+    this.state.onSetLensConfig(data);
+
+    if ([ 'radius', 'zooming', 'wheelStep' ].some((k) => k in data)) {
+      this.updateUI({
+        lensConfig: this.lensConfig
+      });
+    }
   }
 
   getButtons () {
     const Retry = getModuleByDisplayName('Retry', false);
+    const Dropper = getModuleByDisplayName('Dropper', false);
 
     return [
       // {
       //   tooltip: 'rotate',
       //   Icon: Retry,
+      //   callback: () => console.log('nope')
+      // },
+      // {
+      //   tooltip: 'grab a color',
+      //   Icon: Dropper,
       //   callback: () => console.log('nope')
       // }
     ];
@@ -91,13 +81,13 @@ module.exports = class ImageToolsOverlay extends React.Component {
 
       ImageWrapper.props.overlay = {
         setEventListener: this.setEventListener.bind(this),
-        sendInfo: this.setInfo.bind(this)
+        sendData: this.setData.bind(this)
       };
 
       Wrapper.children[footerIndex] = React.createElement(OverlayUI, {
         headerButtons: this.getButtons(),
         originalFooter: Wrapper.children[footerIndex],
-        sendDataToFooter: (callback) => this.setEventListener('sendDataToFooter', callback)
+        sendDataToUI: (callback) => this.setEventListener('sendDataToUI', callback)
       });
 
       return res;
@@ -107,40 +97,38 @@ module.exports = class ImageToolsOverlay extends React.Component {
   }
 
   setEventListener (type, callback) {
+    const onStated = () => {
+      if (type === 'onSetLensConfig') {
+        this.state.onSetLensConfig(this.lensConfig);
+      }
+    };
+
     this.setState({
       [type]: callback
-    });
+    }, onStated);
   }
 
-  setInfo (obj) {
+  setData (obj) {
     if (obj.$image) {
-      this._updateCurrentImg(obj.$image);
-      return;
+      this.updateCurrentImg(obj.$image);
     }
-    this.setState(({ infoFromImage }) => ({
-      infoFromImage: {
-        ...infoFromImage,
-        ...obj
-      }
-    }));
   }
 
-  _updateCurrentImg (img) {
+  updateCurrentImg (img) {
     const result = this.images.findIndex(({ proxy_url }) => proxy_url === img.src);
 
     this.$image = img;
     this.setState(
       { currentImgIndex: (result === -1) ? null : result },
-      () => this._updateFooter()
+      () => this.updateUI({
+        $image: img,
+        attachment: (this.state.currentImgIndex !== null) ? this.images[this.state.currentImgIndex] : {}
+      })
     );
   }
 
-  _updateFooter () {
-    const { currentImgIndex } = this.state;
-    this.state.sendDataToFooter({
-      $image: this.$image,
-      attachment: (currentImgIndex !== null) ? this.images[currentImgIndex] : {}
-    });
+  updateUI (data) {
+    this.state.sendDataToUI(data);
   }
 
   _onClose () {
