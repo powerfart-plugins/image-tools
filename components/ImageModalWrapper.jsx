@@ -1,7 +1,7 @@
 const { React, getModule } = require('powercord/webpack');
 const { inject, uninject } = require('powercord/injector');
 
-const Lens = require('./ImageModalWrapperLens.jsx');
+const Lens = require('./Lens.jsx');
 
 const { imagePlaceholder } = getModule([ 'imagePlaceholder' ], false);
 

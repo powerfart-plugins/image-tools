@@ -22,7 +22,7 @@
         pointer-events: none;
     }
 
-    .lens-config {
+    > .lens-config {
         color: white;
         font-size: 15px;
         text-align: right;
@@ -37,8 +37,6 @@
         .lens-hide {
             opacity: 0;
             transition: 2s;
-            width: 100%;
-            white-space: nowrap;
         }
     }
     > .header {
