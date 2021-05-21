@@ -26,7 +26,6 @@ module.exports = class ImageTools extends Plugin {
       this.isModalOpen = false;
       return patches.overlay(...args, () => this.isModalOpen = true);
     });
-    this.inject('ImageModal.default.prototype.render', patches.imageModal);
     this.inject('MessageContextMenu.default', patches.messageCM);
     this.inject('GuildChannelUserContextMenu.default', patches.userCM);
     this.inject('DMUserContextMenu.default', patches.userCM);
@@ -40,8 +39,9 @@ module.exports = class ImageTools extends Plugin {
 
   pluginWillUnload () {
     this.uninjectIDs.forEach((id) => uninject(id));
-    uninject('image-tools-overlay-image-modal');
+    uninject('image-tools-overlay-ui');
     uninject('image-tools-overlay-backdrop');
+    uninject('image-tools-overlay-modal-layer');
     uninject('image-tools-wrapper-lazy-image');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }

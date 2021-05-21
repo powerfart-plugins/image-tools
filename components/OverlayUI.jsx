@@ -8,7 +8,7 @@ const { buttons } = getModule([ 'button', 'buttons' ], false);
 const { button, sizeIcon } = getModule([ 'button', 'sizeIcon' ], false);
 
 /* eslint-disable object-property-newline */
-module.exports = class ImageFooter extends React.PureComponent {
+module.exports = class ImageToolsOverlayUI extends React.PureComponent {
   constructor ({ sendDataToUI }) {
     super();
     sendDataToUI(this.getData.bind(this));

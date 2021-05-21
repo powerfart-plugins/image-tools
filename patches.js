@@ -10,66 +10,20 @@ const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
 function overlay (args, res, settings, switchModal) {
   const Overlay = require('./components/Overlay');
   const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
-  const powercordModalChildren = findInReactTree(res, ({ props }) => props?.renderModal);
-  const patch = () => {
-    res = React.createElement(Overlay, {
-      settings,
-      children: res
-    });
-    switchModal();
-  };
-  let tree;
+  const tree = nativeModalChildren?.props?.render();
 
-  try {
-    if (nativeModalChildren) {
-      tree = nativeModalChildren.props.render();
-    } else if (powercordModalChildren) {
-      tree = powercordModalChildren.props.renderModal();
-    } else {
-      tree = null;
-    }
-  } catch {}
-
-  if (nativeModalChildren) {
+  if (tree) {
     if (findInReactTree(tree, ({ type }) => type?.displayName === 'ImageModal')) {
-      patch();
+      res = React.createElement(Overlay, {
+        settings,
+        children: res
+      });
+      switchModal();
     }
   }
 
-  if (powercordModalChildren) {
-    try {
-      if (tree?.type.prototype?.render()?.type()?.type?.displayName === 'ImageModal') {
-        patch();
-      }
-    } catch {}
-  }
-
   return res;
 }
-
-function imageModal (args, res, settings) {
-  const ImageModalWrapper = require('./components/ImageModalWrapper');
-  const patchImageSize = settings.get('patchImageSize', true);
-
-  if (patchImageSize) {
-    const imgComp = res.props.children[0].props;
-    const { height, width } = imgComp;
-    imgComp.height = height * 2;
-    imgComp.width = width * 2;
-    imgComp.maxHeight = document.body.clientHeight * 70 / 100;
-    imgComp.maxWidth = document.body.clientWidth * 80 / 100;
-  }
-
-  res.props.children.unshift(
-    React.createElement(ImageModalWrapper, {
-      children: res.props.children.shift(),
-      getSetting: settings.get,
-      setSetting: settings.set
-    })
-  );
-  return res;
-}
-
 function messageCM ([ { target, message: { content } } ], res, settings) {
   if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop)) {
     const { width, height } = target;
@@ -179,7 +133,6 @@ function initButton (menu, args) {
 
 module.exports = {
   overlay,
-  imageModal,
   messageCM,
   userCM,
   groupDMCM,

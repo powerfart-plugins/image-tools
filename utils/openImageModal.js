@@ -1,17 +1,26 @@
-const { React, getModuleByDisplayName } = require('powercord/webpack');
-const { open } = require('powercord/modal');
+const { React, getModule, getModuleByDisplayName, getAllModules, i18n: { Messages } } = require('powercord/webpack');
+const { openModal } = getModule([ 'openModal' ], false);
 
 const ImageModal = getModuleByDisplayName('ImageModal', false);
 const MaskedLink = getModuleByDisplayName('MaskedLink', false);
+const { ModalRoot, ModalSize } = getModule([ 'ModalRoot' ], false);
+const classes = getAllModules([ 'modal', 'image' ], false).find((e) => Object.keys(e).length === 2);
 // const Video = getModule((m) => m.default && m.default.displayName === 'Video', false).default;
 
 module.exports = ({ src, width, height }) => {
-  open(() => React.createElement(ImageModal, {
-    src,
-    height,
-    width,
-    renderLinkComponent: (p) => React.createElement(MaskedLink, p),
-    original: src,
-    children: null
+  openModal((props) => React.createElement(ModalRoot, {
+    className: classes.modal,
+    size: ModalSize.DYNAMIC,
+    'aria-label': Messages.IMAGE,
+    children: React.createElement(ImageModal, {
+      className: classes.image,
+      src,
+      height,
+      width,
+      renderLinkComponent: (p) => React.createElement(MaskedLink, p),
+      original: src,
+      children: null
+    }),
+    ...props
   }));
 };

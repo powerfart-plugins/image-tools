@@ -1,36 +1,30 @@
 const { React, getModule } = require('powercord/webpack');
-const { inject, uninject } = require('powercord/injector');
 
 const Lens = require('./Lens.jsx');
 
 const { imagePlaceholder } = getModule([ 'imagePlaceholder' ], false);
+const { imageWrapper } = getModule([ 'imageWrapper' ], false);
 
-module.exports = class ImageWrapper extends React.Component {
-  constructor () {
-    super();
+module.exports = class ImageModalWrapper extends React.PureComponent {
+  constructor (props) {
+    super(props);
     this.imgRef = React.createRef();
     this.$image = null;
 
     this.state = {
-      src: null
+      src: props.children.props.src
     };
-  }
-
-  componentDidMount () {
-    if (this.props?.overlay) {
-      this.props.overlay.setEventListener('onClose', this.uninjectAll); // надёжнее componentWillUnmount()
-    } else {
-      // console.error('overlay offline');
-    }
-    this.injectToLazyImage();
   }
 
   componentDidUpdate () {
     if (this.props.overlay) {
       if (!this.$image) {
-        const $image = this.imgRef.current.querySelector('img');
+        const $image = this.imgRef.current.querySelector(`.${imageWrapper} > *`);
 
         if ($image && !$image.classList.contains(imagePlaceholder)) {
+          this.$image = $image;
+          this.props.overlay.sendData({ $image });
+
           $image.onload = () => {
             this.$image = $image;
             this.props.overlay.sendData({ $image });
@@ -45,7 +39,6 @@ module.exports = class ImageWrapper extends React.Component {
       { (this.state.src) &&
         <Lens
           onSetConfig={(callback) => this.props.overlay.setEventListener('onSetLensConfig', callback) }
-          image={this.state.src}
           imageRef={this.imgRef}
         />
       }
@@ -56,28 +49,5 @@ module.exports = class ImageWrapper extends React.Component {
         }}
       >{ this.props.children }</div>
     </>;
-  }
-
-  injectToLazyImage () {
-    const LazyImage = getModule((m) => m.default && m.default.displayName === 'LazyImage', false);
-    this.setState({ src: this.props.children.props.src });
-
-    inject('image-tools-wrapper-lazy-image', LazyImage.default.prototype, 'render', (args, res) => {
-      const { props } = res;
-
-      if (props.readyState === 'READY' &&
-          props.src.includes(this.props.children.props.src) &&
-          !props.src.includes('?format=')
-      ) {
-        this.setState({ src: props.src });
-      }
-
-      return res;
-    });
-    LazyImage.default.displayName = 'LazyImage';
-  }
-
-  uninjectAll () {
-    uninject('image-tools-wrapper-lazy-image');
   }
 };

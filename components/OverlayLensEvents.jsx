@@ -2,6 +2,7 @@ const { React, getModule } = require('powercord/webpack');
 const { fixConfines } = require('../utils');
 
 const { int2hex } = getModule([ 'int2hex' ], false);
+const { imageWrapper } = getModule([ 'imageWrapper' ], false);
 
 module.exports = class OverlayLensEvents extends React.PureComponent {
   constructor (props) {
@@ -42,7 +43,7 @@ module.exports = class OverlayLensEvents extends React.PureComponent {
     }
     if (!this.props.settings.get('disableLens', false)) {
       this.updateLensConfig({
-        show: isMouseDown && e.target.tagName === 'IMG',
+        show: isMouseDown && e.target.parentElement.classList.contains(imageWrapper),
         style: {
           borderColor: this._borederColor,
           imageRendering: this.props.settings.get('disableAntiAliasing', null) ? 'pixelated' : null
