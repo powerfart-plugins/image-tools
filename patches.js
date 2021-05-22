@@ -5,7 +5,7 @@ const { findInReactTree } = require('powercord/util');
 
 const Button = require('./components/Button');
 const LensSettings = require('./components/LensSettings');
-const ImageResolve = getModule([ 'getUserAvatarURL' ], false).default;
+const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
 
 function overlay (args, res, settings, switchModal) {
   const Overlay = require('./components/Overlay');
@@ -59,9 +59,9 @@ function messageCM ([ { target, message: { content } } ], res, settings) {
 
 function userCM ([ { user } ], res, settings) {
   const images = {
-    png: { src: ImageResolve.getUserAvatarURL(user, 'png', 2048) },
+    png: { src: addDiscordHost(ImageResolve.getUserAvatarURL(user, 'png', 2048)) },
     gif:  ImageResolve.hasAnimatedAvatar(user) ? { src: ImageResolve.getUserAvatarURL(user, 'gif', 2048) } : null,
-    webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
+    webp: { src: addDiscordHost(ImageResolve.getUserAvatarURL(user, 'webp', 2048)) }
   };
 
   if (user.discriminator !== '0000') {
@@ -73,12 +73,14 @@ function userCM ([ { user } ], res, settings) {
 function guildCM ([ { guild } ], res, settings) {
   guild.size = 4096;
   const images = {
-    png: { src: ImageResolve.getGuildIconURL(guild).replace('.webp?', '.png?') },
+    png: { src: ImageResolve.getGuildIconURL(guild)?.replace('.webp?', '.png?') },
     gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(guild).replace('.webp?', '.gif?') } : null,
     webp: { src: ImageResolve.getGuildIconURL(guild) }
   };
 
-  initButton(res.props.children, { images, settings });
+  if (images.png.src) {
+    initButton(res.props.children, { images, settings });
+  }
   return res;
 }
 
@@ -131,6 +133,10 @@ function isUrl (string) {
 function initButton (menu, args) {
   menu.splice(menu.length - 1, 0, Button.render(args));
   return menu;
+}
+
+function addDiscordHost (url) {
+  return new URL(url, (url.startsWith('/assets/')) ? window.GLOBAL_ENV.ASSET_ENDPOINT : undefined).href;
 }
 
 module.exports = {
