@@ -86,7 +86,7 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
 
     const url = new URL(href);
     const name = url.pathname.split('/').pop();
-    const resolution = `${$image.naturalWidth}x${$image.naturalHeight}`;
+    const resolution = `${$image.videoWidth || $image.naturalWidth || 0}x${$image.videoHeight || $image.naturalHeight || 0}`;
     const strSize = this.bytes2Str(attachment.size || this.state.size);
 
     if (!attachment.size) {
@@ -119,6 +119,11 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
           showConfig: true
         }),
         this.hideConfig);
+      }
+      if (obj.$image) {
+        obj.$image.addEventListener('loadedmetadata', () => {
+          this.forceUpdate(); // @todo убать это потом
+        }, false);
       }
     };
     this.setState(({ data }) => ({

@@ -19,7 +19,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
   componentDidUpdate () {
     if (this.props.overlay) {
       if (!this.$image) {
-        const $image = this.imgRef.current.querySelector(`.${imageWrapper} > *`);
+        const $image = this.imgRef.current.querySelector(`.${imageWrapper} > img, .${imageWrapper} > video`);
 
         if ($image && !$image.classList.contains(imagePlaceholder)) {
           this.$image = $image;
