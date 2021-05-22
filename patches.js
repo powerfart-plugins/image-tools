@@ -64,7 +64,9 @@ function userCM ([ { user } ], res, settings) {
     webp: { src: ImageResolve.getUserAvatarURL(user, 'webp', 2048) }
   };
 
-  initButton(res.props.children.props.children, { images, settings });
+  if (user.discriminator !== '0000') {
+    initButton(res.props.children.props.children, { images, settings });
+  }
   return res;
 }
 
