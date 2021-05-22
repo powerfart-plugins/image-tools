@@ -112,6 +112,21 @@ function groupDMCM ([ { channel } ], res, settings) {
   return res;
 }
 
+function guildChannelListCM ([ { guild } ], res, settings) {
+  if (guild.banner) {
+    const images = {
+      png: {
+        src: ImageResolve.getGuildBannerURL(guild),
+        width: 512,
+        height: 329
+      }
+    };
+
+    initButton(res.props.children, { images, settings });
+  }
+  return res;
+}
+
 function getImage (target) {
   const src = target.src.split('?').shift();
   let e = src.substr(src.lastIndexOf('.') + 1, src.length);
@@ -145,5 +160,6 @@ module.exports = {
   userCM,
   groupDMCM,
   guildCM,
-  imageCM
+  imageCM,
+  guildChannelListCM
 };

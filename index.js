@@ -33,6 +33,7 @@ module.exports = class ImageTools extends Plugin {
     this.inject('GroupDMUserContextMenu.default', patches.userCM);
     this.inject('GroupDMContextMenu.default', patches.groupDMCM);
     this.inject('GuildContextMenu.default', patches.guildCM);
+    this.inject('GuildChannelListContextMenu.default', patches.guildChannelListCM);
     this.inject('NativeImageContextMenu.default', patches.imageCM);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
   }
