@@ -96,7 +96,9 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
           imgComp.maxWidth = document.body.clientWidth * 80 / 100;
         }
 
-        LazyImage.props.animated = true; // @todo найти для mp4
+        if (LazyImage.type.isAnimated({ original: LazyImage.props.src })) { // @todo найти для mp4
+          LazyImage.props.animated = true;
+        }
         this.lensConfig.children = LazyImage;
       }
 

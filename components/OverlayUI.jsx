@@ -133,12 +133,16 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
   }
 
   loadSize (url) {
-    fetch(url)
-      .then((resp) => resp.headers.get('content-length'))
-      .then((size) => {
-        this.setState({ size });
-      })
-      .catch(console.error);
+    if (!this.attemptloadSize) {
+      this.attemptloadSize = true;
+
+      fetch(url)
+        .then((resp) => resp.headers.get('content-length'))
+        .then((size) => {
+          this.setState({ size });
+        })
+        .catch(console.error);
+    }
   }
 
   zipUrl (oldUrl) {

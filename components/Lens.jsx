@@ -48,12 +48,19 @@ module.exports = class Lens extends React.PureComponent {
   }
 
   updateConfig (data) {
+    const stated = () => {
+      const video = document.querySelector('.image-tools-lens > div > div > video'); // @todo мб fix,
+      if (video) {
+        video.autoplay = true;
+      }
+    };
+
     this.setState((prevState) => ({
       config: {
         ...prevState.config,
         ...data
       }
-    }));
+    }), stated);
   }
 
   getPos ({ radius, positionX, positionY }) {
