@@ -13,6 +13,13 @@
     > div > * {
         pointer-events: none;
     }
+
+    > div > div > *,
+    > div > div {
+        width: inherit !important;
+        height: inherit !important;
+    }
+
 }
 .image-tools-overlay-ui {
     > div {

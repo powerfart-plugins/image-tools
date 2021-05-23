@@ -33,7 +33,8 @@ module.exports = class Lens extends React.PureComponent {
         ...parentSize
       };
       style.child = {
-        transform: `${childSize.transform} ${childPos.transform}`
+        ...childSize,
+        ...childPos
       };
     }
 
@@ -63,7 +64,7 @@ module.exports = class Lens extends React.PureComponent {
     }), stated);
   }
 
-  getPos ({ radius, positionX, positionY }) {
+  getPos ({ radius, zooming, positionX, positionY }) {
     const rect = this.props.imageRef.current.querySelector(`.${imageWrapper} > *`).getBoundingClientRect();
     const X = fixConfines(positionX, [ rect.left, rect.right ]) - rect.left;
     const Y = fixConfines(positionY, [ rect.top, rect.bottom ]) - rect.top;
@@ -74,20 +75,23 @@ module.exports = class Lens extends React.PureComponent {
         top: `${Y - radius}px`
       },
       {
-        transform: `translate(${radius - X}px, ${radius - Y}px)`
+        transform: `translate(${radius - (X * zooming)}px, ${radius - (Y * zooming)}px)`
       }
     ];
   }
 
-  // новые уведолмения
+  // @todo новые уведолмения
   getSize ({ radius, zooming }) {
+    const rect = this.props.imageRef.current.querySelector(`.${imageWrapper} > *`).getBoundingClientRect();
+
     return [
       {
         width: `${radius * 2}px`,
         height: `${radius * 2}px`
       },
       {
-        transform: `scale(${zooming})`
+        width: `${rect.width * zooming}px`,
+        height: `${rect.height * zooming}px`
       }
     ];
   }
