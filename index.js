@@ -6,12 +6,20 @@ const Settings = require('./components/SettingsRender.jsx');
 const { settings } = require('./structures');
 const patches = require('./patches');
 const i18n = require('./i18n');
+const { ChangeLog } = require('./utils');
+const changelog = require('./changelog.json');
 
 module.exports = class ImageTools extends Plugin {
   constructor () {
     super();
     this.uninjectIDs = [];
     this.modalIsOpen = false;
+    this.ChangeLog = new ChangeLog({
+      config: changelog,
+      currentVer: this.manifest.version,
+      lastCheckedVer: this.settings.get('lastChangeLogVersion', '0'),
+      updateLastCheckedVer: (v) => this.settings.set('lastChangeLogVersion', v)
+    });
   }
 
   async startPlugin () {
@@ -21,6 +29,8 @@ module.exports = class ImageTools extends Plugin {
       entityID: this.entityID,
       items: settings()
     });
+
+    this.ChangeLog.init();
 
     this.inject('TransitionGroup.default.prototype.render', (...args) => {
       this.isModalOpen = false;

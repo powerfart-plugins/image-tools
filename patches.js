@@ -10,7 +10,11 @@ const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
 function overlay (args, res, settings, switchModal) {
   const Overlay = require('./components/Overlay');
   const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
-  const tree = nativeModalChildren?.props?.render();
+  let tree;
+
+  try { // [Powercord:Injector] Failed to run injection "image-tools-transition-group" TypeError: Cannot read property 'onClose' of undefined
+    tree = nativeModalChildren?.props?.render();
+  } catch {}
 
   if (tree) {
     if (findInReactTree(tree, ({ type }) => type?.displayName === 'ImageModal')) {
