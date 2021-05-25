@@ -6,22 +6,23 @@ const { getImages } = require('../utils');
 
 const OverlayUI = require('./OverlayUI.jsx');
 const OverlayLensEvents = require('./OverlayLensEvents.jsx');
-const ImageModalWrapper = require('./ImageModalWrapper');
+const ImageModalWrapper = require('./ImageModalWrapper.jsx');
 
 module.exports = class ImageToolsOverlay extends OverlayLensEvents {
   constructor (props) {
     super(props);
 
     this.images = getImages(getChannelId());
-    this.$image = null;
     this.state = {
+      $image: null,
       currentImgIndex: null
     };
 
-    this._onClose = this._onClose.bind(this);
+    this._onClose = this._onClose.bind(this); // @todo найти способ пропатчить closeModal
+    this.injectToBackdrop();
     this.injectToModalLayer();
     this.injectToImageModal();
-    this.injectToBackdrop();
+    this.injectToVideo();
   }
 
   render () {
@@ -47,7 +48,7 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
     super.updateLensConfig(data);
 
     if (('show' in data) || this.lensConfig.show) {
-      this.state.onSetLensConfig(this.lensConfig);
+      this.state.updateLensConfig(this.lensConfig);
     }
 
     if ([ 'radius', 'zooming', 'wheelStep' ].some((k) => k in data)) {
@@ -105,7 +106,7 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
       Wrapper.children[footerIndex] = React.createElement(OverlayUI, {
         headerButtons: this.getButtons(),
         originalFooter: Wrapper.children[footerIndex],
-        sendDataToUI: (callback) => this.setEventListener('sendDataToUI', callback)
+        sendDataToUI: (callback) => this.sendDataToUI = callback
       });
 
       return res;
@@ -125,11 +126,9 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
       res.props.children = (
         React.createElement(ImageModalWrapper, {
           children: res.props.children,
-          getSetting: this.props.settings.get,
-          setSetting: this.props.settings.set,
-          overlay: {
-            setEventListener: this.setEventListener.bind(this),
-            sendData: this.setData.bind(this)
+          set$image: this.updateCurrentImg.bind(this),
+          setUpdateLensConfig: (callback) => {
+            this.setState({ updateLensConfig: callback });
           }
         })
       );
@@ -138,45 +137,49 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
     });
   }
 
-  setEventListener (type, callback) {
-    const onStated = () => {
-      if (type === 'onSetLensConfig') {
-        this.state.onSetLensConfig(this.lensConfig);
+  injectToVideo () {
+    const Image = getModule((m) => m?.default?.displayName === 'Image', false);
+    inject('image-tools-overlay-video', Image.default.prototype, 'render', (args, res) => {
+      const Video = findInReactTree(res, ({ type }) => type?.displayName === 'Video');
+      if (Video) {
+        Video.props.play = true;
       }
+      return res;
+    });
+    Image.default.displayName = 'Image';
+  }
+
+  updateCurrentImg ($image) {
+    const updateIU = () => {
+      const result = this.images.findIndex(({ proxy_url }) => proxy_url === this.state.$image.src);
+      this.setState({ currentImgIndex: (result === -1) ? null : result }, () => {
+        this.updateUI({
+          $image,
+          attachment: (this.state.currentImgIndex !== null) ? this.images[this.state.currentImgIndex] : {}
+        });
+      });
+    };
+    const updateLens = () => {
+      this.updateLensConfig({
+        getRectImage: () => $image.getBoundingClientRect()
+      });
     };
 
-    this.setState({
-      [type]: callback
-    }, onStated);
-  }
-
-  setData (obj) {
-    if (obj.$image) {
-      this.updateCurrentImg(obj.$image);
-    }
-  }
-
-  updateCurrentImg (img) {
-    const result = this.images.findIndex(({ proxy_url }) => proxy_url === img.src);
-
-    this.$image = img;
-    this.setState(
-      { currentImgIndex: (result === -1) ? null : result },
-      () => this.updateUI({
-        $image: img,
-        attachment: (this.state.currentImgIndex !== null) ? this.images[this.state.currentImgIndex] : {}
-      })
-    );
+    this.setState({ $image }, () => {
+      updateIU();
+      updateLens();
+    });
   }
 
   updateUI (data) {
-    this.state.sendDataToUI(data);
+    this.sendDataToUI(data);
   }
 
   _onClose () {
     uninject('image-tools-overlay-ui');
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-overlay-modal-layer');
+    uninject('image-tools-overlay-video');
     return [ true ];
   }
 };

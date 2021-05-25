@@ -9,18 +9,25 @@ module.exports = class OverlayLensEvents extends React.PureComponent {
     super(props);
     const { get } = props.settings;
 
-    this._borederColor = int2hex(this.props.settings.get('lensColor', 0));
-
     this.lensConfig = {
       show: false,
-      radius: get('lensRadius', 100),
-      zooming: get('zoomRatio', 2),
-      wheelStep: get('wheelStep', 1),
+      get radius () {
+        return get('lensRadius', 100);
+      },
+      get zooming () {
+        return get('zoomRatio', 2);
+      },
+      get wheelStep () {
+        return get('wheelStep', 1);
+      },
       positionX: 0,
       positionY: 0,
+      getRectImage: () => ({}),
       style: {
-        borderColor: get('lensColor', 0),
-        imageRendering: null
+        borderColor: int2hex(this.props.settings.get('lensColor', 0)),
+        get imageRendering () {
+          return get('disableAntiAliasing', null) ? 'pixelated' : null;
+        }
       }
     };
     this.onMouse = this.onMouse.bind(this);
@@ -43,11 +50,7 @@ module.exports = class OverlayLensEvents extends React.PureComponent {
     }
     if (!this.props.settings.get('disableLens', false)) {
       this.updateLensConfig({
-        show: isMouseDown && e.target.parentElement.classList.contains(imageWrapper),
-        style: {
-          borderColor: this._borederColor,
-          imageRendering: this.props.settings.get('disableAntiAliasing', null) ? 'pixelated' : null
-        }
+        show: isMouseDown && e.target.parentElement.classList.contains(imageWrapper)
       });
     }
   }

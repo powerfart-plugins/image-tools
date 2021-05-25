@@ -16,7 +16,8 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
     this.state = {
       data: {},
       showConfig: false,
-      size: 0
+      size: 0,
+      resolution: { w: null, h: null }
     };
     this.hideConfig = global._.debounce(() => this.setState({ showConfig: false }), 1500);
   }
@@ -80,34 +81,45 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
   renderInfo () {
     const { $image, attachment }  = this.state.data;
     const { href } = this.props.originalFooter.props;
-    if (!$image && !attachment) {
-      return null;
-    }
-
     const url = new URL(href);
-    const name = url.pathname.split('/').pop();
-    const resolution = `${$image.videoWidth || $image.naturalWidth || 0}x${$image.videoHeight || $image.naturalHeight || 0}`;
-    const strSize = this.bytes2Str(attachment.size || this.state.size);
 
-    if (!attachment.size) {
-      this.loadSize($image.src);
-    }
+    const makeCopy = (child, text) => (
+      <Copy text={text || child}>{child}</Copy>
+    );
+    const renderName = () => (
+      makeCopy(url.pathname.split('/').pop())
+    );
+    const renderResolution = () => {
+      if ($image) {
+        const w = this.state.resolution.w || $image.videoWidth || $image.naturalWidth || 0;
+        const h = this.state.resolution.h || $image.videoHeight || $image.naturalHeight || 0;
+        return makeCopy(`${w}x${h}`);
+      }
+      return null;
+    };
+    const renderSize = () => {
+      if (attachment) {
+        const strSize = this.bytes2Str(attachment.size || this.state.size);
+        if (!attachment.size) {
+          this.loadSize($image.src);
+        }
+        return makeCopy(strSize);
+      }
+      return null;
+    };
+    const renderUrl = () => (
+      makeCopy(this.zipUrl(url.href), url.href)
+    );
 
     return (
       <div className='image-info'>
-        { ($image) && <>
-          <p>
-            <Copy text={name}>{name}</Copy>
-          </p>
-          <p>
-            <Copy text={resolution}>{resolution}</Copy>
-            <div className='separator'/>
-            <Copy text={strSize}>{strSize}</Copy>
-          </p>
-          <p>
-            <Copy text={url.href}>{this.zipUrl(url.href)}</Copy>
-          </p>
-        </>}
+        <p> {renderName()} </p>
+        <p>
+          {renderResolution()}
+          <div className='separator'/>
+          {renderSize()}
+        </p>
+        <p> {renderUrl()} </p>
       </div>
     );
   }
@@ -122,7 +134,9 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       }
       if (obj.$image) {
         obj.$image.addEventListener('loadedmetadata', () => {
-          this.forceUpdate(); // @todo убать это потом
+          this.setState({
+            resolution: { w: obj.$image.videoWidth, h: obj.$image.videoHeight }
+          });
         }, false);
       }
     };

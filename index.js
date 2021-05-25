@@ -53,7 +53,7 @@ module.exports = class ImageTools extends Plugin {
     uninject('image-tools-overlay-ui');
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-overlay-modal-layer');
-    uninject('image-tools-wrapper-lazy-image');
+    uninject('image-tools-overlay-video');
     powercord.api.settings.unregisterSettings('image-tools-settings');
   }
 

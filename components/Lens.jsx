@@ -1,36 +1,21 @@
-const { React, getModule } = require('powercord/webpack');
+const { React } = require('powercord/webpack');
 
-const { imageWrapper } = getModule([ 'imageWrapper' ], false);
 const { fixConfines } = require('../utils');
 
 /* eslint-disable object-property-newline */
 module.exports = class Lens extends React.PureComponent {
-  constructor ({ image, onSetConfig }) {
-    super();
-
-    this.state = {
-      config: {},
-      src: image
-    };
-
-    onSetConfig(this.updateConfig.bind(this));
-  }
-
   render () {
-    const { config } = this.state;
-    const style = {
-      parent: {},
-      child: {}
-    };
+    const style = { parent: {}, child: {} };
 
-    if (config.show) {
-      const [ parentPos, childPos ] = this.getPos(config);
-      const [ parentSize, childSize ] = this.getSize(config);
+    if (this.props.show) {
+      const [ parentPos, childPos ] = this.getPos(this.props);
+      const [ parentSize, childSize ] = this.getSize(this.props);
 
       style.parent = {
         display: 'block',
         ...parentPos,
-        ...parentSize
+        ...parentSize,
+        ...this.props.style
       };
       style.child = {
         ...childSize,
@@ -38,11 +23,10 @@ module.exports = class Lens extends React.PureComponent {
       };
     }
 
-
     return (
       <div className="image-tools-lens" style={style.parent}>
         <div style={style.child}>
-          { config.children }
+          { this.props.children }
         </div>
       </div>
     );
@@ -64,10 +48,10 @@ module.exports = class Lens extends React.PureComponent {
     }), stated);
   }
 
-  getPos ({ radius, zooming, positionX, positionY }) {
-    const rect = this.props.imageRef.current.querySelector(`.${imageWrapper} > *`).getBoundingClientRect();
-    const X = fixConfines(positionX, [ rect.left, rect.right ]) - rect.left;
-    const Y = fixConfines(positionY, [ rect.top, rect.bottom ]) - rect.top;
+  getPos ({ radius, zooming, positionX, positionY, getRectImage }) {
+    const { left, right, top, bottom } = getRectImage();
+    const X = fixConfines(positionX, [ left, right ]) - left;
+    const Y = fixConfines(positionY, [ top, bottom ]) - top;
 
     return [
       {
@@ -81,17 +65,16 @@ module.exports = class Lens extends React.PureComponent {
   }
 
   // @todo новые уведолмения
-  getSize ({ radius, zooming }) {
-    const rect = this.props.imageRef.current.querySelector(`.${imageWrapper} > *`).getBoundingClientRect();
-
+  getSize ({ radius, zooming, getRectImage }) {
+    const { width, height } = getRectImage();
     return [
       {
         width: `${radius * 2}px`,
         height: `${radius * 2}px`
       },
       {
-        width: `${rect.width * zooming}px`,
-        height: `${rect.height * zooming}px`
+        width: `${width * zooming}px`,
+        height: `${height * zooming}px`
       }
     ];
   }

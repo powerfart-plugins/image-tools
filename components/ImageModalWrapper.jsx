@@ -1,53 +1,49 @@
 const { React, getModule } = require('powercord/webpack');
 
 const Lens = require('./Lens.jsx');
-
-const { imagePlaceholder } = getModule([ 'imagePlaceholder' ], false);
-const { imageWrapper } = getModule([ 'imageWrapper' ], false);
+const { imageWrapper, imagePlaceholder } = getModule([ 'imageWrapper', 'imagePlaceholder' ], false);
 
 module.exports = class ImageModalWrapper extends React.PureComponent {
   constructor (props) {
     super(props);
     this.imgRef = React.createRef();
     this.$image = null;
-
     this.state = {
-      src: props.children.props.src
+      lensConfig: {}
     };
+
+    props.setUpdateLensConfig((lensConfig) => {
+      this.setState({ lensConfig });
+    });
   }
 
   componentDidUpdate () {
-    if (this.props.overlay) {
-      if (!this.$image) {
-        const $image = this.imgRef.current.querySelector(`.${imageWrapper} > img, .${imageWrapper} > video`);
-
-        if ($image && !$image.classList.contains(imagePlaceholder)) {
-          this.$image = $image;
-          this.props.overlay.sendData({ $image });
-
-          $image.onload = () => {
-            this.$image = $image;
-            this.props.overlay.sendData({ $image });
-          };
-        }
-      }
-    }
+    this.updateCurrentImg();
   }
 
   render () {
-    return <>
-      { (this.state.src) &&
-        <Lens
-          onSetConfig={(callback) => this.props.overlay.setEventListener('onSetLensConfig', callback) }
-          imageRef={this.imgRef}
-        />
-      }
-      <div
-        ref={this.imgRef}
-        onMouseDown={() => {
-          this.imgRef.current.click(); // чтобы скрыть меню перед линзой
-        }}
-      >{ this.props.children }</div>
-    </>;
+    return (
+      <>
+        <Lens {...this.state.lensConfig} />
+        <div
+          ref={this.imgRef}
+          onMouseDown={() => {
+            this.imgRef.current.click(); // чтобы скрыть меню перед линзой
+          }}
+        > {this.props.children} </div>
+      </>
+    );
+  }
+
+  updateCurrentImg () {
+    if (this.$image) {
+      return;
+    }
+    const $image = this.imgRef.current.querySelector(`.${imageWrapper} > img, video`);
+
+    if ($image && !$image.classList.contains(imagePlaceholder)) {
+      this.props.set$image($image);
+      this.$image = true;
+    }
   }
 };
