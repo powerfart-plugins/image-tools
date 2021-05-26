@@ -100,27 +100,37 @@
                 }
             }
             .image-info {
-                p {
-                    margin: 0;
+                width: 70%;
+
+                .string {
                     display: flex;
                     justify-content: flex-end;
-                    height: 25px;
 
-                    > div {
-                        padding: 0 8px;
+                    p {
+                        padding: 0 3px;
+                        margin: 0;
                         pointer-events: all;
                         opacity: .5;
+                        transition: opacity .15s ease;
 
                         &:hover {
                             opacity: 1;
                         }
                     }
-                    .separator {
-                        pointer-events: none;
-                        padding: 0;
+                }
+                .curtail {
+                    div {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    p {
+                        max-width: 100%;
+                        text-align: right;
+                        transition: max-width 1s;
 
-                        &:after {
-                            content: '|';
+                        &:hover {
+                            max-width: 500%;
                         }
                     }
                 }

@@ -84,7 +84,9 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
     const url = new URL(href);
 
     const makeCopy = (child, text) => (
-      <Copy text={text || child}>{child}</Copy>
+      <p>
+        <Copy text={text || child}>{child}</Copy>
+      </p>
     );
     const renderName = () => (
       makeCopy(url.pathname.split('/').pop())
@@ -107,21 +109,28 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       return null;
     };
     const renderUrl = () => (
-      makeCopy(this.zipUrl(url.href), url.href)
+      makeCopy(url.href)
     );
     const renderLoading = () => (
-      <div>loading...</div>
+      <span className='string'>
+        <p>loading...</p>
+      </span>
+    );
+    const renderSeparator = () => (
+      <p style={{ pointerEvents: 'none' }}>|</p>
     );
 
     return (
       <div className='image-info'>
-        <p> {renderName()} </p>
-        <p>
-          {renderResolution() || renderLoading()}
-          <div className='separator'/>
-          {renderSize() || renderLoading()}
-        </p>
-        <p> {renderUrl()} </p>
+        <span className='string curtail'>
+          {renderName()}
+        </span>
+        <span className='string'>
+          {renderResolution() || renderLoading()} {renderSeparator()} {renderSize() || renderLoading()}
+        </span>
+        <span className='string curtail'>
+          {renderUrl()}
+        </span>
       </div>
     );
   }
@@ -165,29 +174,6 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
         })
         .catch(console.error);
     }
-  }
-
-  zipUrl (oldUrl) {
-    const url = new URL(oldUrl);
-    const maxName = 20;
-    const maxLettersOneSide = 8;
-
-    url.pathname = url.pathname
-      .split('/')
-      .slice(-1)
-      .map((e) => {
-        const ex = e.substr(e.lastIndexOf('.') + 1, e.length);
-        let name = e.substr(0, e.lastIndexOf('.'));
-        const nl = name.length;
-
-        if (nl > maxName) {
-          name = `${name.substr(0, maxLettersOneSide)}...${name.substr(nl - maxLettersOneSide, nl)}`;
-        }
-        return `.../${name}.${ex}`;
-      })
-      .join('/');
-
-    return url.href;
   }
 
   bytes2Str (bytes) {
