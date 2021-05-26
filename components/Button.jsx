@@ -7,7 +7,7 @@ const { button } = require('../structures');
 const actions = require('../tools/actions');
 
 const imageSearchEngines = require('../ReverseImageSearchEngines.json');
-const priority = [ 'gif', 'png', 'jpg', 'webp' ];
+const priority = [ 'gif', 'mp4', 'png', 'jpg', 'webp' ];
 
 class ImageToolsButton extends React.PureComponent {
   constructor (props) {
@@ -171,6 +171,9 @@ class ImageToolsButton extends React.PureComponent {
 
   getAction (arr, id) {
     const key = (arr.length) ? arr[0] : this.items[0];
+    if (Array.isArray(this.disabled[key]) && this.disabled[key].includes(id)) {
+      return () => null;
+    }
     const { onClick } = this.getExtraItemsProperties(this.props.images[key], id);
 
     return onClick;

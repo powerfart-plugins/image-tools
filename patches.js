@@ -135,7 +135,11 @@ function getImage (target) {
   const src = target.src.split('?').shift();
   let e = src.substr(src.lastIndexOf('.') + 1, src.length);
   if (e.length > 3) {
-    e = 'png';
+    if (src.endsWith('/mp4')) {
+      e = 'mp4';
+    } else {
+      e = 'png';
+    }
   }
   return [ e, src ];
 }
