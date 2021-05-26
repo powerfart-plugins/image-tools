@@ -152,11 +152,12 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
   updateCurrentImg ($image) {
     const updateIU = () => {
       const result = this.images.findIndex(({ proxy_url }) => proxy_url === this.state.$image.src);
-      this.setState({ currentImgIndex: (result === -1) ? null : result }, () => {
-        this.updateUI({
-          $image,
-          attachment: (this.state.currentImgIndex !== null) ? this.images[this.state.currentImgIndex] : {}
-        });
+      const currentImgIndex = (result === -1) ? null : result;
+
+      this.setState({ currentImgIndex });
+      this.updateUI({
+        $image,
+        attachment: (currentImgIndex !== null) ? this.images[currentImgIndex] : {}
       });
     };
     const updateLens = () => {

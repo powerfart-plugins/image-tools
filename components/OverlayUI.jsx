@@ -17,7 +17,7 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       data: {},
       showConfig: false,
       size: 0,
-      resolution: { w: null, h: null }
+      resolution: { Width: null, Height: null }
     };
     this.hideConfig = global._.debounce(() => this.setState({ showConfig: false }), 1500);
   }
@@ -90,10 +90,9 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       makeCopy(url.pathname.split('/').pop())
     );
     const renderResolution = () => {
+      const get = (t) => this.state.resolution[t] || $image[`video${t}`] || $image[`natural${t}`] || ' ? ';
       if ($image) {
-        const w = this.state.resolution.w || $image.videoWidth || $image.naturalWidth || 0;
-        const h = this.state.resolution.h || $image.videoHeight || $image.naturalHeight || 0;
-        return makeCopy(`${w}x${h}`);
+        return makeCopy(`${get('Width')}x${get('Height')}`);
       }
       return null;
     };
@@ -110,14 +109,17 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
     const renderUrl = () => (
       makeCopy(this.zipUrl(url.href), url.href)
     );
+    const renderLoading = () => (
+      <div>loading...</div>
+    );
 
     return (
       <div className='image-info'>
         <p> {renderName()} </p>
         <p>
-          {renderResolution()}
+          {renderResolution() || renderLoading()}
           <div className='separator'/>
-          {renderSize()}
+          {renderSize() || renderLoading()}
         </p>
         <p> {renderUrl()} </p>
       </div>
@@ -135,11 +137,17 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       if (obj.$image) {
         obj.$image.addEventListener('loadedmetadata', () => {
           this.setState({
-            resolution: { w: obj.$image.videoWidth, h: obj.$image.videoHeight }
+            resolution: { Width: obj.$image.videoWidth, Height: obj.$image.videoHeight }
           });
         }, false);
+        obj.$image.onload = () => {
+          this.setState({
+            resolution: { Width: obj.$image.naturalWidth, Height: obj.$image.naturalHeight }
+          });
+        };
       }
     };
+
     this.setState(({ data }) => ({
       data: { ...data, ...obj }
     }),

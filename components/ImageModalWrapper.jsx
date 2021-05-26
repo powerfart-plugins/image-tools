@@ -17,7 +17,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
     });
   }
 
-  componentDidUpdate () {
+  componentWillUpdate () { // @todo нужен более надёжный хук
     this.updateCurrentImg();
   }
 
