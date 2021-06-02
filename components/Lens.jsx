@@ -5,47 +5,38 @@ const { fixConfines } = require('../utils');
 /* eslint-disable object-property-newline */
 module.exports = class Lens extends React.PureComponent {
   render () {
-    const style = { parent: {}, child: {} };
+    const style = { parent: {}, child: {}, raw: { x: 0, y: 0 } };
 
     if (this.props.show) {
-      const [ parentPos, childPos ] = this.getPos(this.props);
+      const [ parentPos, childPos, rawPos ] = this.getPos(this.props);
       const [ parentSize, childSize ] = this.getSize(this.props);
 
       style.parent = {
         display: 'block',
-        ...parentPos,
-        ...parentSize,
+        left: `${parentPos.x}px`,
+        top: `${parentPos.y}px`,
+        width: `${parentSize.w}px`,
+        height: `${parentSize.h}px`,
         ...this.props.style
       };
       style.child = {
-        ...childSize,
-        ...childPos
+        transform: `translate(${childPos.x}px, ${childPos.y}px)`,
+        width: `${childSize.w}px`,
+        height: `${childSize.h}px`
+      };
+      style.raw = {
+        ...rawPos
       };
     }
 
-    return (
+    return <>
       <div className="image-tools-lens" style={style.parent}>
         <div style={style.child}>
           { this.props.children }
         </div>
       </div>
-    );
-  }
-
-  updateConfig (data) {
-    const stated = () => {
-      const video = document.querySelector('.image-tools-lens > div > div > video'); // @todo мб fix,
-      if (video) {
-        video.autoplay = true;
-      }
-    };
-
-    this.setState((prevState) => ({
-      config: {
-        ...prevState.config,
-        ...data
-      }
-    }), stated);
+      {this.props.renderPreview && this.props.renderPreview(style.raw)}
+    </>;
   }
 
   getPos ({ radius, zooming, positionX, positionY, getRectImage }) {
@@ -55,26 +46,30 @@ module.exports = class Lens extends React.PureComponent {
 
     return [
       {
-        left: `${X - radius}px`,
-        top: `${Y - radius}px`
+        x: X - radius,
+        y: Y - radius
       },
       {
-        transform: `translate(${radius - (X * zooming)}px, ${radius - (Y * zooming)}px)`
+        x: radius - (X * zooming),
+        y: radius - (Y * zooming)
+      },
+      {
+        x: X,
+        y: Y
       }
     ];
   }
 
-  // @todo новые уведолмения
   getSize ({ radius, zooming, getRectImage }) {
     const { width, height } = getRectImage();
     return [
       {
-        width: `${radius * 2}px`,
-        height: `${radius * 2}px`
+        w: radius * 2,
+        h: radius * 2
       },
       {
-        width: `${width * zooming}px`,
-        height: `${height * zooming}px`
+        w: width * zooming,
+        h: height * zooming
       }
     ];
   }

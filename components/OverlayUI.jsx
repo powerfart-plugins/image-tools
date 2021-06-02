@@ -54,13 +54,13 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       <div className={`header ${buttons}`}>
         {
           this.props.headerButtons.map(({ tooltip, callback, Icon }) => (
-            <div className={`${button} ${sizeIcon} button`}>
-              <Tooltip text={tooltip}>
-                <Clickable onClick={callback}>
+            <Clickable onClick={callback}>
+              <div className={`${button} ${sizeIcon} button`}>
+                <Tooltip text={tooltip}>
                   <Icon/>
-                </Clickable>
-              </Tooltip>
-            </div>
+                </Tooltip>
+              </div>
+            </Clickable>
           ))
         }
       </div>
@@ -149,11 +149,11 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
             resolution: { Width: obj.$image.videoWidth, Height: obj.$image.videoHeight }
           });
         }, false);
-        obj.$image.onload = () => {
+        obj.$image.addEventListener('load', () => {
           this.setState({
             resolution: { Width: obj.$image.naturalWidth, Height: obj.$image.naturalHeight }
           });
-        };
+        });
       }
     };
 

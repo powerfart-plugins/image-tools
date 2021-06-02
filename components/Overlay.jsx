@@ -2,15 +2,21 @@ const { React, getModule, getModuleByDisplayName, channels: { getChannelId } } =
 const { inject, uninject } = require('powercord/injector');
 const { findInReactTree } = require('powercord/util');
 
-const { getImages } = require('../utils');
+const { LensHandlers, getImages } = require('../utils');
+const { ImageColorPicker } = require('../tools');
 
 const OverlayUI = require('./OverlayUI.jsx');
-const OverlayLensEvents = require('./OverlayLensEvents.jsx');
 const ImageModalWrapper = require('./ImageModalWrapper.jsx');
 
-module.exports = class ImageToolsOverlay extends OverlayLensEvents {
+const { int2hex } = getModule([ 'int2hex' ], false);
+const { imageWrapper } = getModule([ 'imageWrapper' ], false);
+const { _ } = global;
+
+/* eslint-disable object-property-newline */
+module.exports = class ImageToolsOverlay extends React.PureComponent {
   constructor (props) {
     super(props);
+    const { get, set } = props.settings;
 
     this.images = getImages(getChannelId());
     this.state = {
@@ -18,20 +24,61 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
       currentImgIndex: null
     };
 
-    this._onClose = this._onClose.bind(this); // @todo найти способ пропатчить closeModal
+    this.settings = {
+      get radius () {
+        return get('lensRadius', 100);
+      },
+      get zooming () {
+        return get('zoomRatio', 2);
+      },
+      get wheelStep () {
+        return get('wheelStep', 1);
+      },
+      set radius (v) {
+        return set('lensRadius', v);
+      },
+      set zooming (v) {
+        return set('zoomRatio', v);
+      },
+      set wheelStep (v) {
+        return set('wheelStep', v);
+      }
+    };
+    this.lensConfig = {
+      show: false,
+      radius: this.settings.radius,
+      zooming: this.settings.zooming,
+      wheelStep: this.settings.wheelStep,
+      positionX: 0,
+      positionY: 0,
+      getRectImage: () => ({}),
+      renderPreview: () => null,
+      style: {
+        borderColor: int2hex(this.props.settings.get('lensColor', 0)),
+        get imageRendering () {
+          return get('disableAntiAliasing', null) ? 'pixelated' : null;
+        }
+      }
+    };
+    this.additionalHandler = {};
+
     this.injectToBackdrop();
     this.injectToModalLayer();
     this.injectToImageModal();
     this.injectToVideo();
+
+    // @todo найти способ пропатчить closeModal
+    _.bindAll(this, [ 'onMouseMove', 'onWheel', 'onMouseButton', 'onMouseDown', 'onClose' ]);
   }
 
   render () {
     return (
       <div
         onMouseMove={this.onMouseMove}
-        onMouseDown={this.onMouse}
-        onMouseUp={this.onMouse}
-        onMouseLeave={this.onMouse}
+        onMouseDown={this.onMouseDown}
+        onMouseLeave={this.onMouseDown}
+        onMouseUp={this.onMouseButton}
+        onClick={this.onMouseButton}
         onWheel={this.onWheel}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
@@ -44,8 +91,76 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
     );
   }
 
+  onMouseMove (e) {
+    const suppress = this.getAdditionalHandler(e, 'onMouseMove');
+    if (suppress) {
+      return;
+    }
+    this.updateLensConfig(LensHandlers.onMouseMove(e));
+  }
+
+  onMouseDown (e) {
+    if (e.target.parentElement.classList.contains(imageWrapper)) {
+      this.onMouseButton(e);
+    }
+  }
+
+  onMouseButton (e) {
+    if (e.target.closest('div.button')) {
+      return;
+    }
+
+    const suppress = this.getAdditionalHandler(e, 'onMouseButton');
+    if (suppress) {
+      return;
+    }
+    this.updateLensConfig(LensHandlers.onMouseButton(e));
+  }
+
+  onWheel (e) {
+    const suppress = this.getAdditionalHandler(e, 'onWheel');
+    if (suppress) {
+      return;
+    }
+    const val = LensHandlers.onWheel(e,
+      {
+        radius: this.lensConfig.radius,
+        zooming: this.lensConfig.zooming,
+        wheelStep: this.lensConfig.wheelStep
+      },
+      {
+        radius: [ 50, this.props.settings.get('maxLensRadius', 700) ],
+        zooming: [ 1, this.props.settings.get('maxZoomRatio', 15) ],
+        wheelStep: [ 0.1, 5 ]
+      }
+    );
+    const [ key ] = Object.keys(val);
+
+    this.settings[key] = val[key];
+    this.updateLensConfig(val);
+  }
+
+  /**
+   * @param {Event} event
+   * @param {String} handlerName
+   * @returns {boolean} whether it is necessary to suppress the following handlers
+   */
+  getAdditionalHandler (event, handlerName) {
+    const resource = this.additionalHandler[handlerName];
+    if (resource) {
+      const res = resource.func(event);
+      if (resource.capture && !res) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   updateLensConfig (data) {
-    super.updateLensConfig(data);
+    this.lensConfig = {
+      ...this.lensConfig,
+      ...data
+    };
 
     if (('show' in data) || this.lensConfig.show) {
       this.state.updateLensConfig(this.lensConfig);
@@ -68,11 +183,37 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
       //   Icon: Retry,
       //   callback: () => console.log('nope')
       // },
-      // {
-      //   tooltip: 'grab a color',
-      //   Icon: Dropper,
-      //   callback: () => console.log('nope')
-      // }
+      {
+        tooltip: 'grab a color',
+        Icon: Dropper,
+        callback: () => {
+          if (!this.ColorPicker) {
+            this.ColorPicker = new ImageColorPicker(this.state.$image);
+          }
+          const backupConfig = {
+            ...this.lensConfig
+          };
+          this.additionalHandler.onWheel = { func: () => null, capture: true };
+          this.additionalHandler.onMouseButton = {
+            func: (e) => {
+              if (e.type === 'click') {
+                this.additionalHandler.onWheel = null;
+                this.additionalHandler.onMouseButton = null;
+                this.ColorPicker.copyColor(this.lensConfig.positionX, this.lensConfig.positionY);
+                this.updateLensConfig({
+                  show: false,
+                  ...backupConfig
+                });
+              }
+            },
+            capture: true
+          };
+          this.updateLensConfig({
+            show: true,
+            ...this.ColorPicker.lensConfig
+          });
+        }
+      }
     ];
   }
 
@@ -116,7 +257,7 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
 
   injectToBackdrop () {
     const backdrop = findInReactTree(this.props.children, ({ props }) => props?.onClose);
-    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this._onClose, true);
+    inject('image-tools-overlay-backdrop', backdrop.props, 'onClose', this.onClose, true);
   }
 
   injectToModalLayer () {
@@ -176,7 +317,7 @@ module.exports = class ImageToolsOverlay extends OverlayLensEvents {
     this.sendDataToUI(data);
   }
 
-  _onClose () {
+  onClose () {
     uninject('image-tools-overlay-ui');
     uninject('image-tools-overlay-backdrop');
     uninject('image-tools-overlay-modal-layer');

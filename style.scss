@@ -1,9 +1,11 @@
 .submenuContainer-2gbm7M {
     z-index: 1;
 }
-.image-tools-lens {
-    position: absolute;
+.image-tools-lens, .image-tools-color-picker-prev {
     z-index: 1;
+    position: absolute;
+}
+.image-tools-lens {
     border: 2px solid var(--interactive-hover);
     border-radius: 50%;
     margin: -2px;
@@ -19,7 +21,13 @@
         width: inherit !important;
         height: inherit !important;
     }
-
+}
+.image-tools-color-picker-prev {
+    transform: translateX(-50%);
+    width: 100px;
+    height: 30px;
+    border: 2px solid var(--interactive-hover);
+    border-radius: 5px;
 }
 .image-tools-overlay-ui {
     > div {
@@ -59,7 +67,7 @@
         .button {
             width: 35px;
             height: 35px;
-            background: radial-gradient(rgba(212, 212, 212, 0.5) 0%, rgba(255,255,255, 0.5) );
+            background: radial-gradient(rgba(212, 212, 212, 0.5) 0%, rgba(255,255,255, 0.5));
             pointer-events: all;
             margin: 0 10px;
             opacity: .5;
