@@ -199,7 +199,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
               if (e.type === 'click') {
                 this.additionalHandler.onWheel = null;
                 this.additionalHandler.onMouseButton = null;
-                this.ColorPicker.copyColor(this.lensConfig.positionX, this.lensConfig.positionY);
+                this.ColorPicker.copyColor();
                 this.updateLensConfig({
                   show: false,
                   ...backupConfig

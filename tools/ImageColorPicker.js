@@ -10,6 +10,7 @@ module.exports = class ImageColorPicker {
     canvas.width = width;
     canvas.height = height;
     this.ctx = canvas.getContext('2d');
+    this.currentColor = [];
 
     img.addEventListener('load', () => {
       try { // Error: The canvas has been tainted by cross-origin data.
@@ -34,10 +35,11 @@ module.exports = class ImageColorPicker {
 
   getByPos (x, y) {
     const rgba = this.ctx.getImageData(x, y, 1, 1).data;
+    this.currentColor = rgba;
     return this.rgbToHex([ ...rgba ]);
   }
 
-  rgbToHex ([ R, G, B, A ]) {
+  rgbToHex ([ R, G, B ]) {
     return `#${((1 << 24) + (R << 16) + (G << 8) + B).toString(16).slice(1)}`;
   }
 
@@ -52,7 +54,7 @@ module.exports = class ImageColorPicker {
     });
   }
 
-  copyColor (x, y) {
-    clipboard.write({ text: this.getByPos(x, y) });
+  copyColor () {
+    clipboard.write({ text: this.rgbToHex(this.currentColor) });
   }
 };
