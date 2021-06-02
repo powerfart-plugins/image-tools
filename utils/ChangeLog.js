@@ -64,7 +64,8 @@ module.exports = class ChangelogManager { // @todo support i18n for Changelog
   parseChangeLog (json) {
     const defaultParams = {
       locale: 'en-us',
-      revision: 1
+      revision: 1,
+      version: this.args.currentVer
     };
     const parseContent = (content, depp = 0) => {
       if (Array.isArray(content)) {
@@ -101,8 +102,11 @@ class Changelog extends ChangelogStandardTemplate {
 
   customRenderHeader () {
     const res = this.superRenderHeader();
-    const header = findInReactTree(res, ({ type }) => type?.displayName === 'Header');
-    header.props.children = `Image Tools - ${header.props.children}`;
+    const Header = findInReactTree(res, ({ type }) => type?.displayName === 'Header');
+    const Text = findInReactTree(res, ({ type }) => type?.displayName === 'Text');
+
+    Header.props.children = `Image Tools - ${Header.props.children}`;
+    Text.props.children = `${Text.props.children} - v${this.props.changeLog.version}`;
     return res;
   }
 
