@@ -30,6 +30,11 @@
     border-radius: 5px;
 }
 .image-tools-overlay-ui {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    top: 0;
+
     > div {
         opacity: 1;
         width: 100%;
@@ -59,7 +64,7 @@
         }
     }
     > .header {
-        top: -12%;
+        top: -60px;
         display: flex;
         justify-content: center;
         color: var(--interactive-active);
