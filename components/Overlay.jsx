@@ -9,7 +9,7 @@ const OverlayUI = require('./OverlayUI.jsx');
 const ImageModalWrapper = require('./ImageModalWrapper.jsx');
 
 const { int2hex } = getModule([ 'int2hex' ], false);
-const { imageWrapper } = getModule([ 'imageWrapper' ], false);
+const { wrapper, downloadLink } = getModule([ 'wrapper', 'downloadLink' ], false);
 const { _ } = global;
 
 /* eslint-disable object-property-newline */
@@ -82,7 +82,8 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
         onWheel={this.onWheel}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
-            this._onClose();
+            this.onClose();
+            this.additionalHandler = {};
           }
         }}
       >
@@ -100,7 +101,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   }
 
   onMouseDown (e) {
-    if (e.target.parentElement.classList.contains(imageWrapper)) {
+    if (e.target.closest(`div.${wrapper}`)) {
       this.onMouseButton(e);
     }
   }
@@ -219,7 +220,6 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
 
   injectToImageModal () {
     const ImageModal = getModule((m) => m?.default?.displayName === 'ImageModal', false);
-    const { wrapper, downloadLink } = getModule([ 'wrapper', 'downloadLink' ], false);
     const patchImageSize = this.props.settings.get('patchImageSize', true);
 
     inject('image-tools-overlay-ui', ImageModal.default.prototype, 'render', (args, res) => {
