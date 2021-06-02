@@ -31,12 +31,20 @@ module.exports = class ChangelogManager { // @todo support i18n for Changelog
   }
 
   get needChangeLog () {
-    const { currentVer, lastCheckedVer } = this.args;
-    const res = currentVer.localeCompare(lastCheckedVer, undefined, {
-      numeric: true,
-      sensitivity: 'base'
-    });
-    return (res === 1);
+    const get = (s) => s.split(/\./g).slice(0, -1);
+    const currVers = get(this.args.currentVer);
+    const lastVers = get(this.args.lastCheckedVer);
+
+    while (currVers.length || lastVers.length) {
+      const a = Number(currVers.shift());
+      const b = Number(lastVers.shift());
+
+      if (a === b) {
+        continue;
+      }
+      return (a > b || isNaN(b));
+    }
+    return false;
   }
 
   async init () {
