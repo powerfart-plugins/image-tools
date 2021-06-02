@@ -79,12 +79,6 @@ module.exports = function () {
               def: false
             },
             {
-              type: 'switch',
-              name: Messages.IMAGE_TOOLS_HIDE_WEBP,
-              key: 'disableWebp',
-              def: true
-            },
-            {
               type: 'select',
               name: Messages.IMAGE_TOOLS_DEFAULT_ACTION,
               note: Messages.IMAGE_TOOLS_DEFAULT_ACTION_NOTE,

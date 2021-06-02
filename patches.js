@@ -1,5 +1,4 @@
 /* eslint-disable no-use-before-define, object-property-newline */
-
 const { React, getModule } = require('powercord/webpack');
 const { findInReactTree } = require('powercord/util');
 
@@ -63,9 +62,8 @@ function messageCM ([ { target, message: { content } } ], res, settings) {
 
 function userCM ([ { user } ], res, settings) {
   const images = {
-    png: { src: addDiscordHost(ImageResolve.getUserAvatarURL(user, 'png', 2048)) },
-    gif:  ImageResolve.hasAnimatedAvatar(user) ? { src: ImageResolve.getUserAvatarURL(user, 'gif', 2048) } : null,
-    webp: { src: addDiscordHost(ImageResolve.getUserAvatarURL(user, 'webp', 2048)) }
+    webp: { src: addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048)) },
+    gif:  ImageResolve.isAnimatedIconHash(user.avatar) ? { src: ImageResolve.getUserAvatarURL(user, true, 2048) } : null
   };
 
   if (user.discriminator !== '0000') {

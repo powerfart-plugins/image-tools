@@ -46,7 +46,6 @@ class ImageToolsButton extends React.PureComponent {
 
   get disabled () {
     return {
-      webp: this.props.settings.get('disableWebp', true),
       mp4:[ 'open-image', 'copy-image', 'save-as', 'search-image' ]
     };
   }
@@ -122,7 +121,7 @@ class ImageToolsButton extends React.PureComponent {
         onClick: () => actions.openImage(image)
       },
       copyImage: {
-        name: (this.items.length > 1) ? `${Messages.IMAGE_TOOLS_COPY_IMAGE} (PNG)` : Messages.IMAGE_TOOLS_COPY_IMAGE
+        disabled: !(new URL(src).pathname.endsWith('png'))
       },
       save: {
         type: (saveImageDirs.length > 1) ? 'submenu' : 'button',
