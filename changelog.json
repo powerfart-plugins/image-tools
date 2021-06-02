@@ -4,8 +4,65 @@
   "body": [
     {
       "type": "improved",
-      "header": "",
-      "content": []
+      "header": "Refactoring",
+      "content": [
+        "Mostly a lot of refactoring, don't be intimidated by the large number of commits",
+        [
+          "Improved lens - now support any format including mp4 (fake gif)",
+          "More native modal call",
+          "Some improvements to i18n stings",
+          ".github scripts"
+        ]
+      ]
+    },
+    {
+      "type": "added",
+      "header": "CHANGELOG",
+      "content": [
+        "CHANGELOG! CHANGELOG! CHANGELOG!"
+      ]
+    },
+    {
+      "type": "added",
+      "header": "New features",
+      "content": [
+        [
+          "Ability to interact with server banner",
+          "New tool: Color picker (WIP)"
+        ]
+      ]
+    },
+    {
+      "type": "added",
+      "header": "Modal",
+      "content": [
+        [
+          "Smoother loading of information",
+          "Compression of long names/urls"
+        ]
+      ]
+    },
+    {
+      "type": "fixed",
+      "header": "Bug fixes",
+      "content": [
+        [
+          "Patcher now ignores webhook-like users",
+          "Decreased conflict with some BD plugins",
+          "No erros when a user or server does not have an avatar"
+        ]
+      ]
+    },
+    {
+      "type": "progress",
+      "header": "I'm probably busy with this",
+      "content": [
+        [
+          "Improved gif sync (no mp4) in the lens",
+          "Better coordinates for color picker",
+          "\"Grid\" on the lens in color picker mode"
+        ]
+      ]
     }
   ],
   "footer": ""

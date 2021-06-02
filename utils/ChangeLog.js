@@ -73,7 +73,7 @@ module.exports = class ChangelogManager { // @todo support i18n for Changelog
           .map((e) => `${(Array.isArray(e)) ? '' : prefix}${parseContent(e, depp + 1)}`)
           .join('');
       }
-      return `${content}\n\n`;
+      return `${content}\n`;
     };
 
     return {
@@ -83,7 +83,7 @@ module.exports = class ChangelogManager { // @todo support i18n for Changelog
       body: json.body.reduce((acc, item) => {
         acc += `${item.header.toUpperCase()} {${item.type}}\n======================\n\n`;
         item.content.forEach((e) => {
-          acc += parseContent(e);
+          acc += `${parseContent(e)}\n`;
         });
         return acc;
       }, '')
