@@ -107,7 +107,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   }
 
   onMouseButton (e) {
-    if (e.target.closest('div.button')) {
+    if (e.target.closest('div.header, div.footer')) {
       return;
     }
 
