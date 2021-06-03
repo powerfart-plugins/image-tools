@@ -5,6 +5,10 @@ const { getMessages } = getModule([ 'getMessages' ], false);
 
 const IMG_EXPANSIONS = [ 'png', 'gif', 'jpg' ];
 
+/**
+ * @param {String} channelId
+ * @returns {Array<Object>}
+ */
 module.exports = function (channelId) {
   const result = [];
 

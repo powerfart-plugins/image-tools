@@ -2,9 +2,10 @@ const { React, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
 const { camelCaseify, findInReactTree } = require('powercord/util');
 
-const { getDefaultSaveDir, OutputManager } = require('../utils');
-const { button } = require('../structures');
-const actions = require('../tools/actions');
+const getDefaultSaveDir = require('../utils/getDefaultSaveDir');
+const OutputManager = require('../modules/OutputManager');
+const buttonStructure = require('../structures/button');
+const Actions = require('../tools/Actions');
 
 const imageSearchEngines = require('../ReverseImageSearchEngines.json');
 const priority = [ 'gif', 'mp4', 'png', 'jpg', 'webp' ];
@@ -96,11 +97,11 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   getBaseMenu (image, disabled) {
-    return button
+    return buttonStructure
       .filter(({ id }) => !this.disabledActions.includes(id))
       .map((item) => ({
         disabled: disabled.includes(item.id),
-        name: Messages[item.keyName],
+        name: item.name,
         ...item,
         ...this.getExtraItemsProperties(image, item.id)
       }));
@@ -112,13 +113,13 @@ class ImageToolsButton extends React.PureComponent {
     const saveImageDirs = this.props.settings.get('saveImageDirs', []);
     const allowSubText = !this.props.settings.get('hideHints', false); // надо бы как-то рекурсивно удалять, но мне впаду
     const defaultSaveDir = saveImageDirs[0]?.path || getDefaultSaveDir();
-    const openLink = (url, withoutEncode) => actions.openLink(
+    const openLink = (url, withoutEncode) => Actions.openLink(
       (url + ((withoutEncode) ? src : encodeURIComponent(src))), null, { original }
     );
 
     const data =  {
       openImage: {
-        onClick: () => actions.openImage(image)
+        onClick: () => Actions.openImage(image)
       },
       copyImage: {
         disabled: !(new URL(src).pathname.endsWith('png'))
@@ -130,7 +131,7 @@ class ImageToolsButton extends React.PureComponent {
           type: 'button',
           name,
           subtext: (allowSubText) ? path : null,
-          onClick: () => actions.save(image.src, this.output, {
+          onClick: () => Actions.save(image.src, this.output, {
             downloadPath: path
           })
         })),
@@ -160,7 +161,7 @@ class ImageToolsButton extends React.PureComponent {
     };
 
     return {
-      onClick: () => actions[id](image.src, this.output, {
+      onClick: () => Actions[id](image.src, this.output, {
         downloadPath: defaultSaveDir,
         original
       }),

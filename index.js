@@ -2,11 +2,13 @@ const { Plugin } = require('powercord/entities');
 const { uninject } = require('powercord/injector');
 
 const Settings = require('./components/SettingsRender.jsx');
-const { settings } = require('./structures');
+const settingsStructure = require('./structures/settings');
 const i18n = require('./i18n');
-const { ChangeLog, Patcher } = require('./utils');
+const ChangeLog = require('./modules/ChangeLog');
+const Patcher = require('./modules/Patcher');
 const changelog = require('./changelog.json');
 
+// noinspection JSUnusedGlobalSymbols
 module.exports = class ImageTools extends Plugin {
   constructor () {
     super();
@@ -24,7 +26,7 @@ module.exports = class ImageTools extends Plugin {
     this.loadStylesheet('style.scss');
     Settings.register({
       entityID: this.entityID,
-      items: settings()
+      items: settingsStructure
     });
 
     this.Patcher.inject();

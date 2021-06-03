@@ -1,6 +1,6 @@
 const { React, getModule } = require('powercord/webpack');
 
-const Lens = require('./Lens.jsx');
+const Lens = require('../tools/Lens/Index');
 const { imageWrapper, imagePlaceholder } = getModule([ 'imageWrapper', 'imagePlaceholder' ], false);
 
 module.exports = class ImageModalWrapper extends React.PureComponent {

@@ -1,13 +1,15 @@
 const { basename } = require('path');
 
 const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require('powercord/webpack');
-const { Category, ButtonItem } = require('powercord/components/settings');
+const { ButtonItem } = require('powercord/components/settings');
 
 const SettingsRender = require('./SettingsRender.jsx');
-const { getDefaultSaveDir } = require('../utils');
+const getDefaultSaveDir = require('../utils/getDefaultSaveDir');
 
 const RemoveButton = getModuleByDisplayName('RemoveButton', false);
-const openDirectory = () => getModule([ 'showOpenDialog' ], false).showOpenDialog([ 'openDirectory' ]);
+const { showOpenDialog } = getModule([ 'showOpenDialog' ], false);
+
+const openDirectory = () => showOpenDialog([ 'openDirectory' ]);
 
 /* eslint-disable object-property-newline */
 module.exports = class SaveDirs extends React.PureComponent {

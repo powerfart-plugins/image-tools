@@ -1,4 +1,4 @@
-const fixConfines = require('./fixConfines');
+const fixConfines = require('../../utils/fixConfines');
 
 module.exports = class LensHandlers {
   static onMouseButton (e) {

@@ -1,6 +1,6 @@
 const { React } = require('powercord/webpack');
 
-const { fixConfines } = require('../utils');
+const fixConfines = require('../../utils/fixConfines');
 
 /* eslint-disable object-property-newline */
 module.exports = class Lens extends React.PureComponent {

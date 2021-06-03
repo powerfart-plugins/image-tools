@@ -1,7 +1,9 @@
 const { React, getModule, getModuleByDisplayName, channels: { getChannelId } } = require('powercord/webpack');
 
-const { LensHandlers, getImages, Patcher } = require('../utils');
-const { ImageColorPicker } = require('../tools');
+const Patcher = require('../modules/Patcher');
+const getImages = require('../utils/getImages');
+const ImageColorPicker = require('../tools/ImageColorPicker');
+const lensHandlers = require('../tools/Lens/Handlers');
 
 const { int2hex } = getModule([ 'int2hex' ], false);
 const { wrapper } = getModule([ 'wrapper', 'downloadLink' ], false);
@@ -102,7 +104,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     if (suppress) {
       return;
     }
-    this.updateLensConfig(LensHandlers.onMouseMove(e));
+    this.updateLensConfig(lensHandlers.onMouseMove(e));
   }
 
   onMouseDown (e) {
@@ -120,7 +122,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     if (suppress) {
       return;
     }
-    this.updateLensConfig(LensHandlers.onMouseButton(e));
+    this.updateLensConfig(lensHandlers.onMouseButton(e));
   }
 
   onWheel (e) {
@@ -128,7 +130,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     if (suppress) {
       return;
     }
-    const val = LensHandlers.onWheel(e,
+    const val = lensHandlers.onWheel(e,
       {
         radius: this.lensConfig.radius,
         zooming: this.lensConfig.zooming,
@@ -180,7 +182,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   }
 
   getButtons () {
-    const Retry = getModuleByDisplayName('Retry', false);
+    // const Retry = getModuleByDisplayName('Retry', false);
     const Dropper = getModuleByDisplayName('Dropper', false);
 
     return [

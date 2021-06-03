@@ -34,6 +34,7 @@
     position: absolute;
     height: 100%;
     top: 0;
+    pointer-events: none;
 
     > div {
         opacity: 1;

@@ -21,9 +21,9 @@ class Settings extends React.Component {
   /**
    * Automatically register settings
    * @param {Object} params
-   * @param {String} params.id by default = `entityID-settings`
+   * @param {String} [params.id] by default = `entityID-settings`
    * @param {String} params.entityID
-   * @param {String} params.label by default = entityID to titleCase
+   * @param {String} [params.label] by default = entityID to titleCase
    * @param {Array} params.items
    */
   static register ({ id, entityID, label, items }) {

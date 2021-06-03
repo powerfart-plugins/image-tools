@@ -1,11 +1,12 @@
 /* eslint-disable no-use-before-define, object-property-newline,no-undefined */
+// noinspection JSUnusedGlobalSymbols
 
 const { React, getModule } = require('powercord/webpack');
 const { findInReactTree } = require('powercord/util');
 const { inject, uninject } = require('powercord/injector');
 
 const Button = require('../components/Button.jsx');
-const LensSettings = require('../components/LensSettings.jsx');
+const LensSettings = require('../tools/Lens/Settings.jsx');
 const OverlayUI = require('../components/OverlayUI.jsx');
 const ImageModalWrapper = require('../components/ImageModalWrapper.jsx');
 

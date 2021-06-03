@@ -49,7 +49,7 @@
         [
           "Patcher now ignores webhook-like users",
           "Decreased conflict with some BD plugins",
-          "No erros when a user or server does not have an avatar"
+          "No errors when a user or server does not have an avatar"
         ]
       ]
     },

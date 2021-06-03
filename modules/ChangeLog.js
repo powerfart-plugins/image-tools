@@ -25,11 +25,22 @@ const { parse: toMarkdown } = getModule([ 'parse', 'parseTopic' ], false);
  */
 
 /* eslint-disable no-use-before-define, no-undefined */
-module.exports = class ChangelogManager { // @todo support i18n for Changelog
+// noinspection JSUnusedGlobalSymbols
+module.exports = class ChangelogManager {
+  /**
+   * @param {Object} args
+   * @param {ChangelogConfig} args.config
+   * @param {String} args.currentVer type 1.2.3
+   * @param {String} args.lastCheckedVer type 1.2.3
+   * @param {Function} args.updateLastCheckedVer
+   */
   constructor (args) {
     this.args = args;
   }
 
+  /**
+   * @return {boolean}
+   */
   get needChangeLog () {
     const get = (s) => s.split(/\./g).slice(0, -1);
     const currVers = get(this.args.currentVer);
@@ -47,7 +58,10 @@ module.exports = class ChangelogManager { // @todo support i18n for Changelog
     return false;
   }
 
-  async init () {
+  /**
+   * @return Void
+   */
+  init () {
     if (this.needChangeLog) {
       openModal(() => React.createElement(Changelog, {
         changeLog: this.parseChangeLog(this.args.config),

@@ -1,3 +1,8 @@
+/**
+ * @param {Number} num
+ * @param {Array<Number>} borders [min, max]
+ * @returns {Number}
+ */
 module.exports = function (num, borders) {
   const [ min, max ] = borders;
 
