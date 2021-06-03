@@ -141,6 +141,8 @@ class General {
 
       user ([ { user } ], res, settings) {
         const images = {
+          // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
+          png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
           webp: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048)) },
           gif:  ImageResolve.isAnimatedIconHash(user.avatar) ? { src: ImageResolve.getUserAvatarURL(user, true, 2048) } : null
         };
@@ -151,14 +153,19 @@ class General {
         return res;
       },
       guild ([ { guild } ], res, settings) {
-        guild.size = 4096;
+        const params = {
+          id: guild.id,
+          icon: guild.icon,
+          size: 4096,
+          canAnimate: false
+        };
         const images = {
-          png: { src: ImageResolve.getGuildIconURL(guild)?.replace('.webp?', '.png?') },
-          gif: ImageResolve.hasAnimatedGuildIcon(guild) ? { src:  ImageResolve.getGuildIconURL(guild).replace('.webp?', '.gif?') } : null,
-          webp: { src: ImageResolve.getGuildIconURL(guild) }
+          png: { src: ImageResolve.getGuildIconURL(params)?.replace('.webp?', '.png?') },
+          webp: { src: ImageResolve.getGuildIconURL(params) },
+          gif: ImageResolve.isAnimatedIconHash(guild.icon) ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) } : null
         };
 
-        if (images.png.src) {
+        if (images.webp.src) {
           this.initButton(res.props.children, { images, settings });
         }
         return res;
@@ -194,11 +201,15 @@ class General {
 
       guildChannelList ([ { guild } ], res, settings) {
         if (guild.banner) {
+          const url = new URL(ImageResolve.getGuildBannerURL(guild));
+          const e = url.pathname.split('.').pop();
+          url.searchParams.set('size', '2048');
+
           const images = {
-            png: {
-              src: ImageResolve.getGuildBannerURL(guild),
-              width: 512,
-              height: 329
+            [e]: {
+              src: url.href,
+              width: 2048,
+              height: 918
             }
           };
 
