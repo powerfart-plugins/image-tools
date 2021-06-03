@@ -1,7 +1,7 @@
 const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
 const { Clickable, Tooltip } = require('powercord/components');
 
-const Copy = require('./Copyable.jsx');
+const OverlayUITooltip = require('./OverlayUITooltip.jsx');
 
 const { downloadLink } = getModule([ 'downloadLink' ], false);
 const { buttons } = getModule([ 'button', 'buttons' ], false);
@@ -19,6 +19,7 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       size: 0,
       resolution: { Width: null, Height: null }
     };
+    this.failedLoadSize = false;
     this.hideConfig = global._.debounce(() => this.setState({ showConfig: false }), 1500);
   }
 
@@ -83,33 +84,10 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
     const { href } = this.props.originalFooter.props;
     const url = new URL(href);
 
-    const makeCopy = (child, text) => (
-      <p>
-        <Copy text={text || child}>{child}</Copy>
+    const renderTooltip = (child, text, error) => (
+      <p style={{ color: (error) ? 'var(--text-danger)' : null }}>
+        <OverlayUITooltip copyText={text || child} error={error}>{child}</OverlayUITooltip>
       </p>
-    );
-    const renderName = () => (
-      makeCopy(url.pathname.split('/').pop())
-    );
-    const renderResolution = () => {
-      const get = (t) => this.state.resolution[t] || $image[`video${t}`] || $image[`natural${t}`] || ' ? ';
-      if ($image) {
-        return makeCopy(`${get('Width')}x${get('Height')}`);
-      }
-      return null;
-    };
-    const renderSize = () => {
-      if (attachment) {
-        const strSize = this.bytes2Str(attachment.size || this.state.size);
-        if (!attachment.size) {
-          this.loadSize($image.src);
-        }
-        return makeCopy(strSize);
-      }
-      return null;
-    };
-    const renderUrl = () => (
-      makeCopy(url.href)
     );
     const renderLoading = () => (
       <span className='string'>
@@ -120,16 +98,34 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
       <p style={{ pointerEvents: 'none' }}>|</p>
     );
 
+    const renderResolution = () => {
+      const get = (t) => this.state.resolution[t] || $image[`video${t}`] || $image[`natural${t}`] || ' ? ';
+      if ($image) {
+        return renderTooltip(`${get('Width')}x${get('Height')}`);
+      }
+      return null;
+    };
+    const renderSize = () => {
+      if (attachment) {
+        const strSize = this.bytes2str(attachment.size || this.state.size);
+        if (!attachment.size && !this.state.size) {
+          this.loadSize($image.src);
+        }
+        return renderTooltip(strSize, null, (this.failedLoadSize) ? this.failedLoadSize : null);
+      }
+      return null;
+    };
+
     return (
       <div className='image-info'>
         <span className='string curtail'>
-          {renderName()}
+          {renderTooltip(url.pathname.split('/').pop())}
         </span>
         <span className='string'>
           {renderResolution() || renderLoading()} {renderSeparator()} {renderSize() || renderLoading()}
         </span>
         <span className='string curtail'>
-          {renderUrl()}
+          {renderTooltip(url.href)}
         </span>
       </div>
     );
@@ -164,19 +160,20 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
   }
 
   loadSize (url) {
-    if (!this.attemptloadSize) {
-      this.attemptloadSize = true;
-
+    if (!this.failedLoadSize) {
       fetch(url)
         .then((resp) => resp.headers.get('content-length'))
         .then((size) => {
           this.setState({ size });
         })
-        .catch(console.error);
+        .catch((err) => {
+          console.error(err);
+          this.failedLoadSize = err;
+        });
     }
   }
 
-  bytes2Str (bytes) {
+  bytes2str (bytes) {
     const k = 1024;
     const sizes = [ 'Bytes', 'KB', 'MB', 'GB' ];
 

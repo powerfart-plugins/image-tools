@@ -1,8 +1,10 @@
 const { React, getModule } = require('powercord/webpack');
+const { sleep } = require('powercord/util');
 
 const Lens = require('../tools/Lens/Index');
 const { imageWrapper, imagePlaceholder } = getModule([ 'imageWrapper', 'imagePlaceholder' ], false);
 
+// noinspection JSIgnoredPromiseFromCall
 module.exports = class ImageModalWrapper extends React.PureComponent {
   constructor (props) {
     super(props);
@@ -17,7 +19,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
     });
   }
 
-  componentWillUpdate () { // @todo нужен более надёжный хук
+  componentDidMount () {
     this.updateCurrentImg();
   }
 
@@ -35,15 +37,18 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
     );
   }
 
-  updateCurrentImg () {
-    if (this.$image) {
-      return;
-    }
-    const $image = this.imgRef.current.querySelector(`.${imageWrapper} > img, video`);
+  async updateCurrentImg () {
+    this.props.set$image(await this.waitFor()); // лучше бы хук конечно
+  }
 
-    if ($image && !$image.classList.contains(imagePlaceholder)) {
-      this.props.set$image($image);
-      this.$image = true;
+  async waitFor () {
+    const elem = this.imgRef.current.querySelector(`.${imageWrapper} > img, video`);
+
+    if (!elem || elem?.classList?.contains(imagePlaceholder)) {
+      await sleep(5);
+      return this.waitFor();
     }
+
+    return elem;
   }
 };
