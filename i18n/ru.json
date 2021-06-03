@@ -39,5 +39,7 @@
   "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Функции кнопки",
   "IMAGE_TOOLS_SAVE_DIR": "Папки для сохранения изображений",
   "IMAGE_TOOLS_SAVE_DIR_NOTE": "Папки, которые будут использоваться для быстрого сохранения изображения ",
-  "IMAGE_TOOLS_SAVE_DIR_ADD": "Добавить новую папку"
+  "IMAGE_TOOLS_SAVE_DIR_ADD": "Добавить новую папку",
+  "IMAGE_TOOLS_LOW_PRIORITY": "Понизить приоритет расширений",
+  "IMAGE_TOOLS_LOW_PRIORITY_NOTE": "Скрыть из выбора отключённые расширения, если есть другие варианты"
 }

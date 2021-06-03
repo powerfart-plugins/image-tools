@@ -92,6 +92,30 @@ module.exports = [
           (props) => React.createElement(SaveDirs, props),
           (props) => React.createElement(SettingsRender.Category, {
             opened: false,
+            get name () { return Messages.IMAGE_TOOLS_LOW_PRIORITY; },
+            get description () { return Messages.IMAGE_TOOLS_LOW_PRIORITY_NOTE; },
+            children: React.createElement(SettingsRender, {
+              ...props,
+              items: [
+                ...[ 'webp', 'jpg', 'gif', 'png', 'mp4' ].map((e) => ({
+                  type: 'switch',
+                  name: e.toUpperCase(),
+                  value: ({ getSetting }) => !getSetting('lowPriorityExtensions', []).includes(e),
+                  onClick: ({ getSetting, updateSetting }, v) => {
+                    const arr = getSetting('lowPriorityExtensions', []);
+                    if (v) {
+                      arr.splice(arr.indexOf(e), 1);
+                    } else {
+                      arr.push(e);
+                    }
+                    updateSetting('lowPriorityExtensions', arr);
+                  }
+                }))
+              ]
+            })
+          }),
+          (props) => React.createElement(SettingsRender.Category, {
+            opened: false,
             get name () { return Messages.IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES; },
             children: React.createElement(SettingsRender, {
               ...props,

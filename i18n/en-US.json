@@ -39,5 +39,7 @@
   "IMAGE_TOOLS_CONTEXT_MENU_ACTIONS": "Button actions",
   "IMAGE_TOOLS_SAVE_DIR": "Folders to save images",
   "IMAGE_TOOLS_SAVE_DIR_NOTE": "Folders to be used to quickly save the image",
-  "IMAGE_TOOLS_SAVE_DIR_ADD": "Add a new folder"
+  "IMAGE_TOOLS_SAVE_DIR_ADD": "Add a new folder",
+  "IMAGE_TOOLS_LOW_PRIORITY": "Decrease the priority of extensions",
+  "IMAGE_TOOLS_LOW_PRIORITY_NOTE": "Hide disabled extensions from selection if there are other options"
 }

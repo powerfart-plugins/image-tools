@@ -32,17 +32,18 @@ class ImageToolsButton extends React.PureComponent {
 
   get items () {
     const { images } = this.props;
-    const baseExtensions = Object.keys(images);
+    const lowPriorityExtensions = this.props.settings.get('lowPriorityExtensions', []);
+    const baseExtensions = Object.keys(images)
+      .filter((e) => images[e])
+      .sort((a, b) => priority.indexOf(a) - priority.indexOf(b));
 
-    return baseExtensions.filter((e) => {
-      if (!images[e]) {
-        return false;
-      }
-      if (e in this.disabled) {
-        return (Array.isArray(this.disabled[e])) ? true : !this.disabled[e];
-      }
-      return true;
-    });
+    return baseExtensions
+      .reduceRight((acc, e, i) => {
+        if (acc.length > 1 && lowPriorityExtensions.includes(e)) {
+          acc.splice(i, 1);
+        }
+        return acc;
+      }, baseExtensions);
   }
 
   get disabled () {
