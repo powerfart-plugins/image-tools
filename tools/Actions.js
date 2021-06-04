@@ -84,7 +84,12 @@ module.exports = class Actions {
    */
   static async save (url, output, { downloadPath }) {
     const fileName = new URL(url).pathname.split('/').pop();
-    const arrayBuffer = await fetch(url)
+    const parseUrl = new URL(url);
+
+    if (parseUrl.hostname === 'media.discordapp.net') {
+      parseUrl.hostname = 'cdn.discordapp.com';
+    }
+    const arrayBuffer = await fetch(parseUrl.href)
       .then((e) => e.arrayBuffer())
       .catch((e) => {
         output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);

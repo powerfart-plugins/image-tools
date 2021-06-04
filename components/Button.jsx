@@ -123,7 +123,7 @@ class ImageToolsButton extends React.PureComponent {
         onClick: () => Actions.openImage(image)
       },
       copyImage: {
-        disabled: !(new URL(src).pathname.endsWith('png'))
+        disabled: !(/\.(png|jpg|jpeg)$/).test(new URL(src).pathname)
       },
       save: {
         type: (saveImageDirs.length > 1) ? 'submenu' : 'button',
