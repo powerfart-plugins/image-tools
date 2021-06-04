@@ -42,7 +42,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
   }
 
   async waitFor () {
-    const elem = this.imgRef.current.querySelector(`.${imageWrapper} > img, video`);
+    const elem = this.imgRef.current?.querySelector(`.${imageWrapper} > img, video`);
 
     if (!elem || elem?.classList?.contains(imagePlaceholder)) {
       await sleep(5);

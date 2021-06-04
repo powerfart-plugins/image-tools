@@ -57,9 +57,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
         }
       }
     };
-    this.additionalHandler = {};
-
-    new Patcher.Overlay(props.settings, props.children, {
+    this.Patcher = new Patcher.Overlay(props.settings, props.children, {
       patchModalLayerOpts: {
         set$image: this.updateCurrentImg.bind(this),
         setUpdateLensConfig: (callback) => {
@@ -73,7 +71,10 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
           sendDataToUI: (callback) => this.sendDataToUI = callback
         }
       }
-    }).inject();
+    });
+    this.additionalHandler = {};
+
+    this.Patcher.inject();
 
     _.bindAll(this, [ 'onMouseMove', 'onWheel', 'onMouseButton', 'onMouseDown' ]);
   }
@@ -89,7 +90,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
         onWheel={this.onWheel}
         onKeyDown={(e) => {
           if (e.keyCode === 27) { // ESC
-            this.onClose();
+            this.Patcher.uninject();
             this.additionalHandler = {};
           }
         }}
