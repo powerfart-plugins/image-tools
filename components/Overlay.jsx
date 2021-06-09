@@ -61,7 +61,9 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
       patchModalLayerOpts: {
         set$image: this.updateCurrentImg.bind(this),
         setUpdateLensConfig: (callback) => {
-          this.setState({ updateLensConfig: callback });
+          this.setState({ updateLensConfig: callback }, () => {
+            this.state.updateLensConfig(this.lensConfig);
+          });
         }
       },
       imageModalRenderOpts: {
@@ -109,7 +111,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   }
 
   onMouseDown (e) {
-    if (e.target.closest(`div.${wrapper}`)) {
+    if (e.target.closest(`div.${wrapper}`) && this.state.$image) {
       this.onMouseButton(e);
     }
   }

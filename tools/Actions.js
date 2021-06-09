@@ -12,14 +12,14 @@ module.exports = class Actions {
   /**
    * @param {Object} args
    * @param {String} args.src
-   * @param {String} args.original
-   * @param {Number} args.height
-   * @param {Number} args.width
+   * @param {String} [args.original]
+   * @param {Number} [args.height]
+   * @param {Number} [args.width]
    */
   static openImage (args) {
     const defaultArgs = {
-      height: 780,
-      width: 780
+      height: 1024,
+      width: 1024
     };
     openImageModal({
       ...defaultArgs,

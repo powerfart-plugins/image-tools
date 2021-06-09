@@ -356,7 +356,6 @@ class Overlay {
           ...this.patchModalLayerOpts
         })
       );
-
       return res;
     });
     this.uninjectIDs.push(id);
