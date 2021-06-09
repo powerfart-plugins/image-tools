@@ -4,6 +4,7 @@ const { writeFile } = require('fs').promises;
 const { clipboard, shell } = require('electron');
 
 const { getModule, i18n: { Messages } } = require('powercord/webpack');
+const { get } = require('powercord/http');
 
 const openImageModal = require('../utils/openImageModal');
 
@@ -34,13 +35,9 @@ module.exports = class Actions {
    */
   static copyImage (url, output, params) {
     const { copyImage } = getModule([ 'copyImage' ], false);
-    const parseUrl = new URL(url);
+    const newUrl = Actions._fixCdnUrl(url);
 
-    if (parseUrl.hostname === 'media.discordapp.net') {
-      parseUrl.hostname = 'cdn.discordapp.com';
-    }
-
-    copyImage(parseUrl.href)
+    copyImage(newUrl)
       .then(() => {
         output.success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
       })
@@ -84,13 +81,10 @@ module.exports = class Actions {
    */
   static async save (url, output, { downloadPath }) {
     const fileName = new URL(url).pathname.split('/').pop();
-    const parseUrl = new URL(url);
+    const newUrl = Actions._fixCdnUrl(url);
 
-    if (parseUrl.hostname === 'media.discordapp.net') {
-      parseUrl.hostname = 'cdn.discordapp.com';
-    }
-    const arrayBuffer = await fetch(parseUrl.href)
-      .then((e) => e.arrayBuffer())
+    const arrayBuffer = await get(newUrl)
+      .then(({ body }) => body)
       .catch((e) => {
         output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
         console.error(e);
@@ -107,7 +101,7 @@ module.exports = class Actions {
     }
 
     if (arrayBuffer) {
-      return writeFile(pathSave, Buffer.from(arrayBuffer))
+      return writeFile(pathSave, arrayBuffer)
         .then(() => {
           output.success(`${Messages.IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
         })
@@ -122,15 +116,21 @@ module.exports = class Actions {
    */
   static saveAs (url, output) {
     const { saveImage } = getModule([ 'saveImage' ], false);
-    const parseUrl = new URL(url);
+    const newUrl = Actions._fixCdnUrl(url);
 
-    if (parseUrl.hostname === 'media.discordapp.net') {
-      parseUrl.hostname = 'cdn.discordapp.com';
-    }
-    return saveImage(url)
+    return saveImage(newUrl)
       .catch((e) => {
         output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
         console.error(e);
       });
+  }
+
+  static _fixCdnUrl (url) {
+    const parseUrl = new URL(url);
+    if (parseUrl.hostname === 'media.discordapp.net') {
+      parseUrl.hostname = 'cdn.discordapp.com';
+    }
+
+    return parseUrl.href;
   }
 };
