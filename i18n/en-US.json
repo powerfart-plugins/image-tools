@@ -41,5 +41,7 @@
   "IMAGE_TOOLS_SAVE_DIR_NOTE": "Folders to be used to quickly save the image",
   "IMAGE_TOOLS_SAVE_DIR_ADD": "Add a new folder",
   "IMAGE_TOOLS_LOW_PRIORITY": "Decrease the priority of extensions",
-  "IMAGE_TOOLS_LOW_PRIORITY_NOTE": "Hide disabled extensions from selection if there are other options"
+  "IMAGE_TOOLS_LOW_PRIORITY_NOTE": "Hide disabled extensions from selection if there are other options",
+  "IMAGE_TOOLS_COMPRESSION": "Image quality in modal",
+  "IMAGE_TOOLS_COMPRESSION_NOTE": "The smaller the faster the image will be loaded, but the quality suffers. Discord value by default ~50%"
 }

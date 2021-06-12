@@ -27,6 +27,15 @@ module.exports = [
             get note () { return Messages.IMAGE_TOOLS_RESIZE_IMAGES_NOTE; },
             key: 'patchImageSize',
             def: true
+          },
+          {
+            type: 'slider',
+            get name () { return Messages.IMAGE_TOOLS_COMPRESSION; },
+            get note () { return Messages.IMAGE_TOOLS_COMPRESSION_NOTE; },
+            key: 'compression',
+            def: 1,
+            markers: Array.from({ length: 10 }, (_, i) => ((i + 1) / 10)),
+            onMarkerRender: (e) => `${e * 100}%`
           }
         ]
       },
