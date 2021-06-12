@@ -45,5 +45,7 @@
   "IMAGE_TOOLS_COMPRESSION": "Качество изображения в модальном",
   "IMAGE_TOOLS_COMPRESSION_NOTE": "Чем меньше тем быстрее будет загружается изображение, но страдает качество. Значение в дискорде по умолчанию ~50%",
   "IMAGE_TOOLS_COLOR_PICK": "Захват цвета",
-  "IMAGE_TOOLS_ROTATE": "Повернуть"
+  "IMAGE_TOOLS_ROTATE": "Повернуть",
+  "IMAGE_TOOLS_OFF_SCROLLING_OUTSIDE": "Выключить скролл вне изображения",
+  "IMAGE_TOOLS_OFF_SCROLLING_OUTSIDE_NOTE": "Когда курсор вне изображения, настройки  линзы нельзя изменить"
 }

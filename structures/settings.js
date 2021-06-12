@@ -43,6 +43,13 @@ module.exports = [
         get name () { return Messages.IMAGE_TOOLS_LENS_SETTINGS; },
         items: [
           {
+            type: 'switch',
+            get name () { return Messages.IMAGE_TOOLS_OFF_SCROLLING_OUTSIDE; },
+            get note () { return Messages.IMAGE_TOOLS_OFF_SCROLLING_OUTSIDE_NOTE; },
+            key: 'offScrollingOutside',
+            def: false
+          },
+          {
             type: 'colorPicker',
             get name () { return Messages.IMAGE_TOOLS_LENS_BORDER_COLOR; },
             get note () { return Messages.IMAGE_TOOLS_LENS_BORDER_COLOR_NOTE; },

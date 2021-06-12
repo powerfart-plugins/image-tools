@@ -129,6 +129,9 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   }
 
   onWheel (e) {
+    if (this.props.settings.get('offScrollingOutside', false) && !e.target.closest(`div.${wrapper}`)) {
+      return;
+    }
     const suppress = this.getAdditionalHandler(e, 'onWheel');
     if (suppress) {
       return;
