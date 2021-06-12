@@ -1,4 +1,4 @@
-const { React, getModule, getModuleByDisplayName, channels: { getChannelId } } = require('powercord/webpack');
+const { React, i18n: { Messages }, getModule, getModuleByDisplayName, channels: { getChannelId } } = require('powercord/webpack');
 
 const Patcher = require('../modules/Patcher');
 const getImages = require('../utils/getImages');
@@ -190,12 +190,12 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
 
     return [
       // {
-      //   tooltip: 'rotate',
+      //   tooltip: Messages.IMAGE_TOOLS_ROTATE,
       //   Icon: Retry,
       //   callback: () => console.log('nope')
       // },
       {
-        tooltip: 'grab a color',
+        tooltip: Messages.IMAGE_TOOLS_COLOR_PICK,
         Icon: Dropper,
         callback: () => {
           if (!this.ColorPicker) {

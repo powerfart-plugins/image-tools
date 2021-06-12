@@ -224,7 +224,6 @@ class General {
     const imageDiscordUtils = getModule([ 'getImageSrc' ], false);
     inject(id, imageDiscordUtils, 'getImageSrc', (args) => {
       if (this.isModalOpen) {
-        console.log(args[3]);
         args[3] = this.settings.get('compression', 1); // отменить коэффициент размеров
       }
       return args;

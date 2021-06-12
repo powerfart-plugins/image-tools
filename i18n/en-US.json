@@ -43,5 +43,7 @@
   "IMAGE_TOOLS_LOW_PRIORITY": "Decrease the priority of extensions",
   "IMAGE_TOOLS_LOW_PRIORITY_NOTE": "Hide disabled extensions from selection if there are other options",
   "IMAGE_TOOLS_COMPRESSION": "Image quality in modal",
-  "IMAGE_TOOLS_COMPRESSION_NOTE": "The smaller the faster the image will be loaded, but the quality suffers. Discord value by default ~50%"
+  "IMAGE_TOOLS_COMPRESSION_NOTE": "The smaller the faster the image will be loaded, but the quality suffers. Discord value by default ~50%",
+  "IMAGE_TOOLS_COLOR_PICK": "Capture color",
+  "IMAGE_TOOLS_ROTATE": "Rotate"
 }
