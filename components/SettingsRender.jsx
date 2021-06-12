@@ -2,7 +2,7 @@
  * A component that does routine work for you
  * @author Xinos#2003
  * @licence MIT
- * @version 1.4.1
+ * @version 1.4.2
  * @link https://github.com/powerfart-plugins/Settings-component
  * @docs https://github.com/powerfart-plugins/Settings-component#documentation
  * @copyright (c) 2021 Xinos
@@ -238,8 +238,10 @@ class Settings extends React.Component {
   }
 
   renderTabBar (item, index) {
-    const classes = getModule([ 'topPill', 'item' ], false);
+    const types = getModule([ 'topPill', 'item' ], false);
+    const { tabBar, tabBarItem } = getModule([ 'tabBarItem' ], false);
     const stateKey = `tabBar-${index}`;
+
     if (this.state[stateKey] === undefined) {
       this.state[stateKey] = '0';
       this.setState({
@@ -249,10 +251,12 @@ class Settings extends React.Component {
 
     return (
       <div className='powercord-entities-manage powercord-text'>
-        <div className='powercord-entities-manage-tabs'>
+        <div style={{ marginBottom: 25 }}>
           <Components.TabBar
             {...item}
-            type={classes.topPill}
+            type={types.top}
+            style={{ backgroundColor: 'none' }}
+            className={tabBar}
             selectedItem={this.state[stateKey]}
             onItemSelect={(v) => this.setState({ [stateKey]: v })}
           >
@@ -261,7 +265,7 @@ class Settings extends React.Component {
                 <Components.TabBar.Item
                   id={String(index)}
                   selectedItem={this.state[stateKey]}
-                  className={classes.item}
+                  className={tabBarItem}
                 >
                   {item.name}
                 </Components.TabBar.Item>
