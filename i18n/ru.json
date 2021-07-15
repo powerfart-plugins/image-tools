@@ -18,6 +18,7 @@
   "IMAGE_TOOLS_ZOOM_RATIO": "Коэффициент зума",
   "IMAGE_TOOLS_ZOOM_RATIO_NOTE": "Увеличение изображения в линзе",
   "IMAGE_TOOLS_LENS_RADIUS": "Радиус линзы",
+  "IMAGE_TOOLS_LENS_BORDER_RADIUS": "Радиус скругления линзы",
   "IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES": "Сервисы поиска изображений",
   "IMAGE_TOOLS_DISABLE_LENS": "Отключить линзу",
   "IMAGE_TOOLS_IMAGE_COPIED": "Изображение скопировано",

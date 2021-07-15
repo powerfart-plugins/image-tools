@@ -25,6 +25,9 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
       get radius () {
         return get('lensRadius', 100);
       },
+      get borderRadius () {
+        return get('borderRadius', 50);
+      },
       get zooming () {
         return get('zoomRatio', 2);
       },
@@ -33,6 +36,9 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
       },
       set radius (v) {
         return set('lensRadius', v);
+      },
+      set borderRadius (v) {
+        return set('borderRadius', v);
       },
       set zooming (v) {
         return set('zoomRatio', v);
@@ -44,6 +50,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     this.lensConfig = {
       show: false,
       radius: this.settings.radius,
+      borderRadius: this.settings.borderRadius,
       zooming: this.settings.zooming,
       wheelStep: this.settings.wheelStep,
       positionX: 0,
