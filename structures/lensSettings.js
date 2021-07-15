@@ -35,6 +35,15 @@ module.exports = function ({ get, set }) {
     },
     {
       type: 'slider',
+      get name () { return Messages.IMAGE_TOOLS_LENS_BORDER_RADIUS; },
+      value: Number(get('borderRadius', 50)).toFixed(),
+      minValue: 0,
+      maxValue: 50,
+      onChange: (v) => set('borderRadius', v),
+      renderValue: (v) => `${(v * 2).toFixed(1)}%`
+    },
+    {
+      type: 'slider',
       get name () { return Messages.IMAGE_TOOLS_SCROLL_STEP; },
       value: Number(get('wheelStep', 1)).toFixed(2),
       minValue: 0.1,

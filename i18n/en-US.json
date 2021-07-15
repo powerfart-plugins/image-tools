@@ -18,6 +18,7 @@
   "IMAGE_TOOLS_ZOOM_RATIO": "Zoom ratio",
   "IMAGE_TOOLS_ZOOM_RATIO_NOTE": "Magnifying the image in the lens",
   "IMAGE_TOOLS_LENS_RADIUS": "Lens radius",
+  "IMAGE_TOOLS_LENS_BORDER_RADIUS": "Lens border radius",
   "IMAGE_TOOLS_REVERSE_SEARCH_IMAGES_SERVICES": "Reverse search images services",
   "IMAGE_TOOLS_DISABLE_LENS": "Disable lens",
   "IMAGE_TOOLS_IMAGE_COPIED": "Image copied",
