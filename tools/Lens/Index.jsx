@@ -17,7 +17,6 @@ module.exports = class Lens extends React.PureComponent {
         top: `${parentPos.y}px`,
         width: `${parentSize.w}px`,
         height: `${parentSize.h}px`,
-        borderRadius: `${this.props.borderRadius}%`,
         ...this.props.style
       };
       style.child = {
