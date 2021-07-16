@@ -40,7 +40,7 @@ module.exports = function ({ get, set }) {
       minValue: 0,
       maxValue: 50,
       onChange: (v) => set('borderRadius', v),
-      renderValue: (v) => `${(v * 2).toFixed(1)}%`
+      renderValue: (v) => `${(v * 2).toFixed()}%`
     },
     {
       type: 'slider',
