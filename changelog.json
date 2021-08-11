@@ -1,25 +1,19 @@
 {
-  "date": "2021-06-02",
-  "image": "https://media.discordapp.net/attachments/845949403474427914/845949582814478366/change-log.png",
+  "date": "2021-08-12",
+  "image": "https://media.discordapp.net/attachments/845949403474427914/875091554132439060/adios_hd.jpg",
   "body": [
     {
       "type": "improved",
-      "header": "Refactoring",
+      "header": "Further development",
       "content": [
-        "Mostly a lot of refactoring, don't be intimidated by the large number of commits",
-        [
-          "Improved lens - now support any format including mp4 (fake gif)",
-          "More native modal call",
-          "Some improvements to i18n stings",
-          ".github scripts"
-        ]
+        "Thank you to all those who use my plugins, at least someone expects that I will also childishly act and respond to aggression will do tOkEnStEaLeR. However, yes, still recommend that you be ready/[replace](https://github.com/powerfart-plugins/image-tools#similar-plugins) the plugins, because all the plugins I made for myself and I have long ago developed them to a comfortable level for myself and further development, i cant guarantee including new promised features (I'm also a little tired and the 2021s tried to ban me (haha))... well that's all for sure, it was fun. Adios"
       ]
     },
     {
-      "type": "added",
-      "header": "CHANGELOG",
+      "type": "improved",
+      "header": "New address for repos",
       "content": [
-        "CHANGELOG! CHANGELOG! CHANGELOG!"
+        "Image Tools - [powerfart-plugins/image-tools](https://github.com/powerfart-plugins/image-tools)\nMy palette - [powerfart-plugins/my-palette](https://github.com/powerfart-plugins/my-palette)"
       ]
     },
     {
@@ -27,40 +21,8 @@
       "header": "New features",
       "content": [
         [
-          "Ability to interact with server banner",
-          "New tool: Color picker (WIP)"
-        ]
-      ]
-    },
-    {
-      "type": "added",
-      "header": "Modal",
-      "content": [
-        [
-          "Smoother loading of information",
-          "Compression of long names/urls"
-        ]
-      ]
-    },
-    {
-      "type": "fixed",
-      "header": "Bug fixes",
-      "content": [
-        [
-          "Patcher now ignores webhook-like users",
-          "Decreased conflict with some BD plugins",
-          "No errors when a user or server does not have an avatar"
-        ]
-      ]
-    },
-    {
-      "type": "progress",
-      "header": "I'm probably busy with this",
-      "content": [
-        [
-          "Improved gif sync (no mp4) in the lens",
-          "Better coordinates for color picker",
-          "\"Grid\" on the lens in color picker mode"
+          "Ability to interact with user banner/custom status",
+          "Support for stickers as much as possible"
         ]
       ]
     }
