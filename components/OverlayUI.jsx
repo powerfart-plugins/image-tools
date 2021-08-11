@@ -133,23 +133,29 @@ module.exports = class ImageToolsOverlayUI extends React.PureComponent {
 
   getData (obj) {
     const onStated = () => {
+      const { $image } = obj;
       if (obj.lensConfig) {
         this.setState(() => ({
           showConfig: true
         }),
         this.hideConfig);
       }
-      if (obj.$image) {
-        obj.$image.addEventListener('loadedmetadata', () => {
+      if ($image) {
+        $image.addEventListener('loadedmetadata', () => {
           this.setState({
             resolution: { Width: obj.$image.videoWidth, Height: obj.$image.videoHeight }
           });
         }, false);
-        obj.$image.addEventListener('load', () => {
+        $image.addEventListener('load', () => {
           this.setState({
             resolution: { Width: obj.$image.naturalWidth, Height: obj.$image.naturalHeight }
           });
         });
+        if ($image.tagName !== 'IMG' && $image.tagName !== 'VIDEO') {
+          this.setState({
+            resolution: { Width: obj.$image.width, Height: obj.$image.height }
+          });
+        }
       }
     };
 

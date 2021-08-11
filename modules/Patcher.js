@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define, object-property-newline,no-undefined */
 // noinspection JSUnusedGlobalSymbols
 
-const { React, getModule } = require('powercord/webpack');
+const { React, getModule, getModuleByDisplayName } = require('powercord/webpack');
 const { findInReactTree } = require('powercord/util');
 const { inject, uninject } = require('powercord/injector');
 
@@ -113,12 +113,11 @@ class General {
     }
 
     return {
-      message ([ { target, message: { content } } ], res, settings) {
-        if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop)) {
+      message ([ { target, message: { content, stickerItems } } ], res, settings) {
+        if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop) || (target.tagName === 'CANVAS' && stickerItems.length)) {
           const { width, height } = target;
           const menu = res.props.children;
           const hideNativeButtons = settings.get('hideNativeButtons', true);
-          const [ e, src ] = this.getImage(target);
 
           if (hideNativeButtons) {
             for (let i = menu.length - 1; i >= 0; i -= 1) {
@@ -131,17 +130,22 @@ class General {
             }
           }
 
-          initButton(menu, {
-            images: {
-              [e]: {
-                src,
-                original: this.isUrl(content) ? content : null,
-                width: width * 2,
-                height: height * 2
-              }
-            },
-            settings
-          });
+          if (target.tagName === 'CANVAS') {
+            menu.splice(menu.length - 1, 0, Button.renderSticker(stickerItems[0].id, settings));
+          } else {
+            const [ e, src ] = this.getImage(target);
+            initButton(menu, {
+              images: {
+                [e]: {
+                  src,
+                  original: this.isUrl(content) ? content : null,
+                  width: width * 2,
+                  height: height * 2
+                }
+              },
+              settings
+            });
+          }
         }
         return res;
       },
@@ -371,29 +375,36 @@ class Overlay {
 
   imageModalRender (_, res) {
     const { wrapper, downloadLink } = imageModalClasses;
-    const Wrapper = findInReactTree(res, ({ className }) => className === wrapper);
-    const LazyImage = findInReactTree(res, ({ type }) => type?.displayName === 'LazyImage');
-    const footerIndex = Wrapper.children.findIndex(({ props }) => props?.className === downloadLink);
+    const Sticker = getModuleByDisplayName('Sticker', false);
+    const Wrapper = findInReactTree(res, ({ className }) => className === wrapper).children;
+    const LazyImageIndex = Wrapper.findIndex(({ type }) => type?.displayName === 'LazyImage');
+    const footerIndex = Wrapper.findIndex(({ props }) => props?.className === downloadLink);
+    const LazyImage = Wrapper[LazyImageIndex];
 
     if (LazyImage) {
-      if (this.patchImageSize) {
-        const imgComp = LazyImage.props;
-        const { height, width } = imgComp;
+      if (LazyImage.props.stickerAssets) {
+        Wrapper[LazyImageIndex] = React.createElement(Sticker, LazyImage.props.stickerAssets);
+      } else {
+        if (this.patchImageSize) {
+          const imgComp = LazyImage.props;
+          const { height, width } = imgComp;
 
-        imgComp.height = height * 2;
-        imgComp.width = width * 2;
-        imgComp.maxHeight = document.body.clientHeight * 70 / 100;
-        imgComp.maxWidth = document.body.clientWidth * 80 / 100;
+          imgComp.height = height * 2;
+          imgComp.width = width * 2;
+          imgComp.maxHeight = document.body.clientHeight * 70 / 100;
+          imgComp.maxWidth = document.body.clientWidth * 80 / 100;
+        }
+
+        if (LazyImage.type.isAnimated({ original: LazyImage.props.src })) {
+          LazyImage.props.animated = true;
+        }
       }
 
-      if (LazyImage.type.isAnimated({ original: LazyImage.props.src })) {
-        LazyImage.props.animated = true;
-      }
-      this.imageModalRenderOpts.lensConfig.children = LazyImage;
+      this.imageModalRenderOpts.lensConfig.children = Wrapper[LazyImageIndex];
     }
 
-    Wrapper.children[footerIndex] = React.createElement(OverlayUI, {
-      originalFooter: Wrapper.children[footerIndex],
+    Wrapper[footerIndex] = React.createElement(OverlayUI, {
+      originalFooter: Wrapper[footerIndex],
       ...this.imageModalRenderOpts.overlayUI
     });
 

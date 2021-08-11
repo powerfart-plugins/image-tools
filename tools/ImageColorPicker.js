@@ -4,14 +4,19 @@ const { React } = require('powercord/webpack');
 module.exports = class ImageColorPicker {
   constructor (img) {
     const { width, height } = img;
-
-    img.crossOrigin = 'Anonymous';
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     this.ctx = canvas.getContext('2d');
     this.currentColor = [];
 
+    if (img.tagName === 'CANVAS') {
+      const image = new Image();
+      image.src = img.toDataURL();
+      img = image;
+    }
+
+    img.crossOrigin = 'Anonymous';
     img.addEventListener('load', () => {
       try { // Error: The canvas has been tainted by cross-origin data.
         this.ctx.drawImage(img, 0, 0, width, height);

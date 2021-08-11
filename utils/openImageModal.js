@@ -9,13 +9,14 @@ const { ModalRoot, ModalSize } = getModule([ 'ModalRoot' ], false);
 const classes = getAllModules([ 'modal', 'image' ], false).find((e) => Object.keys(e).length === 2);
 
 /**
- * @param {String} [original]
- * @param {String} src
- * @param {Number} [width]
- * @param {Number} [height]
- * @return Void
+ * @param {Object} opts
+ * @param {String} [opts.original]
+ * @param {String} opts.src
+ * @param {Number} [opts.width]
+ * @param {Number} [opts.height]
+ * @return {String} modalId
  */
-module.exports = ({ original, src, width, height }) => {
+module.exports = ({ original, src, width, height, stickerAssets }) =>
   openModal((props) => React.createElement(ModalRoot, {
     className: classes.modal,
     size: ModalSize.DYNAMIC,
@@ -26,8 +27,8 @@ module.exports = ({ original, src, width, height }) => {
       height,
       width,
       renderLinkComponent: (p) => React.createElement(MaskedLink, p),
-      original: original || src
+      original: original || src,
+      stickerAssets
     }),
     ...props
   }));
-};

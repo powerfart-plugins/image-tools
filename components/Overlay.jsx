@@ -57,7 +57,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
         },
         get borderRadius () {
           return `${get('borderRadius', 50)}%`;
-        },
+        }
       }
     };
     this.Patcher = new Patcher.Overlay(props.settings, props.children, {

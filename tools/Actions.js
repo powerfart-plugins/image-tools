@@ -84,7 +84,7 @@ module.exports = class Actions {
     const newUrl = Actions._fixCdnUrl(url);
 
     const arrayBuffer = await get(newUrl)
-      .then(({ body }) => body)
+      .then(({ raw }) => raw)
       .catch((e) => {
         output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
         console.error(e);

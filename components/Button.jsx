@@ -1,4 +1,4 @@
-const { React, i18n: { Messages } } = require('powercord/webpack');
+const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
 const { ContextMenu } = require('powercord/components');
 const { camelCaseify, findInReactTree } = require('powercord/util');
 
@@ -10,10 +10,12 @@ const Actions = require('../tools/Actions');
 const imageSearchEngines = require('../ReverseImageSearchEngines.json');
 const priority = [ 'gif', 'mp4', 'png', 'jpg', 'webp' ];
 
+/* eslint-disable object-property-newline */
 class ImageToolsButton extends React.PureComponent {
   constructor (props) {
     super(props);
 
+    this.btnId = { id: 'image-tools-button', name: Messages.IMAGE };
     this.output = new OutputManager('ImageToolsMsg', {
       hideSuccessToasts: props.settings.get('hideSuccessToasts', false)
     });
@@ -28,6 +30,33 @@ class ImageToolsButton extends React.PureComponent {
   static render (props) {
     const itb = new ImageToolsButton(props);
     return itb.renderContextMenu();
+  }
+
+  static renderSticker (id, settings) {
+    const itb = new ImageToolsButton({ settings });
+    const { getStickerAssetUrl } = getModule([ 'getStickerAssetUrl' ], false);
+    itb.disabledActions = [ 'copy-image', 'open-link', 'copy-link', 'save-as', 'search-image' ];
+
+    const [ res ] = ContextMenu.renderRawItems([ {
+      ...itb.btnId,
+      type: 'submenu',
+      items: itb.getBaseMenu({
+        stickerAssets: {
+          size: 320, // - 321 = error
+          sticker: {
+            id,
+            format_type: 3 // 1,2,4... = error
+          }
+        },
+        src: getStickerAssetUrl({ format_type: 3, id })
+      }, []),
+      getItems () {
+        return this.items;
+      }
+    } ]);
+    res.props.action = findInReactTree(res, ({ props }) => props?.action).props.action;
+
+    return res;
   }
 
   get items () {
@@ -58,9 +87,8 @@ class ImageToolsButton extends React.PureComponent {
 
   renderContextMenu () {
     const [ res ] = ContextMenu.renderRawItems([ {
+      ...this.btnId,
       type: 'submenu',
-      id: 'image-tools-button',
-      name: Messages.IMAGE,
       items: this.getSubMenuItems(),
       getItems () {
         return this.items;
@@ -118,12 +146,14 @@ class ImageToolsButton extends React.PureComponent {
       (url + ((withoutEncode) ? src : encodeURIComponent(src))), null, { original }
     );
 
-    const data =  {
+    const data = {
       openImage: {
         onClick: () => Actions.openImage(image)
       },
-      copyImage: {
-        disabled: !(/\.(png|jpg|jpeg)$/).test(new URL(src).pathname)
+      get copyImage () {
+        return {
+          disabled: !(/\.(png|jpg|jpeg)$/).test(new URL(src).pathname)
+        };
       },
       save: {
         type: (saveImageDirs.length > 1) ? 'submenu' : 'button',
