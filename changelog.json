@@ -22,7 +22,8 @@
       "content": [
         [
           "Ability to interact with user banner/custom status",
-          "Support for stickers as much as possible"
+          "Support for stickers as much as possible",
+          "Configurable border radius by [Encode42](https://github.com/Encode42)"
         ]
       ]
     }
