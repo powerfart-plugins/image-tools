@@ -28,6 +28,9 @@
     border: 2px solid var(--interactive-hover);
     border-radius: 5px;
 }
+.image-tools-blur-image img {
+    filter: blur(2.4px) brightness(0.4);
+}
 .image-tools-overlay-ui {
     width: 100%;
     position: absolute;

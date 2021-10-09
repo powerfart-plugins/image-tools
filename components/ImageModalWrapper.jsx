@@ -28,6 +28,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
       <>
         <Lens {...this.state.lensConfig} />
         <div
+          className={[ this.state.lensConfig.show ? 'image-tools-blur-image' : '' ]}
           ref={this.imgRef}
           onMouseDown={() => {
             this.imgRef.current.click(); // чтобы скрыть меню перед линзой
