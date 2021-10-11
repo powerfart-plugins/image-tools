@@ -25,7 +25,7 @@
   "IMAGE_TOOLS_IMAGE_LINK_COPIED": "Ссылка на изображение скопирована",
   "IMAGE_TOOLS_CANT_COPY": "Не могу скопировать",
   "IMAGE_TOOLS_FAILED_TO_SAVE": "Не удалось скачать изображение",
-  "IMAGE_TOOLS_NOT_HOSTING_DISCORD": "Вероятно, изображение не на хостинге Discord'a",
+  "IMAGE_TOOLS_FAILED_LOAD": "Ошибка получения изображения, смотрите консоль (CTRL+SHIFT+I) для более подробной информации",
   "IMAGE_TOOLS_QUIET_EXECUTION": "Тихое выполнение",
   "IMAGE_TOOLS_QUIET_EXECUTION_NOTE": "Скрыть уведомления об успешном выполнении",
   "IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY": "Изображение успешно сохранено",

@@ -1,13 +1,15 @@
 const { existsSync } = require('fs');
 const { join } = require('path');
 const { writeFile } = require('fs').promises;
-const { clipboard, shell } = require('electron');
+const { clipboard, shell, nativeImage } = require('electron');
 
 const { getModule, i18n: { Messages } } = require('powercord/webpack');
+const { saveWithDialog } = getModule([ 'fileManager' ], false).fileManager;
 const { get } = require('powercord/http');
 
 const openImageModal = require('../utils/openImageModal');
 
+/* eslint-disable no-use-before-define */
 // noinspection JSUnusedGlobalSymbols
 module.exports = class Actions {
   /**
@@ -35,21 +37,28 @@ module.exports = class Actions {
    */
   static copyImage (url, output, params) {
     const { copyImage } = getModule([ 'copyImage' ], false);
-    const newUrl = Actions._fixCdnUrl(url);
 
-    copyImage(newUrl)
+    copyImage(url)
       .then(() => {
         output.success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
       })
-      .catch((e) => {
-        output.error(`${Messages.IMAGE_TOOLS_CANT_COPY} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`, {
-          text: Messages.COPY_LINK,
-          size: 'small',
-          look: 'outlined',
-          onClick: () => Actions.copyLink(url, output, params)
-        });
-        console.error(e);
-      });
+      .catch(() => Actions._fetchImage(url)
+        .then((res) => {
+          clipboard.write({
+            image: nativeImage.createFromBuffer(res)
+          });
+          output.success(`${Messages.IMAGE_TOOLS_IMAGE_COPIED} ee`);
+        })
+        .catch((e) => {
+          output.error(`${Messages.IMAGE_TOOLS_CANT_COPY} \n ${Messages.IMAGE_TOOLS_FAILED_LOAD}`, {
+            text: Messages.COPY_LINK,
+            size: 'small',
+            look: 'outlined',
+            onClick: () => Actions.copyLink(url, output, params)
+          });
+          console.error(e);
+        })
+      );
   }
 
   /**
@@ -81,12 +90,10 @@ module.exports = class Actions {
    */
   static async save (url, output, { downloadPath }) {
     const fileName = new URL(url).pathname.split('/').pop();
-    const newUrl = Actions._fixCdnUrl(url);
 
-    const arrayBuffer = await get(newUrl)
-      .then(({ raw }) => raw)
+    const arrayBuffer = await Actions._fetchImage(url)
       .catch((e) => {
-        output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
+        output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_FAILED_LOAD}`);
         console.error(e);
       });
 
@@ -116,21 +123,38 @@ module.exports = class Actions {
    */
   static saveAs (url, output) {
     const { saveImage } = getModule([ 'saveImage' ], false);
-    const newUrl = Actions._fixCdnUrl(url);
 
-    return saveImage(newUrl)
-      .catch((e) => {
-        output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_NOT_HOSTING_DISCORD}`);
-        console.error(e);
-      });
+    return saveImage(url)
+      .catch(() => Actions._fetchImage(url)
+        .then((res) => {
+          const fileName = new URL(url).pathname.split('/').pop();
+          saveWithDialog(res, fileName);
+        })
+        .catch((e) => {
+          output.error(`${Messages.IMAGE_TOOLS_FAILED_TO_SAVE} \n ${Messages.IMAGE_TOOLS_FAILED_LOAD}`);
+          console.error(e);
+        })
+      );
   }
 
-  static _fixCdnUrl (url) {
-    const parseUrl = new URL(url);
-    if (parseUrl.hostname === 'media.discordapp.net') {
-      parseUrl.hostname = 'cdn.discordapp.com';
-    }
+  /** method to bypass if blocked by CORS policy
+   * @param {String} initUrl
+   * @returns {Promise<Buffer>}
+   * @async
+   * @private
+   */
+  static _fetchImage (initUrl) {
+    const url = new URL(initUrl);
 
-    return parseUrl.href;
+    return run(url)
+      .catch(() => {
+        url.hostname = 'cdn.discordapp.com';
+        return run(url);
+      });
+
+    function run (U) {
+      return get(U.href)
+        .then(({ raw }) => raw);
+    }
   }
 };
