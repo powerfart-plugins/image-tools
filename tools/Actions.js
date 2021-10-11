@@ -47,7 +47,7 @@ module.exports = class Actions {
           clipboard.write({
             image: nativeImage.createFromBuffer(res)
           });
-          output.success(`${Messages.IMAGE_TOOLS_IMAGE_COPIED} ee`);
+          output.success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
         })
         .catch((e) => {
           output.error(`${Messages.IMAGE_TOOLS_CANT_COPY} \n ${Messages.IMAGE_TOOLS_FAILED_LOAD}`, {
@@ -140,7 +140,6 @@ module.exports = class Actions {
   /** method to bypass if blocked by CORS policy
    * @param {String} initUrl
    * @returns {Promise<Buffer>}
-   * @async
    * @private
    */
   static _fetchImage (initUrl) {
