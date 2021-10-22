@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 const { React, getModule, getModuleByDisplayName, getAllModules, i18n: { Messages } } = require('powercord/webpack');
-const { openModal } = getModule([ 'openModal' ], false);
+const { openModal } = getModule([ 'openModal', 'openModalLazy' ], false);
 
 const ImageModal = getModuleByDisplayName('ImageModal', false);
 const MaskedLink = getModuleByDisplayName('MaskedLink', false);
