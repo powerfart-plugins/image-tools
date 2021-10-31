@@ -59,11 +59,11 @@ class ImageToolsButton extends React.PureComponent {
     return res;
   }
 
-  get items () {
-    const { images } = this.props;
+  getItems (images) {
+    images = images || this.props.images.default || this.props.images;
     const lowPriorityExtensions = this.props.settings.get('lowPriorityExtensions', []);
     const baseExtensions = Object.keys(images)
-      .filter((e) => images[e])
+      .filter((e) => images[e] && priority.includes(e))
       .sort((a, b) => priority.indexOf(a) - priority.indexOf(b));
 
     return baseExtensions
@@ -89,13 +89,13 @@ class ImageToolsButton extends React.PureComponent {
     const [ res ] = ContextMenu.renderRawItems([ {
       ...this.btnId,
       type: 'submenu',
-      items: this.getSubMenuItems(),
+      items: this.getSubMenuItems(this.props.images),
       getItems () {
         return this.items;
       }
     } ]);
 
-    const prioritySort = priority.filter((e) => this.items.includes(e));
+    const prioritySort = priority.filter((e) => this.getItems().includes(e));
     const actionId = this.props.settings.get('defaultAction', 'open-image');
     res.props.action = this.getAction(prioritySort, actionId);
 
@@ -108,8 +108,14 @@ class ImageToolsButton extends React.PureComponent {
     return res;
   }
 
-  getSubMenuItems () {
-    const { items, props: { images } } = this;
+  getSubMenuItems (images) {
+    if (images.guildAvatars) {
+      if (images.guildAvatars.length > 0) {
+        return this.getGuildAvatarsMenu();
+      }
+      images = images.default;
+    }
+    const items = this.getItems(images);
 
     if (items.length > 1) {
       return items.map((e) => ({
@@ -123,6 +129,42 @@ class ImageToolsButton extends React.PureComponent {
       }));
     }
     return this.getBaseMenu(images[items[0]], this.getDisabledMethods(items[0]));
+  }
+
+  getGuildAvatarsMenu () {
+    return [
+      {
+        type: 'submenu',
+        id: 'guild-avatar',
+        name: Messages.PER_GUILD_AVATAR,
+        items: [
+          ...((this.props.images.isCurrentGuild) ? this.getSubMenuItems(this.props.images.guildAvatars.shift()) : []),
+          ...((this.props.images.guildAvatars.length > 0)
+            ? this.props.images.guildAvatars.map(({ guildName }, i) => ({
+              type: 'submenu',
+              name: guildName,
+              items: this.getSubMenuItems(this.props.images.guildAvatars[i]),
+              getItems () {
+                return this.items;
+              }
+            }))
+            : []
+          )
+        ],
+        getItems () {
+          return this.items;
+        }
+      },
+      {
+        type: 'submenu',
+        id: 'user-avatar',
+        name: Messages.PROFILE,
+        items: this.getSubMenuItems(this.props.images.default),
+        getItems () {
+          return this.items;
+        }
+      }
+    ];
   }
 
   getBaseMenu (image, disabled) {
@@ -201,11 +243,11 @@ class ImageToolsButton extends React.PureComponent {
   }
 
   getAction (arr, id) {
-    const key = (arr.length) ? arr[0] : this.items[0];
+    const key = (arr.length) ? arr[0] : this.getItems()[0];
     if (Array.isArray(this.disabled[key]) && this.disabled[key].includes(id)) {
       return () => null;
     }
-    const { onClick } = this.getExtraItemsProperties(this.props.images[key], id);
+    const { onClick } = this.getExtraItemsProperties((this.props.images.default || this.props.images)[key], id);
 
     return onClick;
   }

@@ -150,17 +150,35 @@ class General {
         return res;
       },
 
-      user ([ { user } ], res, settings) {
+      user ([ { user, guildId } ], res, settings) {
+        const { getGuild } = getModule([ 'getGuild' ], false);
+        const guildMemberAvatarURLParams = { userId: user.id, guildId };
+        const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
+        const currentGuildId = guildMemberAvatars.findIndex(([ id ]) => id === guildId);
+        const isCurrentGuild =  currentGuildId !== -1;
+        if (isCurrentGuild) {
+          guildMemberAvatars.splice(0, 0, guildMemberAvatars.splice(currentGuildId, 1)[0]);
+        }
+
         const images = {
-          // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
-          png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
-          webp: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048)) },
-          gif:  ImageResolve.isAnimatedIconHash(user.avatar) ? { src: ImageResolve.getUserAvatarURL(user, true, 2048) } : null
+          isCurrentGuild,
+          guildAvatars: guildMemberAvatars.map(([ guildId, guildMemberAvatar ]) => ({
+            guildName: getGuild(guildId).name,
+            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, false).replace('.webp', '.png')) },
+            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, false)) },
+            gif:  ImageResolve.isAnimatedIconHash(guildMemberAvatar) ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, true) } : null
+          })),
+          default: { // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
+            png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
+            webp: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048)) },
+            gif:  ImageResolve.isAnimatedIconHash(user.avatar) ? { src: ImageResolve.getUserAvatarURL(user, true, 2048) } : null
+          }
         };
 
         if (user.discriminator !== '0000') {
           initButton(res.props.children.props.children, { images, settings });
         }
+
         return res;
       },
       guild ([ { guild } ], res, settings) {
@@ -250,9 +268,9 @@ class General {
           if (user.banner) {
             const size = { width: 2048, height: 918 };
             const images = {
-              png: { src: this.fixBannerUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
-              webp: { src: this.fixBannerUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
-              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixBannerUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
+              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
+              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
+              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
             };
 
             res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images, settings });
@@ -324,7 +342,7 @@ class General {
     return true;
   }
 
-  fixBannerUrlSize (url) {
+  fixUrlSize (url) {
     url = new URL(url);
     url.searchParams.set('size', '2048');
     return url.href;
