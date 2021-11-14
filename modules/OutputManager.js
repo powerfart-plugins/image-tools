@@ -1,21 +1,19 @@
+const { getModule } = require('powercord/webpack');
+
+const { showToast } = getModule([ 'showToast' ], false);
+const { ToastType } = getModule([ 'createToast' ], false);
+
 module.exports = class OutputManager {
   constructor (startID, settings) {
     this.settings = settings;
     this.startID = startID;
   }
 
-  success (msg) {
-    const button = {
-      text: 'OK',
-      color: 'green',
-      size: 'medium',
-      look: 'outlined'
-    };
-
-    if (this.settings.hideSuccessToasts) {
-      return;
-    }
-    this._main(msg, 'success', [ button ]);
+  success (message) {
+    showToast({
+      type: ToastType.SUCCESS,
+      message
+    });
   }
 
   error (msg, addButton = {}) {

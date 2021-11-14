@@ -80,13 +80,6 @@ module.exports = [
         items: [
           {
             type: 'switch',
-            get name () { return Messages.IMAGE_TOOLS_QUIET_EXECUTION; },
-            get note () { return Messages.IMAGE_TOOLS_QUIET_EXECUTION_NOTE; },
-            key: 'hideSuccessToasts',
-            def: false
-          },
-          {
-            type: 'switch',
             get name () { return Messages.IMAGE_TOOLS_HIDE_HINTS; },
             get note () { return Messages.IMAGE_TOOLS_HIDE_HINTS_NOTE; },
             key: 'hideHints',

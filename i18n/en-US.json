@@ -26,8 +26,6 @@
   "IMAGE_TOOLS_CANT_COPY": "Can't copy",
   "IMAGE_TOOLS_FAILED_TO_SAVE": "Failed to save",
   "IMAGE_TOOLS_FAILED_LOAD": "Image load error, see console (CTRL+SHIFT+I) for more details",
-  "IMAGE_TOOLS_QUIET_EXECUTION": "Quiet execution",
-  "IMAGE_TOOLS_QUIET_EXECUTION_NOTE": "Hide success toasts",
   "IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY": "Image saved successfully",
   "IMAGE_TOOLS_SCROLL_STEP": "Scroll step",
   "IMAGE_TOOLS_MAX_LENS_RADIUS": "Maximum lens radius",
