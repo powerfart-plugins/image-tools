@@ -162,11 +162,11 @@ class General {
 
         const images = {
           isCurrentGuild,
-          guildAvatars: guildMemberAvatars.map(([ guildId, guildMemberAvatar ]) => ({
+          guildAvatars: guildMemberAvatars.map(([ guildId, avatar ]) => ({
             guildName: getGuild(guildId).name,
-            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, false).replace('.webp', '.png')) },
-            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, false)) },
-            gif:  ImageResolve.isAnimatedIconHash(guildMemberAvatar) ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar }, true) } : null
+            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false).replace('.webp', '.png')) },
+            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false)) },
+            gif:  ImageResolve.isAnimatedIconHash(avatar) ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar: avatar }, true) } : null
           })),
           default: { // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
             png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
@@ -235,7 +235,7 @@ class General {
 
           const images = {
             [e]: {
-              src: this.fixBannerUrlSize(url.href),
+              src: this.fixUrlSize(url.href),
               width: 2048,
               height: 918
             }
