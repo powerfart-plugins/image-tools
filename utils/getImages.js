@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 
 const { getModule } = require('powercord/webpack');
-const { getMessages } = getModule([ 'getMessages' ], false);
+const { getMessages } = getModule([ 'getMessages', 'isLoadingMessages' ], false);
 
 const IMG_EXPANSIONS = [ 'png', 'gif', 'jpg' ];
 

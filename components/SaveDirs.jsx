@@ -22,7 +22,7 @@ module.exports = class SaveDirs extends React.PureComponent {
   }
 
   render () {
-    const { marginBottom } = getModule([ 'marginBottom' ], false);
+    const { marginTop } = getModule([ 'marginTop' ], false);
 
     if (!this.state.dirs.length) {
       this.addPath(getDefaultSaveDir());
@@ -34,7 +34,7 @@ module.exports = class SaveDirs extends React.PureComponent {
         name={Messages.IMAGE_TOOLS_SAVE_DIR}
         description={Messages.IMAGE_TOOLS_SAVE_DIR_NOTE}
       >
-        <div className={`${marginBottom} image-tools-save-dirs`}>
+        <div className={`${marginTop} image-tools-save-dirs`}>
           { this.state.dirs.map((e, i) => this.renderItems(e, i)) }
         </div>
         <ButtonItem

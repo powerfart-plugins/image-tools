@@ -27,6 +27,10 @@ function inject2 (funcPath, patch) {
   const module = getModule((m) => m?.default?.displayName === moduleName, false);
   const injectTo = getModulePath(); // eslint-disable-line no-use-before-define
 
+  if (module === null) {
+    console.error(`Module "${moduleName}" not found`);
+    return;
+  }
   inject(injectId, injectTo, method, patch);
   module.default.displayName = moduleName;
   return injectId;
