@@ -1,61 +1,17 @@
-/* eslint-disable no-use-before-define, object-property-newline,no-undefined */
-// noinspection JSUnusedGlobalSymbols
-
-const { React, getModule, getModuleByDisplayName } = require('powercord/webpack');
+const { React, getModule } = require('powercord/webpack');
 const { findInReactTree } = require('powercord/util');
 const { inject, uninject } = require('powercord/injector');
 
-const Button = require('../components/Button.jsx');
-const LensSettings = require('../tools/Lens/Settings.jsx');
-const OverlayUI = require('../components/OverlayUI.jsx');
-const ImageModalWrapper = require('../components/ImageModalWrapper.jsx');
+const Button = require('../../components/Button.jsx');
+const LensSettings = require('../../tools/Lens/Settings.jsx');
 
-const imageModalClasses = getModule([ 'wrapper', 'downloadLink' ], false);
+const inject2 = require('./inject2.js');
+
 const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
 
-const UNINJECT_IDS = [];
-
-/**
- * @param {String|Object} funcPath (ex ModuleName.default)
- * @param {function} patch
- */
-function inject2 (funcPath, patch) {
-  const path = funcPath.split('.');
-  const moduleName = path.shift();
-  const method = path.pop();
-  const injectId = `image-tools${moduleName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
-  const module = getModule((m) => m?.default?.displayName === moduleName, false);
-  const injectTo = getModulePath(); // eslint-disable-line no-use-before-define
-
-  if (module === null) {
-    console.error(`Module "${moduleName}" not found`);
-    return;
-  }
-  inject(injectId, injectTo, method, patch);
-  module.default.displayName = moduleName;
-  return injectId;
-
-  function getModulePath () {
-    let obj = module;
-    if (path.length) {
-      for (let i = 0, n = path.length; i < n; ++i) {
-        const k = path[i];
-        if (k in obj) {
-          obj = obj[k];
-        } else {
-          throw new Error(`Not found ${[ ...path, method ].join('.')} in ${moduleName}`);
-        }
-      }
-    }
-    return obj;
-  }
-}
-
-
-/**
- * @typeof General
- */
-class General {
+/* eslint-disable no-use-before-define, object-property-newline,no-undefined */
+// noinspection JSUnusedGlobalSymbols
+module.exports = class General {
   constructor (settings) {
     this.settings = settings;
     this.uninjectIDs = [];
@@ -63,33 +19,30 @@ class General {
   }
 
   inject () {
-    this.customInject('TransitionGroup.default.prototype.render', (...args) => {
+    this.injectWithSettings('TransitionGroup.default.prototype.render', (...args) => {
       this.isModalOpen = false;
       return this.overlayCallback(...args, () => this.isModalOpen = true);
     });
-    this.customInject('MessageContextMenu.default', this.contextMenuPatch.message);
-    this.customInject('GuildChannelUserContextMenu.default', this.contextMenuPatch.user);
-    this.customInject('DMUserContextMenu.default', this.contextMenuPatch.user);
-    this.customInject('UserGenericContextMenu.default', this.contextMenuPatch.user);
-    this.customInject('GroupDMUserContextMenu.default', this.contextMenuPatch.user);
-    this.customInject('GroupDMContextMenu.default', this.contextMenuPatch.groupDM);
-    this.customInject('GuildContextMenu.default', this.contextMenuPatch.guild);
-    this.customInject('GuildChannelListContextMenu.default', this.contextMenuPatch.guildChannelList);
-    this.customInject('NativeImageContextMenu.default', this.contextMenuPatch.image);
-    this.customInject('UserBanner.default', this.initNewContextMenu.UserBanner);
-    this.customInject('CustomStatus.default', this.initNewContextMenu.CustomStatus);
+    this.injectWithSettings('MessageContextMenu.default', this.contextMenuPatch.message);
+    this.injectWithSettings('GuildChannelUserContextMenu.default', this.contextMenuPatch.user);
+    this.injectWithSettings('DMUserContextMenu.default', this.contextMenuPatch.user);
+    this.injectWithSettings('UserGenericContextMenu.default', this.contextMenuPatch.user);
+    this.injectWithSettings('GroupDMUserContextMenu.default', this.contextMenuPatch.user);
+    this.injectWithSettings('GroupDMContextMenu.default', this.contextMenuPatch.groupDM);
+    this.injectWithSettings('GuildContextMenu.default', this.contextMenuPatch.guild);
+    this.injectWithSettings('GuildChannelListContextMenu.default', this.contextMenuPatch.guildChannelList);
+    this.injectWithSettings('NativeImageContextMenu.default', this.contextMenuPatch.image);
+    this.injectWithSettings('UserBanner.default', this.initNewContextMenu.UserBanner);
+    this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.CustomStatus);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
   }
 
   uninject () {
-    [
-      ...this.uninjectIDs,
-      ...UNINJECT_IDS
-    ].forEach(uninject);
+    this.uninjectIDs.forEach(uninject);
   }
 
   overlayCallback (args, res, settings, switchModal) {
-    const Overlay = require('../components/Overlay');
+    const Overlay = require('../../components/Overlay');
     const nativeModalChildren = findInReactTree(res, ({ props }) => props?.render);
     let tree;
 
@@ -156,7 +109,8 @@ class General {
 
       user ([ { user, guildId } ], res, settings) {
         const { getGuild } = getModule([ 'getGuild' ], false);
-        const guildMemberAvatarURLParams = { userId: user.id, guildId };
+        const guildMemberAvatarURLParams = { userId: user.id,
+          guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
         const currentGuildId = guildMemberAvatars.findIndex(([ id ]) => id === guildId);
         const isCurrentGuild =  currentGuildId !== -1;
@@ -168,9 +122,14 @@ class General {
           isCurrentGuild,
           guildAvatars: guildMemberAvatars.map(([ guildId, avatar ]) => ({
             guildName: getGuild(guildId).name,
-            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false).replace('.webp', '.png')) },
-            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false)) },
-            gif:  ImageResolve.isAnimatedIconHash(avatar) ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar: avatar }, true) } : null
+            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
+              avatar }, false).replace('.webp', '.png')) },
+            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
+              avatar }, false)) },
+            gif:  ImageResolve.isAnimatedIconHash(avatar)
+              ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
+                guildMemberAvatar: avatar }, true) }
+              : null
           })),
           default: { // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
             png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
@@ -180,7 +139,8 @@ class General {
         };
 
         if (user.discriminator !== '0000') {
-          initButton(res.props.children.props.children, { images, settings });
+          initButton(res.props.children.props.children, { images,
+            settings });
         }
 
         return res;
@@ -195,11 +155,15 @@ class General {
         const images = {
           png: { src: ImageResolve.getGuildIconURL(params)?.replace('.webp?', '.png?') },
           webp: { src: ImageResolve.getGuildIconURL(params) },
-          gif: ImageResolve.isAnimatedIconHash(guild.icon) ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) } : null
+          gif: ImageResolve.isAnimatedIconHash(guild.icon)
+            ? { src:  ImageResolve.getGuildIconURL({ ...params,
+              canAnimate: true }) }
+            : null
         };
 
         if (images.webp.src) {
-          initButton(res.props.children, { images, settings });
+          initButton(res.props.children, { images,
+            settings });
         }
         return res;
       },
@@ -228,7 +192,8 @@ class General {
           png: { src: src.replace('.webp', '.png') }
         };
 
-        initButton(res.props.children, { images, settings });
+        initButton(res.props.children, { images,
+          settings });
         return res;
       },
 
@@ -245,7 +210,8 @@ class General {
             }
           };
 
-          initButton(res.props.children, { images, settings });
+          initButton(res.props.children, { images,
+            settings });
         }
         return res;
       }
@@ -270,14 +236,21 @@ class General {
       UserBanner ([ { user } ], res, settings) {
         if (!res.props.onContextMenu) { // @todo else ?
           if (user.banner) {
-            const size = { width: 2048, height: 918 };
+            const size = { width: 2048,
+              height: 918 };
             const images = {
-              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
-              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
-              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
+              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'),
+                ...size },
+              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)),
+                ...size },
+              gif:  ImageResolve.hasAnimatedUserBanner(user)
+                ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)),
+                  ...size }
+                : null
             };
 
-            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images, settings });
+            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images,
+              settings });
           }
         }
         return res;
@@ -298,7 +271,8 @@ class General {
                 }
               };
 
-              return genContextMenu(event, 'custom-status', { images, settings });
+              return genContextMenu(event, 'custom-status', { images,
+                settings });
             }
           };
         }
@@ -319,7 +293,7 @@ class General {
     this.uninjectIDs.push(id);
   }
 
-  customInject (funcPath, patch) {
+  injectWithSettings (funcPath, patch) {
     const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings));
     this.uninjectIDs.push(id);
   }
@@ -355,116 +329,4 @@ class General {
   addDiscordHost (url) {
     return new URL(url, (url.startsWith('/assets/')) ? window.GLOBAL_ENV.ASSET_ENDPOINT : undefined).href;
   }
-}
-
-
-/**
- * @typeof Overlay
- */
-class Overlay {
-  constructor (settings, children, { patchModalLayerOpts, imageModalRenderOpts }) {
-    this.settings = settings;
-    this.uninjectIDs = [];
-    this.patchImageSize = settings.get('patchImageSize', true);
-    this.children = children;
-    this.patchModalLayerOpts = patchModalLayerOpts;
-    this.imageModalRenderOpts = imageModalRenderOpts;
-  }
-
-  inject () {
-    this.customInject('Image.default.prototype.render', this.imageRender);
-    this.customInject('ImageModal.default.prototype.render', this.imageModalRender);
-    this.patchBackdrop('image-tools-overlay-backdrop'); // @todo найти способ пропатчить closeModal
-    this.patchModalLayer('image-tools-overlay-modal-layer');
-    this.uninjectIDs.forEach((e) => {
-      if (!UNINJECT_IDS.includes(e)) {
-        UNINJECT_IDS.push(e);
-      }
-    });
-  }
-
-  uninject () {
-    this.uninjectIDs.forEach(uninject);
-  }
-
-  imageRender (_, res) {
-    const Video = findInReactTree(res, ({ type }) => type?.displayName === 'Video');
-    if (Video) {
-      Video.props.play = true;
-    }
-    return res;
-  }
-
-  imageModalRender (_, res) {
-    const { wrapper, downloadLink } = imageModalClasses;
-    const Sticker = getModuleByDisplayName('Sticker', false);
-    const Wrapper = findInReactTree(res, ({ className }) => className === wrapper).children;
-    const LazyImageIndex = Wrapper.findIndex(({ type }) => type?.displayName === 'LazyImage');
-    const footerIndex = Wrapper.findIndex(({ props }) => props?.className === downloadLink);
-    const LazyImage = Wrapper[LazyImageIndex];
-
-    if (LazyImage) {
-      if (LazyImage.props.stickerAssets) {
-        Wrapper[LazyImageIndex] = React.createElement(Sticker, LazyImage.props.stickerAssets);
-      } else {
-        if (this.patchImageSize) {
-          const imgComp = LazyImage.props;
-          const { height, width } = imgComp;
-
-          imgComp.height = height * 2;
-          imgComp.width = width * 2;
-          imgComp.maxHeight = document.body.clientHeight * 70 / 100;
-          imgComp.maxWidth = document.body.clientWidth * 80 / 100;
-        }
-
-        if (LazyImage.type.isAnimated({ original: LazyImage.props.src })) {
-          LazyImage.props.animated = true;
-        }
-      }
-
-      this.imageModalRenderOpts.lensConfig.children = Wrapper[LazyImageIndex];
-    }
-
-    Wrapper[footerIndex] = React.createElement(OverlayUI, {
-      originalFooter: Wrapper[footerIndex],
-      ...this.imageModalRenderOpts.overlayUI
-    });
-
-    return res;
-  }
-
-  patchBackdrop (id) {
-    const backdrop = findInReactTree(this.children, ({ props }) => props?.onClose);
-    inject(id, backdrop.props, 'onClose', () => {
-      this.uninject();
-      return [ true ];
-    }, true);
-    this.uninjectIDs.push(id);
-  }
-
-  patchModalLayer (id) {
-    const ModalLayer = findInReactTree(this.children, ({ props }) => props?.render);
-
-    inject(id, ModalLayer.props, 'render', (args, res) => {
-      res.props.children = (
-        React.createElement(ImageModalWrapper, {
-          children: res.props.children,
-          ...this.patchModalLayerOpts
-        })
-      );
-      return res;
-    });
-    this.uninjectIDs.push(id);
-  }
-
-
-  customInject (funcPath, patch) {
-    const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings));
-    this.uninjectIDs.push(id);
-  }
-}
-
-module.exports = {
-  General,
-  Overlay
 };

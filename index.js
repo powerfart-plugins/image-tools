@@ -5,14 +5,14 @@ const Settings = require('./components/SettingsRender.jsx');
 const settingsStructure = require('./structures/settings');
 const i18n = require('./i18n');
 const ChangeLog = require('./modules/ChangeLog');
-const Patcher = require('./modules/Patcher');
+const Patcher = require('./modules/Patcher/General');
 const changelog = require('./changelog.json');
 
 // noinspection JSUnusedGlobalSymbols
 module.exports = class ImageTools extends Plugin {
   constructor () {
     super();
-    this.Patcher = new Patcher.General(this.settings);
+    this.Patcher = new Patcher(this.settings);
     this.ChangeLog = new ChangeLog({
       config: changelog,
       currentVer: this.manifest.version,

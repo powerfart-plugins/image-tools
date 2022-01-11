@@ -1,6 +1,6 @@
 const { React, i18n: { Messages }, getModule, getModuleByDisplayName, channels: { getChannelId } } = require('powercord/webpack');
 
-const Patcher = require('../modules/Patcher');
+const Patcher = require('../modules/Patcher/Overlay');
 const getImages = require('../utils/getImages');
 const ImageColorPicker = require('../tools/ImageColorPicker');
 const lensHandlers = require('../tools/Lens/Handlers');
@@ -14,44 +14,36 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
   constructor (props) {
     super(props);
     const { get, set } = props.settings;
-
     this.images = getImages(getChannelId());
     this.state = {
       $image: null,
       currentImgIndex: null
     };
 
-    this.settings = {
-      get radius () {
-        return get('lensRadius', 100);
-      },
-      get zooming () {
-        return get('zoomRatio', 2);
-      },
-      get wheelStep () {
-        return get('wheelStep', 1);
-      },
-      set radius (v) {
-        return set('lensRadius', v);
-      },
-      set zooming (v) {
-        return set('zoomRatio', v);
-      },
-      set wheelStep (v) {
-        return set('wheelStep', v);
-      }
+    /* eslint-disable brace-style */
+    this.lensSettings = {
+      get radius () { return get('lensRadius', 100); },
+      set radius (v) { return set('lensRadius', v); },
+
+      get zooming () { return get('zoomRatio', 2); },
+      set zooming (v) { return set('zoomRatio', v); },
+
+      get wheelStep () { return get('wheelStep', 1); },
+      set wheelStep (v) { return set('wheelStep', v); }
     };
+    /* eslint-enable brace-style */
+
     this.lensConfig = {
       show: false,
-      radius: this.settings.radius,
-      zooming: this.settings.zooming,
-      wheelStep: this.settings.wheelStep,
+      radius: this.lensSettings.radius,
+      zooming: this.lensSettings.zooming,
+      wheelStep: this.lensSettings.wheelStep,
       positionX: 0,
       positionY: 0,
       getRectImage: () => ({}),
       renderPreview: () => null,
       style: {
-        borderColor: int2hex(this.props.settings.get('lensColor', 0)),
+        borderColor: int2hex(get('lensColor', 0)),
         get imageRendering () {
           return get('disableAntiAliasing', null) ? 'pixelated' : null;
         },
@@ -60,8 +52,9 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
         }
       }
     };
-    this.Patcher = new Patcher.Overlay(props.settings, props.children, {
-      patchModalLayerOpts: {
+
+    const injectOpts = {
+      modalLayer: {
         set$image: this.updateCurrentImg.bind(this),
         setUpdateLensConfig: (callback) => {
           this.setState({ updateLensConfig: callback }, () => {
@@ -69,17 +62,19 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
           });
         }
       },
-      imageModalRenderOpts: {
+      imageModalRender: {
         lensConfig: this.lensConfig,
         overlayUI: {
           headerButtons: this.getButtons(),
           sendDataToUI: (callback) => this.sendDataToUI = callback
         }
       }
-    });
-    this.additionalHandler = {};
+    };
 
-    this.Patcher.inject();
+    this.Patcher = new Patcher(props.settings, props.children);
+    this.Patcher.inject(injectOpts);
+
+    this.additionalHandler = {};
 
     _.bindAll(this, [ 'onMouseMove', 'onWheel', 'onMouseButton', 'onMouseDown' ]);
   }
@@ -153,7 +148,7 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     );
     const [ key ] = Object.keys(val);
 
-    this.settings[key] = val[key];
+    this.lensSettings[key] = val[key];
     this.updateLensConfig(val);
   }
 
