@@ -5,7 +5,7 @@ const { inject, uninject } = require('powercord/injector');
 const OverlayUI = require('../../components/OverlayUI.jsx');
 const ImageModalWrapper = require('../../components/ImageModalWrapper.jsx');
 
-const inject2 = require('./inject2.js');
+const inject2 = require('../../utils/inject2.js');
 
 const imageModalClasses = getModule([ 'wrapper', 'downloadLink' ], false);
 

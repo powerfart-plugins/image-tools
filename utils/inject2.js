@@ -18,7 +18,7 @@ module.exports = function inject2 (funcPath, patch) {
     const { plugins } = powercord.pluginManager;
     const out = (plugins.has(id)) ? plugins.get(id) : global.console;
 
-    out.error(`Module "${moduleName}" not found`);
+    out.error(`Module ${moduleName} not found`);
     return;
   }
 

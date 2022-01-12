@@ -1,11 +1,11 @@
-const { React, getModule } = require('powercord/webpack');
+const { React, getModule, getModuleByDisplayName } = require('powercord/webpack');
 const { findInReactTree } = require('powercord/util');
 const { inject, uninject } = require('powercord/injector');
 
 const Button = require('../../components/Button.jsx');
 const LensSettings = require('../../tools/Lens/Settings.jsx');
 
-const inject2 = require('./inject2.js');
+const inject2 = require('../../utils/inject2.js');
 
 const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
 
@@ -23,18 +23,10 @@ module.exports = class General {
       this.isModalOpen = false;
       return this.overlayCallback(...args, () => this.isModalOpen = true);
     });
-    this.injectWithSettings('MessageContextMenu.default', this.contextMenuPatch.message);
-    this.injectWithSettings('GuildChannelUserContextMenu.default', this.contextMenuPatch.user);
-    this.injectWithSettings('DMUserContextMenu.default', this.contextMenuPatch.user);
-    this.injectWithSettings('UserGenericContextMenu.default', this.contextMenuPatch.user);
-    this.injectWithSettings('GroupDMUserContextMenu.default', this.contextMenuPatch.user);
-    this.injectWithSettings('GroupDMContextMenu.default', this.contextMenuPatch.groupDM);
-    this.injectWithSettings('GuildContextMenu.default', this.contextMenuPatch.guild);
-    this.injectWithSettings('GuildChannelListContextMenu.default', this.contextMenuPatch.guildChannelList);
-    this.injectWithSettings('NativeImageContextMenu.default', this.contextMenuPatch.image);
     this.injectWithSettings('UserBanner.default', this.initNewContextMenu.UserBanner);
     this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.CustomStatus);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
+    this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy');
   }
 
   uninject () {
@@ -61,6 +53,45 @@ module.exports = class General {
     }
 
     return res;
+  }
+
+  patchOpenContextMenuLazy (id) {
+    const ContextMenuLazyPatches = {
+      MessageContextMenu: this.contextMenuPatch.message,
+      GuildChannelUserContextMenu: this.contextMenuPatch.user,
+      DMUserContextMenu: this.contextMenuPatch.user,
+      UserGenericContextMenu: this.contextMenuPatch.user,
+      GroupDMUserContextMenu: this.contextMenuPatch.user,
+      GroupDMContextMenu: this.contextMenuPatch.groupDM,
+      GuildContextMenu: this.contextMenuPatch.guild,
+      GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
+      NativeImageContextMenu: this.contextMenuPatch.image
+    };
+
+    inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
+      const warpLazyRender = () => new Promise(async (resolve) => {
+        const render = await lazyRender(event);
+
+        resolve((config) => {
+          const menu = render(config);
+          const CMName = menu.type.displayName;
+          const moduleByDisplayName = getModuleByDisplayName(CMName, false);
+
+          if (CMName in ContextMenuLazyPatches) {
+            this.injectWithSettings(`${CMName}.default`, ContextMenuLazyPatches[CMName]);
+            delete ContextMenuLazyPatches[CMName];
+          }
+          if (moduleByDisplayName !== null) {
+            menu.type = moduleByDisplayName;
+          }
+          return menu;
+        });
+      });
+
+      return [ event, warpLazyRender, params ];
+    }, true);
+
+    this.uninjectIDs.push(id);
   }
 
   get contextMenuPatch () {
@@ -109,8 +140,7 @@ module.exports = class General {
 
       user ([ { user, guildId } ], res, settings) {
         const { getGuild } = getModule([ 'getGuild' ], false);
-        const guildMemberAvatarURLParams = { userId: user.id,
-          guildId };
+        const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
         const currentGuildId = guildMemberAvatars.findIndex(([ id ]) => id === guildId);
         const isCurrentGuild =  currentGuildId !== -1;
