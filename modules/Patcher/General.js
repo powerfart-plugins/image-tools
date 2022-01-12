@@ -315,8 +315,9 @@ module.exports = class General {
   injectToGetImageSrc (id) {
     const imageDiscordUtils = getModule([ 'getImageSrc' ], false);
     inject(id, imageDiscordUtils, 'getImageSrc', (args) => {
-      if (this.isModalOpen) {
-        args[3] = this.settings.get('compression', 1); // отменить коэффициент размеров
+      const compression = this.settings.get('compression', 0);
+      if (this.isModalOpen && compression > 0) {
+        args[3] = compression;
       }
       return args;
     }, true);

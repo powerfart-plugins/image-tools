@@ -33,8 +33,8 @@ module.exports = [
             get name () { return Messages.IMAGE_TOOLS_COMPRESSION; },
             get note () { return Messages.IMAGE_TOOLS_COMPRESSION_NOTE; },
             key: 'compression',
-            def: 1,
-            markers: Array.from({ length: 10 }, (_, i) => ((i + 1) / 10)),
+            def: 0,
+            markers: [ 0, ...Array.from({ length: 10 }, (_, i) => ((i + 1) / 10)) ],
             onMarkerRender: (e) => `${e * 100}%`
           }
         ]
