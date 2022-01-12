@@ -56,7 +56,7 @@ module.exports = class General {
   }
 
   patchOpenContextMenuLazy (id) {
-    const ContextMenuLazyPatches = {
+    const patches = {
       MessageContextMenu: this.contextMenuPatch.message,
       GuildChannelUserContextMenu: this.contextMenuPatch.user,
       DMUserContextMenu: this.contextMenuPatch.user,
@@ -74,16 +74,20 @@ module.exports = class General {
 
         resolve((config) => {
           const menu = render(config);
-          const CMName = menu.type.displayName;
-          const moduleByDisplayName = getModuleByDisplayName(CMName, false);
+          const CMName = menu?.type?.displayName;
 
-          if (CMName in ContextMenuLazyPatches) {
-            this.injectWithSettings(`${CMName}.default`, ContextMenuLazyPatches[CMName]);
-            delete ContextMenuLazyPatches[CMName];
+          if (CMName) {
+            const moduleByDisplayName = getModuleByDisplayName(CMName, false);
+
+            if (moduleByDisplayName !== null) {
+              if (CMName in patches) {
+                this.injectWithSettings(`${CMName}.default`, patches[CMName]);
+                delete patches[CMName];
+              }
+              menu.type = moduleByDisplayName;
+            }
           }
-          if (moduleByDisplayName !== null) {
-            menu.type = moduleByDisplayName;
-          }
+
           return menu;
         });
       });
@@ -186,8 +190,7 @@ module.exports = class General {
           png: { src: ImageResolve.getGuildIconURL(params)?.replace('.webp?', '.png?') },
           webp: { src: ImageResolve.getGuildIconURL(params) },
           gif: ImageResolve.isAnimatedIconHash(guild.icon)
-            ? { src:  ImageResolve.getGuildIconURL({ ...params,
-              canAnimate: true }) }
+            ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) }
             : null
         };
 
@@ -358,6 +361,6 @@ module.exports = class General {
   }
 
   addDiscordHost (url) {
-    return new URL(url, (url.startsWith('/assets/')) ? window.GLOBAL_ENV.ASSET_ENDPOINT : undefined).href;
+    return new URL(url, (url.startsWith('/assets/')) ? `https:${window.GLOBAL_ENV.ASSET_ENDPOINT}` : undefined).href;
   }
 };
