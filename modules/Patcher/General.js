@@ -23,10 +23,20 @@ module.exports = class General {
       this.isModalOpen = false;
       return this.overlayCallback(...args, () => this.isModalOpen = true);
     });
-    this.injectWithSettings('UserBanner.default', this.initNewContextMenu.UserBanner);
-    this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.CustomStatus);
+    this.injectWithSettings('UserBanner.default', this.initNewContextMenu.userBanner);
+    this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.customStatus);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
-    this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy');
+    this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy', {
+      MessageContextMenu: this.contextMenuPatch.message,
+      GuildChannelUserContextMenu: this.contextMenuPatch.user,
+      DMUserContextMenu: this.contextMenuPatch.user,
+      UserGenericContextMenu: this.contextMenuPatch.user,
+      GroupDMUserContextMenu: this.contextMenuPatch.user,
+      GroupDMContextMenu: this.contextMenuPatch.groupDM,
+      GuildContextMenu: this.contextMenuPatch.guild,
+      GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
+      NativeImageContextMenu: this.contextMenuPatch.image
+    });
   }
 
   uninject () {
@@ -55,24 +65,12 @@ module.exports = class General {
     return res;
   }
 
-  patchOpenContextMenuLazy (id) {
-    const patches = {
-      MessageContextMenu: this.contextMenuPatch.message,
-      GuildChannelUserContextMenu: this.contextMenuPatch.user,
-      DMUserContextMenu: this.contextMenuPatch.user,
-      UserGenericContextMenu: this.contextMenuPatch.user,
-      GroupDMUserContextMenu: this.contextMenuPatch.user,
-      GroupDMContextMenu: this.contextMenuPatch.groupDM,
-      GuildContextMenu: this.contextMenuPatch.guild,
-      GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
-      NativeImageContextMenu: this.contextMenuPatch.image
-    };
-
+  patchOpenContextMenuLazy (id, menus) {
     inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
-      const warpLazyRender = () => new Promise(async (resolve) => {
+      const warpLazyRender = async () => {
         const render = await lazyRender(event);
 
-        resolve((config) => {
+        return (config) => {
           const menu = render(config);
           const CMName = menu?.type?.displayName;
 
@@ -80,17 +78,20 @@ module.exports = class General {
             const moduleByDisplayName = getModuleByDisplayName(CMName, false);
 
             if (moduleByDisplayName !== null) {
-              if (CMName in patches) {
-                this.injectWithSettings(`${CMName}.default`, patches[CMName]);
-                delete patches[CMName];
+              if (CMName in menus) {
+                this.injectWithSettings(`${CMName}.default`, menus[CMName]);
+                delete menus[CMName];
+              }
+              if (!Object.keys(menus).length) {
+                uninject(id);
               }
               menu.type = moduleByDisplayName;
             }
           }
 
           return menu;
-        });
-      });
+        };
+      };
 
       return [ event, warpLazyRender, params ];
     }, true);
@@ -156,14 +157,9 @@ module.exports = class General {
           isCurrentGuild,
           guildAvatars: guildMemberAvatars.map(([ guildId, avatar ]) => ({
             guildName: getGuild(guildId).name,
-            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
-              avatar }, false).replace('.webp', '.png')) },
-            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
-              avatar }, false)) },
-            gif:  ImageResolve.isAnimatedIconHash(avatar)
-              ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams,
-                guildMemberAvatar: avatar }, true) }
-              : null
+            png: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false).replace('.webp', '.png')) },
+            webp: { src: this.fixUrlSize(ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, avatar }, false)) },
+            gif:  ImageResolve.isAnimatedIconHash(avatar) ? { src: ImageResolve.getGuildMemberAvatarURL({ ...guildMemberAvatarURLParams, guildMemberAvatar: avatar }, true) } : null
           })),
           default: { // @todo FIX IT!!! найти в ближайшее время нативный способ перевода webp -> png (обновление в Canary 02.06.2021)
             png: { src: this.addDiscordHost(ImageResolve.getUserAvatarURL(user, false, 2048).replace('.webp', '.png')) },
@@ -173,8 +169,7 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          initButton(res.props.children.props.children, { images,
-            settings });
+          initButton(res.props.children.props.children, { images, settings });
         }
 
         return res;
@@ -189,14 +184,11 @@ module.exports = class General {
         const images = {
           png: { src: ImageResolve.getGuildIconURL(params)?.replace('.webp?', '.png?') },
           webp: { src: ImageResolve.getGuildIconURL(params) },
-          gif: ImageResolve.isAnimatedIconHash(guild.icon)
-            ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) }
-            : null
+          gif: ImageResolve.isAnimatedIconHash(guild.icon) ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) } : null
         };
 
         if (images.webp.src) {
-          initButton(res.props.children, { images,
-            settings });
+          initButton(res.props.children, { images, settings });
         }
         return res;
       },
@@ -225,8 +217,7 @@ module.exports = class General {
           png: { src: src.replace('.webp', '.png') }
         };
 
-        initButton(res.props.children, { images,
-          settings });
+        initButton(res.props.children, { images, settings });
         return res;
       },
 
@@ -243,8 +234,7 @@ module.exports = class General {
             }
           };
 
-          initButton(res.props.children, { images,
-            settings });
+          initButton(res.props.children, { images, settings });
         }
         return res;
       }
@@ -266,30 +256,24 @@ module.exports = class General {
     }
 
     return {
-      UserBanner ([ { user } ], res, settings) {
+      userBanner ([ { user } ], res, settings) {
         if (!res.props.onContextMenu) { // @todo else ?
           if (user.banner) {
             const size = { width: 2048,
               height: 918 };
             const images = {
-              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'),
-                ...size },
-              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)),
-                ...size },
-              gif:  ImageResolve.hasAnimatedUserBanner(user)
-                ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)),
-                  ...size }
-                : null
+              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
+              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
+              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
             };
 
-            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images,
-              settings });
+            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images, settings });
           }
         }
         return res;
       },
 
-      CustomStatus (args, res, settings) {
+      customStatus (args, res, settings) {
         if (!res.props.onContextMenu) { // @todo else ?
           res.props.onContextMenu = (event) => {
             const { target } = event;
@@ -304,8 +288,7 @@ module.exports = class General {
                 }
               };
 
-              return genContextMenu(event, 'custom-status', { images,
-                settings });
+              return genContextMenu(event, 'custom-status', { images, settings });
             }
           };
         }

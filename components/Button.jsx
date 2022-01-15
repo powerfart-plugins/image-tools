@@ -194,7 +194,7 @@ class ImageToolsButton extends React.PureComponent {
       },
       get copyImage () {
         return {
-          disabled: !(/\.(png|jpg|jpeg)$/).test(new URL(src).pathname)
+          disabled: (src) ? !(/\.(png|jpg|jpeg)$/).test(new URL(src).pathname) : false
         };
       },
       save: {
