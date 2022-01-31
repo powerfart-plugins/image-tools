@@ -35,6 +35,7 @@ module.exports = class General {
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
       GuildContextMenu: this.contextMenuPatch.guild,
       GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
+      DeveloperContextMenu: this.contextMenuPatch.developer,
       NativeImageContextMenu: this.contextMenuPatch.image
     });
   }
@@ -235,6 +236,31 @@ module.exports = class General {
           };
 
           initButton(res.props.children, { images, settings });
+        }
+        return res;
+      },
+
+      developer ([ { target } ], res, settings) {
+        if (target.tagName === 'IMG') {
+          const { width, height } = target;
+          let menu = res.props.children;
+
+          if (!Array.isArray(menu)) {
+            res.props.children = [ menu ];
+            menu = res.props.children;
+          }
+
+          const [ e, src ] = this.getImage(target);
+          initButton(menu, {
+            images: {
+              [e]: {
+                src,
+                width: width * 2,
+                height: height * 2
+              }
+            },
+            settings
+          });
         }
         return res;
       }
