@@ -255,8 +255,8 @@ module.exports = class General {
             images: {
               [e]: {
                 src,
-                width: width * 2,
-                height: height * 2
+                width: width * 5,
+                height: height * 5
               }
             },
             settings
