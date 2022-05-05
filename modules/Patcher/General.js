@@ -30,7 +30,7 @@ module.exports = class General {
       MessageContextMenu: this.contextMenuPatch.message,
       GuildChannelUserContextMenu: this.contextMenuPatch.user,
       DMUserContextMenu: this.contextMenuPatch.user,
-      UserGenericContextMenu: this.contextMenuPatch.user,
+      UserGenericContextMenu: (...args) => this.contextMenuPatch.user(...args, (r) => r[0].props.children),
       GroupDMUserContextMenu: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
       GuildContextMenu: this.contextMenuPatch.guild,
@@ -68,36 +68,62 @@ module.exports = class General {
 
   patchOpenContextMenuLazy (id, menus) {
     inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
-      const warpLazyRender = async () => {
+      const wrapLazyRender = async () => {
         const render = await lazyRender(event);
 
         return (config) => {
           const menu = render(config);
-          const CMName = menu?.type?.displayName;
+          const CMName = (menu?.type?.displayName)
+            ? menu.type.displayName
+            : menu.type(config).props.children.type.displayName;
 
           if (CMName) {
             const moduleByDisplayName = getModuleByDisplayName(CMName, false);
+            const module = getModule((m) => m.default === menu.type || m.__powercordOriginal_default === menu.type, false);
+
+            if (CMName in menus) {
+              if (moduleByDisplayName !== null) {
+                this.injectWithSettings(`${CMName}.default`, menus[CMName]);
+              } else if (module !== null) {
+                wrapAndInjectWithSettings.call(this, CMName, menus[CMName], module);
+              }
+
+              delete menus[CMName];
+            }
 
             if (moduleByDisplayName !== null) {
-              if (CMName in menus) {
-                this.injectWithSettings(`${CMName}.default`, menus[CMName]);
-                delete menus[CMName];
-              }
-              if (!Object.keys(menus).length) {
-                uninject(id);
-              }
               menu.type = moduleByDisplayName;
+            } else if (module !== null) {
+              menu.type = module.default;
             }
+          }
+          if (!Object.keys(menus).length) {
+            uninject(id);
           }
 
           return menu;
         };
       };
 
-      return [ event, warpLazyRender, params ];
+      return [ event, wrapLazyRender, params ];
     }, true);
 
     this.uninjectIDs.push(id);
+
+
+    function wrapAndInjectWithSettings (CMName, patch, module) {
+      const injectId = `image-tools${CMName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
+      const memorizeRender = window._.memoize((render) => (...renderArgs) => (
+        patch.call(this, renderArgs, render(...renderArgs), this.settings)
+      ));
+
+      inject(injectId, module, 'default', (args, res) => {
+        res.props.children.type = memorizeRender(res.props.children.type);
+        return res;
+      });
+
+      this.uninjectIDs.push(injectId);
+    }
   }
 
   get contextMenuPatch () {
@@ -144,7 +170,7 @@ module.exports = class General {
         return res;
       },
 
-      user ([ { user, guildId } ], res, settings) {
+      user ([ { user, guildId } ], res, settings, getUserContext = (e) => e) {
         const { getGuild } = getModule([ 'getGuild' ], false);
         const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
@@ -170,7 +196,8 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          initButton(res.props.children.props.children, { images, settings });
+          const menu = findInReactTree(res, ({ props }) => props?.navId === 'user-context').props.children;
+          initButton(getUserContext(menu), { images, settings });
         }
 
         return res;
