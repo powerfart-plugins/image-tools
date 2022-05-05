@@ -6,6 +6,7 @@ const settingsStructure = require('./structures/settings');
 const i18n = require('./i18n');
 const ChangeLog = require('./modules/ChangeLog');
 const Patcher = require('./modules/Patcher/General');
+const output = require('./modules/OutputManager');
 const changelog = require('./changelog.json');
 
 // noinspection JSUnusedGlobalSymbols
@@ -19,6 +20,7 @@ module.exports = class ImageTools extends Plugin {
       lastCheckedVer: this.settings.get('lastChangeLogVersion', '0'),
       updateLastCheckedVer: (v) => this.settings.set('lastChangeLogVersion', v)
     });
+    output.setStartId('ImageToolsMsg');
   }
 
   async startPlugin () {

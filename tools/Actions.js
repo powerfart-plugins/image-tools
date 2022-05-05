@@ -3,6 +3,7 @@ const { join } = require('path');
 const { writeFile } = require('fs').promises;
 const { clipboard, shell, nativeImage } = require('electron');
 
+const output = require('../modules/OutputManager');
 const { getModule, i18n: { Messages } } = require('powercord/webpack');
 const { saveWithDialog } = getModule([ 'fileManager' ], false).fileManager;
 const { get } = require('powercord/http');
@@ -32,29 +33,28 @@ module.exports = class Actions {
 
   /**
    * @param {String} url
-   * @param {Class} output
    * @param {Object} params params for copyLink
    */
-  static copyImage (url, output, params) {
+  static copyImage (url, params) {
     const { copyImage } = getModule([ 'copyImage' ], false);
 
     copyImage(url)
       .then(() => {
-        output.success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
+        output.successToast(Messages.IMAGE_TOOLS_IMAGE_COPIED);
       })
       .catch(() => Actions._fetchImage(url)
         .then((res) => {
           clipboard.write({
             image: nativeImage.createFromBuffer(res)
           });
-          output.success(Messages.IMAGE_TOOLS_IMAGE_COPIED);
+          output.successToast(Messages.IMAGE_TOOLS_IMAGE_COPIED);
         })
         .catch((e) => {
           output.error(`${Messages.IMAGE_TOOLS_CANT_COPY} \n ${Messages.IMAGE_TOOLS_FAILED_LOAD}`, {
             text: Messages.COPY_LINK,
             size: 'small',
             look: 'outlined',
-            onClick: () => Actions.copyLink(url, output, params)
+            onClick: () => Actions.copyLink(url, params)
           });
           console.error(e);
         })
@@ -63,32 +63,29 @@ module.exports = class Actions {
 
   /**
    * @param {String} url
-   * @param {Class} output
    * @param {String} original - for gifs from discord GIF picker
    */
-  static openLink (url, output, { original }) {
+  static openLink (url, { original }) {
     shell.openExternal(original || url);
   }
 
   /**
    * @param {String} url
-   * @param {Class} output
    * @param {String} original - for gifs from discord GIF picker
    */
-  static copyLink (url, output, { original }) {
+  static copyLink (url, { original }) {
     clipboard.write({
       text: original || url
     });
-    output.success(Messages.IMAGE_TOOLS_IMAGE_LINK_COPIED);
+    output.successToast(Messages.IMAGE_TOOLS_IMAGE_LINK_COPIED);
   }
 
   /**
    * @param {String} url
-   * @param {Class} output
    * @param {String} downloadPath path to save dir
    * @return {Promise<void>}
    */
-  static async save (url, output, { downloadPath }) {
+  static async save (url, { downloadPath }) {
     const fileName = new URL(url).pathname.split('/').pop();
 
     const arrayBuffer = await Actions._fetchImage(url)
@@ -110,7 +107,7 @@ module.exports = class Actions {
     if (arrayBuffer) {
       return writeFile(pathSave, arrayBuffer)
         .then(() => {
-          output.success(`${Messages.IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
+          output.successToast(`${Messages.IMAGE_TOOLS_IMAGE_SAVED_SUCCESSFULLY}: "${pathSave}"`);
         })
         .catch(console.error);
     }
@@ -118,10 +115,9 @@ module.exports = class Actions {
 
   /**
    * @param {String} url
-   * @param {Class} output
    * @return {Promise<void>}
    */
-  static saveAs (url, output) {
+  static saveAs (url) {
     const { saveImage } = getModule([ 'saveImage' ], false);
 
     return saveImage(url)

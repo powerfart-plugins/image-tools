@@ -3,7 +3,6 @@ const { ContextMenu } = require('powercord/components');
 const { camelCaseify, findInReactTree } = require('powercord/util');
 
 const getDefaultSaveDir = require('../utils/getDefaultSaveDir');
-const OutputManager = require('../modules/OutputManager');
 const buttonStructure = require('../structures/button');
 const Actions = require('../tools/Actions');
 
@@ -16,9 +15,6 @@ class ImageToolsButton extends React.PureComponent {
     super(props);
 
     this.btnId = { id: 'image-tools-button', name: Messages.IMAGE };
-    this.output = new OutputManager('ImageToolsMsg', {
-      hideSuccessToasts: props.settings.get('hideSuccessToasts', false)
-    });
     this.disabledISE = props.settings.get('disabledImageSearchEngines', []);
     this.disabledActions = props.settings.get('disabledActions', []);
     this.imageSearchEngines = imageSearchEngines.filter(({ name }) => {
@@ -204,7 +200,7 @@ class ImageToolsButton extends React.PureComponent {
           type: 'button',
           name,
           subtext: (allowSubText) ? path : null,
-          onClick: () => Actions.save(image.src, this.output, {
+          onClick: () => Actions.save(image.src, {
             downloadPath: path
           })
         })),
@@ -234,7 +230,7 @@ class ImageToolsButton extends React.PureComponent {
     };
 
     return {
-      onClick: () => Actions[id](image.src, this.output, {
+      onClick: () => Actions[id](image.src, {
         downloadPath: defaultSaveDir,
         original
       }),
