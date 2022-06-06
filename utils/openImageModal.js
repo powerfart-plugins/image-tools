@@ -6,7 +6,7 @@ const { openModal } = getModule([ 'openModal', 'openModalLazy' ], false);
 const ImageModal = getModuleByDisplayName('ImageModal', false);
 const MaskedLink = getModuleByDisplayName('MaskedLink', false);
 const { ModalRoot, ModalSize } = getModule([ 'ModalRoot' ], false);
-const classes = getAllModules([ 'modal', 'image' ], false).find((e) => Object.keys(e).length === 2);
+const classes = getAllModules([ 'modal', 'image' ], false).find((e) => Object.keys(e).length === 3);
 
 /**
  * @param {Object} opts
