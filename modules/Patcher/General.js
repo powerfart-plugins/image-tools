@@ -30,7 +30,7 @@ module.exports = class General {
       MessageContextMenu: this.contextMenuPatch.message,
       GuildChannelUserContextMenu: this.contextMenuPatch.user,
       DMUserContextMenu: this.contextMenuPatch.user,
-      UserGenericContextMenu: (...args) => this.contextMenuPatch.user(...args, (r) => r[0].props.children),
+      UserGenericContextMenu: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
       GroupDMUserContextMenu: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
       GuildContextMenu: this.contextMenuPatch.guild,
@@ -134,7 +134,7 @@ module.exports = class General {
 
     return {
       message ([ { target, message: { content, stickerItems } } ], res, settings) {
-        if ((target.tagName === 'IMG') || (target.tagName === 'VIDEO' && target.loop) || (target.tagName === 'CANVAS' && stickerItems.length)) {
+        if ((target.tagName === 'IMG') || (target.getAttribute("data-role") === 'img') || (target.getAttribute("data-type") === 'sticker' && stickerItems.length)) {
           const { width, height } = target;
           const menu = res.props.children;
           const hideNativeButtons = settings.get('hideNativeButtons', true);
@@ -369,7 +369,7 @@ module.exports = class General {
   }
 
   getImage (target) {
-    const src = target.src.split('?').shift();
+    const src = ((target.tagName === 'IMG') ? target.src : target.href).split('?').shift();
     let e = src.substr(src.lastIndexOf('.') + 1, src.length);
     if (e.length > 3) {
       if (src.endsWith('/mp4')) {

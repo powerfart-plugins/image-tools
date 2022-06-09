@@ -181,7 +181,7 @@ class ImageToolsButton extends React.PureComponent {
     const allowSubText = !this.props.settings.get('hideHints', false); // надо бы как-то рекурсивно удалять, но мне впаду
     const defaultSaveDir = saveImageDirs[0]?.path || getDefaultSaveDir();
     const openLink = (url, withoutEncode) => Actions.openLink(
-      (url + ((withoutEncode) ? src : encodeURIComponent(src))), null, { original }
+      (url + ((withoutEncode) ? src : encodeURIComponent(src))), { original }
     );
 
     const data = {

@@ -185,48 +185,8 @@ module.exports = class ImageToolsOverlay extends React.PureComponent {
     }
   }
 
-  getButtons () {
-    // const Retry = getModuleByDisplayName('Retry', false);
-    const Dropper = getModuleByDisplayName('Dropper', false);
-
-    return [
-      // {
-      //   tooltip: Messages.IMAGE_TOOLS_ROTATE,
-      //   Icon: Retry,
-      //   callback: () => console.log('nope')
-      // },
-      {
-        tooltip: Messages.IMAGE_TOOLS_COLOR_PICK,
-        Icon: Dropper,
-        callback: () => {
-          if (!this.ColorPicker) {
-            this.ColorPicker = new ImageColorPicker(this.state.$image);
-          }
-          const backupConfig = {
-            ...this.lensConfig
-          };
-          this.additionalHandler.onWheel = { func: () => null, capture: true };
-          this.additionalHandler.onMouseButton = {
-            func: (e) => {
-              if (e.type === 'click') {
-                this.additionalHandler.onWheel = null;
-                this.additionalHandler.onMouseButton = null;
-                this.ColorPicker.copyColor();
-                this.updateLensConfig({
-                  show: false,
-                  ...backupConfig
-                });
-              }
-            },
-            capture: true
-          };
-          this.updateLensConfig({
-            show: true,
-            ...this.ColorPicker.lensConfig
-          });
-        }
-      }
-    ];
+  getButtons () { // @TODO надо бы добавить настройку для скрытия этого...
+    return [];
   }
 
   updateCurrentImg ($image) {
