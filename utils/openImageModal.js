@@ -4,7 +4,7 @@ const { React, getModule, getModuleByDisplayName, i18n: { Messages } } = require
 const { openModal } = getModule([ 'openModal', 'openModalLazy' ], false);
 
 const ImageModal = getModuleByDisplayName('ImageModal', false);
-const MaskedLink = getModuleByDisplayName('MaskedLink', false);
+const Anchor = getModuleByDisplayName('Anchor', false);
 const { ModalRoot, ModalSize } = getModule([ 'ModalRoot' ], false);
 const classes = getModule([ 'modal', 'image' ], false);
 
@@ -26,7 +26,7 @@ module.exports = ({ original, src, width, height, stickerAssets }) =>
       src,
       height,
       width,
-      renderLinkComponent: (p) => React.createElement(MaskedLink, p),
+      renderLinkComponent: (p) => React.createElement(Anchor, p),
       original: original || src,
       stickerAssets
     }),

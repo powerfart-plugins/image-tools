@@ -142,7 +142,7 @@ module.exports = class General {
           if (hideNativeButtons) {
             for (let i = menu.length - 1; i >= 0; i -= 1) {
               const e = menu[i];
-              if (Array.isArray(e.props.children) && e.props.children[0]) {
+              if (Array.isArray(e?.props?.children) && e?.props?.children[0]) {
                 if (e.props.children[0].key === 'copy-image' || e.props.children[0].key === 'copy-native-link') {
                   menu.splice(i, 1);
                 }
@@ -153,6 +153,7 @@ module.exports = class General {
           if (target.tagName === 'CANVAS') {
             menu.splice(menu.length - 1, 0, Button.renderSticker(stickerItems[0].id, settings));
           } else {
+            console.log(target)
             const [ e, src ] = this.getImage(target);
             initButton(menu, {
               images: {
