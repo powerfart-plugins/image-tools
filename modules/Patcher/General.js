@@ -153,7 +153,6 @@ module.exports = class General {
           if (target.tagName === 'CANVAS') {
             menu.splice(menu.length - 1, 0, Button.renderSticker(stickerItems[0].id, settings));
           } else {
-            console.log(target)
             const [ e, src ] = this.getImage(target);
             initButton(menu, {
               images: {
