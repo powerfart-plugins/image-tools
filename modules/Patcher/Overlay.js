@@ -38,9 +38,9 @@ module.exports = class Overlay {
   imageModalRender (_, res, opts) {
     const { wrapper, downloadLink } = imageModalClasses;
     const Sticker = getModuleByDisplayName('Sticker', false);
-    const Wrapper = findInReactTree(res, ({ className }) => className === wrapper).children;
-    const LazyImageIndex = Wrapper.findIndex(({ type }) => type?.displayName === 'LazyImage');
-    const footerIndex = Wrapper.findIndex(({ props }) => props?.className === downloadLink);
+    const Wrapper = findInReactTree(res, ({ props }) => props.className === wrapper).props.children;
+    const LazyImageIndex = Wrapper.findIndex((c) => c?.type?.displayName === 'LazyImage');
+    const footerIndex = Wrapper.findIndex((c) => c?.props?.className === downloadLink);
     const LazyImage = Wrapper[LazyImageIndex];
 
     if (LazyImage) {

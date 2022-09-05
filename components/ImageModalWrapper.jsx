@@ -2,7 +2,7 @@ const { React, getModule } = require('powercord/webpack');
 const { sleep } = require('powercord/util');
 
 const Lens = require('../tools/Lens/Index');
-const { imageWrapper, imagePlaceholder } = getModule([ 'imageWrapper', 'imagePlaceholder' ], false);
+const { imageWrapper, imagePlaceholderOverlay } = getModule([ 'imageWrapper' ], false);
 
 // noinspection JSIgnoredPromiseFromCall
 module.exports = class ImageModalWrapper extends React.PureComponent {
@@ -45,7 +45,7 @@ module.exports = class ImageModalWrapper extends React.PureComponent {
   async waitFor () {
     const elem = this.imgRef.current?.querySelector(`.${imageWrapper} > img, video, canvas`);
 
-    if (!elem || elem?.classList?.contains(imagePlaceholder)) {
+    if (!elem || elem?.classList?.contains(imagePlaceholderOverlay)) {
       await sleep(5);
       return this.waitFor();
     }
