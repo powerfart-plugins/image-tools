@@ -15,6 +15,7 @@ module.exports = class General {
   constructor (settings) {
     this.settings = settings;
     this.uninjectIDs = [];
+    this.clickedUsers = [];
     this.modalIsOpen = false;
   }
 
@@ -30,7 +31,7 @@ module.exports = class General {
       MessageContextMenu: this.contextMenuPatch.message,
       GuildChannelUserContextMenu: this.contextMenuPatch.user,
       DMUserContextMenu: this.contextMenuPatch.user,
-      UserGenericContextMenu: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
+      AnalyticsContext: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
       GroupDMUserContextMenu: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
       GuildContextMenuWrapper: this.contextMenuPatch.guild,
@@ -73,8 +74,29 @@ module.exports = class General {
 
         return (config) => {
           const menu = render(config);
-          console.log(config)
-          const CMName = menu?.type?.displayName
+          const CMName = menu?.type?.displayName;
+
+          if (!CMName && menu?.props?.user) {
+            const renderContextMenu = menu.type;
+            console.log(menu)
+            menu.type = (props) => {
+              const contextMenu = renderContextMenu(props);
+              const renderMenu2 = contextMenu.props.children.type;
+              contextMenu.props.children.type = (props2) => {
+                const trueContextMenu = renderMenu2(props2);
+
+                const displayName = trueContextMenu?.type?.displayName;
+                const moduleByDisplayName = getModuleByDisplayName(displayName, false);
+                if (moduleByDisplayName !== null) {
+                  this.injectWithSettings(`${displayName}.default`, menus[displayName]);
+                }
+
+                return trueContextMenu;
+              }
+              return contextMenu;
+            }
+            return menu;
+          }
 
           if (CMName) {
             const moduleByDisplayName = getModuleByDisplayName(CMName, false);
@@ -127,12 +149,12 @@ module.exports = class General {
 
   get contextMenuPatch () {
     function initButton (menu, args) {
-      if (!Array.isArray(menu)) { // if is guild context menu
+      if (!Array.isArray(menu)) {
         const renderContextMenu = menu.type;
         menu.type = (props) => {
           const contextMenu = renderContextMenu(props);
-          contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args))
-          return contextMenu
+          contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args));
+          return contextMenu;
         }
       }
       else menu.splice(menu.length - 1, 0, Button.render(args));
@@ -177,7 +199,9 @@ module.exports = class General {
         return res;
       },
 
-      user ([ { user, guildId } ], res, settings, getUserContext = (e) => e) {
+      user ([ { children } ], res, settings, getUserContext = (e) => e) {
+        if (!children?.props?.user) return children;
+        const { user, guildId } = children?.props;
         const { getGuild } = getModule([ 'getGuild' ], false);
         const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
@@ -203,11 +227,10 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          const menu = findInReactTree(res, ({ props }) => props?.navId === 'user-context').props.children;
-          initButton(getUserContext(menu), { images, settings });
+          initButton(children, { images, settings });
         }
 
-        return res;
+        return children;
       },
       guild ([ { guild } ], res, settings) {
         const params = {
@@ -369,8 +392,8 @@ module.exports = class General {
   }
 
   injectWithSettings (funcPath, patch) {
-    const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings));
-    this.uninjectIDs.push(id);
+    const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings), this.uninjectIDs);
+    if (!this.uninjectIDs.includes(id)) this.uninjectIDs.push(id);
   }
 
   getImage (target) {

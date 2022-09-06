@@ -5,11 +5,12 @@ const { inject } = require('powercord/injector');
  * @param {String|Object} funcPath (ex ModuleName.default)
  * @param {function} patch
  */
-module.exports = function inject2 (funcPath, patch) {
+module.exports = function inject2 (funcPath, patch, listInjectID = null) {
   const path = funcPath.split('.');
   const moduleName = path.shift();
   const method = path.pop();
   const injectId = `image-tools${moduleName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
+  if (listInjectID?.includes(injectId)) return injectId;
   const module = getModule((m) => m?.default?.displayName === moduleName, false);
   const injectTo = getModulePath(); // eslint-disable-line no-use-before-define
 
