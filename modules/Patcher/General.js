@@ -33,7 +33,7 @@ module.exports = class General {
       UserGenericContextMenu: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
       GroupDMUserContextMenu: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
-      GuildContextMenu: this.contextMenuPatch.guild,
+      GuildContextMenuWrapper: this.contextMenuPatch.guild,
       GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
       DeveloperContextMenu: this.contextMenuPatch.developer,
       NativeImageContextMenu: this.contextMenuPatch.image
@@ -128,7 +128,15 @@ module.exports = class General {
 
   get contextMenuPatch () {
     function initButton (menu, args) {
-      menu.splice(menu.length - 1, 0, Button.render(args));
+      if (!Array.isArray(menu)) {
+        const renderContextMenu = menu.type;
+        menu.type = (props) => {
+          const contextMenu = renderContextMenu(props);
+          contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args))
+          return contextMenu
+        }
+      }
+      else menu.splice(menu.length - 1, 0, Button.render(args));
       return menu;
     }
 
@@ -214,7 +222,6 @@ module.exports = class General {
           webp: { src: ImageResolve.getGuildIconURL(params) },
           gif: ImageResolve.isAnimatedIconHash(guild.icon) ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) } : null
         };
-
         if (images.webp.src) {
           initButton(res.props.children, { images, settings });
         }
@@ -261,7 +268,6 @@ module.exports = class General {
               height: 918
             }
           };
-
           initButton(res.props.children, { images, settings });
         }
         return res;
