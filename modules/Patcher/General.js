@@ -15,7 +15,7 @@ module.exports = class General {
   constructor (settings) {
     this.settings = settings;
     this.uninjectIDs = [];
-    this.clickedUsers = [];
+    this.usedMenus = [];
     this.modalIsOpen = false;
   }
 
@@ -76,27 +76,29 @@ module.exports = class General {
           const menu = render(config);
           const CMName = menu?.type?.displayName;
 
-          if (!CMName && menu?.props?.user) {
+          if (!CMName && menu?.props?.user && !this.usedMenus.includes(menu?.props?.user?.id)) {
             const renderContextMenu = menu.type;
-            console.log(menu)
             menu.type = (props) => {
               const contextMenu = renderContextMenu(props);
               const renderMenu2 = contextMenu.props.children.type;
-              contextMenu.props.children.type = (props2) => {
-                const trueContextMenu = renderMenu2(props2);
 
-                const displayName = trueContextMenu?.type?.displayName;
-                const moduleByDisplayName = getModuleByDisplayName(displayName, false);
-                if (moduleByDisplayName !== null) {
-                  this.injectWithSettings(`${displayName}.default`, menus[displayName]);
+                contextMenu.props.children.type = (props2) => {
+                  const trueContextMenu = renderMenu2(props2);
+
+                  const displayName = trueContextMenu?.type?.displayName;
+                  const moduleByDisplayName = getModuleByDisplayName(displayName, false);
+                  if (moduleByDisplayName !== null) {
+                    this.injectWithSettings(`${displayName}.default`, menus[displayName]);
+                  }
+
+                  return trueContextMenu;
                 }
 
-                return trueContextMenu;
-              }
               return contextMenu;
             }
+            
             return menu;
-          }
+          };
 
           if (CMName) {
             const moduleByDisplayName = getModuleByDisplayName(CMName, false);
@@ -117,6 +119,7 @@ module.exports = class General {
             } else if (module !== null) {
               menu.type = module.default;
             }
+
           }
           if (!Object.keys(menus).length) {
             uninject(id);
@@ -150,12 +153,14 @@ module.exports = class General {
   get contextMenuPatch () {
     function initButton (menu, args) {
       if (!Array.isArray(menu)) {
+        if (menu?.props?.user && this.usedMenus.filter(id => id === menu.props.user.id).length > 1) return menu; // for some reason, it has to be done twice in order for the context menu to appear. In some servers it does not appear at all, the reason is unknown for me, so this partially works. 
         const renderContextMenu = menu.type;
         menu.type = (props) => {
           const contextMenu = renderContextMenu(props);
           contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args));
           return contextMenu;
         }
+        if (menu?.props?.user) this.usedMenus.push(menu.props.user.id);
       }
       else menu.splice(menu.length - 1, 0, Button.render(args));
       return menu;
@@ -199,7 +204,7 @@ module.exports = class General {
         return res;
       },
 
-      user ([ { children } ], res, settings, getUserContext = (e) => e) {
+      user ([ { children } ], res, settings) {
         if (!children?.props?.user) return children;
         const { user, guildId } = children?.props;
         const { getGuild } = getModule([ 'getGuild' ], false);
@@ -227,7 +232,7 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          initButton(children, { images, settings });
+          initButton.call(this, children, { images, settings });
         }
 
         return children;
