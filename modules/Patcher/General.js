@@ -73,9 +73,8 @@ module.exports = class General {
 
         return (config) => {
           const menu = render(config);
-          const CMName = (menu?.type?.displayName)
-            ? menu.type.displayName
-            : menu.type(config).props.children.type.displayName;
+          console.log(config)
+          const CMName = menu?.type?.displayName
 
           if (CMName) {
             const moduleByDisplayName = getModuleByDisplayName(CMName, false);
@@ -128,7 +127,7 @@ module.exports = class General {
 
   get contextMenuPatch () {
     function initButton (menu, args) {
-      if (!Array.isArray(menu)) {
+      if (!Array.isArray(menu)) { // if is guild context menu
         const renderContextMenu = menu.type;
         menu.type = (props) => {
           const contextMenu = renderContextMenu(props);
