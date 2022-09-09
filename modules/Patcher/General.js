@@ -78,11 +78,11 @@ module.exports = class General {
           const menu = render(config);
 
           if (menu?.type?.displayName) {
-            patchMenu(menu?.type?.displayName, menu);
+            patchMenu(menu.type.displayName);
           } else {
             menu.type = memorizeRender(menu.type, (res) => {
               res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
-                patchMenu(res2?.type?.displayName, menu);
+                patchMenu(res2?.type?.displayName);
                 return res2;
               });
               return res;
@@ -103,21 +103,14 @@ module.exports = class General {
     this.uninjectIDs.push(id);
 
 
-    function patchMenu (name, menu) {
+    function patchMenu (name) {
       const moduleByDisplayName = getModuleByDisplayName(name, false);
-      const module = getModule((m) => m.default === menu.type || m.__powercordOriginal_default === menu.type, false);
 
       if (name && name in menus) {
         if (moduleByDisplayName !== null) {
           injectWithSettingsBind(`${name}.default`, menus[name]);
         }
         delete menus[name];
-
-        if (moduleByDisplayName !== null) {
-          menu.type = moduleByDisplayName;
-        } else if (module !== null) {
-          menu.type = module.default;
-        }
       }
     }
   }
