@@ -80,10 +80,6 @@ module.exports = class General {
           if (menu?.type?.displayName) {
             patchMenu(menu.type.displayName);
           } else {
-            const { getGuild } = getModule([ 'getGuild' ], false);
-            if (getGuild(menu?.props?.guildId).applicationCommandCounts[2]) {
-              return menu; // avoid infinite loop if there are context menu commands in the guild
-            }
             menu.type = memorizeRender(menu.type, (res) => {
               res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
                 patchMenu(res2?.type?.displayName);
@@ -186,6 +182,14 @@ module.exports = class General {
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
         const currentGuildId = guildMemberAvatars.findIndex(([ id ]) => id === guildId);
         const isCurrentGuild =  currentGuildId !== -1;
+
+        // @TODO (temporarily ?)
+        //  avoid infinite loop if there are context menu commands in the guild
+        if (guildId) {
+          if (2 in getGuild(guildId).applicationCommandCounts) {
+            return children;
+          }
+        }
         if (isCurrentGuild) {
           guildMemberAvatars.splice(0, 0, guildMemberAvatars.splice(currentGuildId, 1)[0]);
         }
