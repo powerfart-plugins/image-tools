@@ -16,9 +16,9 @@ module.exports = function inject2 (funcPath, patch) {
   if (module === null) {
     const id = 'image-tools';
     const { plugins } = powercord.pluginManager;
-    const out = (plugins.has(id)) ? plugins.get(id) : global.console;
+    const log = (plugins.has(id)) ? plugins.get(id) : global.console;
 
-    out.error(`Module ${moduleName} not found`);
+    log.error(`Module ${moduleName} not found`);
     return;
   }
 

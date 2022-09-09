@@ -8,6 +8,9 @@ const LensSettings = require('../../tools/Lens/Settings.jsx');
 const inject2 = require('../../utils/inject2.js');
 
 const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
+const initMemorizeRender = () => window._.memoize((render, patch) => (...renderArgs) => (
+  patch(render(...renderArgs))
+));
 
 /* eslint-disable no-use-before-define, object-property-newline,no-undefined */
 // noinspection JSUnusedGlobalSymbols
@@ -23,17 +26,13 @@ module.exports = class General {
       this.isModalOpen = false;
       return this.overlayCallback(...args, () => this.isModalOpen = true);
     });
-    this.injectWithSettings('UserBanner.default', this.initNewContextMenu.userBanner);
     this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.customStatus);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
     this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy', {
       MessageContextMenu: this.contextMenuPatch.message,
-      GuildChannelUserContextMenu: this.contextMenuPatch.user,
-      DMUserContextMenu: this.contextMenuPatch.user,
-      UserGenericContextMenu: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
-      GroupDMUserContextMenu: this.contextMenuPatch.user,
+      AnalyticsContext: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
-      GuildContextMenu: this.contextMenuPatch.guild,
+      GuildContextMenuWrapper: this.contextMenuPatch.guild,
       GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
       DeveloperContextMenu: this.contextMenuPatch.developer,
       NativeImageContextMenu: this.contextMenuPatch.image
@@ -67,36 +66,28 @@ module.exports = class General {
   }
 
   patchOpenContextMenuLazy (id, menus) {
+    const injectWithSettingsBind = this.injectWithSettings.bind(this);
+    const memorizeRender = initMemorizeRender();
+
     inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
       const wrapLazyRender = async () => {
         const render = await lazyRender(event);
 
         return (config) => {
           const menu = render(config);
-          const CMName = (menu?.type?.displayName)
-            ? menu.type.displayName
-            : menu.type(config).props.children.type.displayName;
 
-          if (CMName) {
-            const moduleByDisplayName = getModuleByDisplayName(CMName, false);
-            const module = getModule((m) => m.default === menu.type || m.__powercordOriginal_default === menu.type, false);
-
-            if (CMName in menus) {
-              if (moduleByDisplayName !== null) {
-                this.injectWithSettings(`${CMName}.default`, menus[CMName]);
-              } else if (module !== null) {
-                wrapAndInjectWithSettings.call(this, CMName, menus[CMName], module);
-              }
-
-              delete menus[CMName];
-            }
-
-            if (moduleByDisplayName !== null) {
-              menu.type = moduleByDisplayName;
-            } else if (module !== null) {
-              menu.type = module.default;
-            }
+          if (menu?.type?.displayName) {
+            patchMenu(menu.type.displayName);
+          } else {
+            menu.type = memorizeRender(menu.type, (res) => {
+              res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
+                patchMenu(res2?.type?.displayName);
+                return res2;
+              });
+              return res;
+            });
           }
+
           if (!Object.keys(menus).length) {
             uninject(id);
           }
@@ -111,30 +102,39 @@ module.exports = class General {
     this.uninjectIDs.push(id);
 
 
-    function wrapAndInjectWithSettings (CMName, patch, module) {
-      const injectId = `image-tools${CMName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
-      const memorizeRender = window._.memoize((render) => (...renderArgs) => (
-        patch.call(this, renderArgs, render(...renderArgs), this.settings)
-      ));
+    function patchMenu (name) {
+      const moduleByDisplayName = getModuleByDisplayName(name, false);
 
-      inject(injectId, module, 'default', (args, res) => {
-        res.props.children.type = memorizeRender(res.props.children.type);
-        return res;
-      });
-
-      this.uninjectIDs.push(injectId);
+      if (name && name in menus) {
+        if (moduleByDisplayName !== null) {
+          injectWithSettingsBind(`${name}.default`, menus[name]);
+        }
+        delete menus[name];
+      }
     }
   }
 
   get contextMenuPatch () {
+    const memorizeRender = initMemorizeRender();
+
     function initButton (menu, args) {
-      menu.splice(menu.length - 1, 0, Button.render(args));
+      const btn = Button.render(args);
+      memorizeRender.cache.clear();
+
+      if (Array.isArray(menu)) {
+        menu.splice(menu.length - 1, 0, btn);
+      } else {
+        menu.type = memorizeRender(menu.type, (res) => {
+          res.props.children.splice(res.props.children.length - 1, 0, btn);
+          return res;
+        });
+      }
       return menu;
     }
 
     return {
       message ([ { target, message: { content, stickerItems } } ], res, settings) {
-        if ((target.tagName === 'IMG') || (target.getAttribute("data-role") === 'img') || (target.getAttribute("data-type") === 'sticker' && stickerItems.length)) {
+        if ((target.tagName === 'IMG') || (target.getAttribute('data-role') === 'img') || (target.getAttribute('data-type') === 'sticker' && stickerItems.length)) {
           const { width, height } = target;
           const menu = res.props.children;
           const hideNativeButtons = settings.get('hideNativeButtons', true);
@@ -142,7 +142,7 @@ module.exports = class General {
           if (hideNativeButtons) {
             for (let i = menu.length - 1; i >= 0; i -= 1) {
               const e = menu[i];
-              if (Array.isArray(e.props.children) && e.props.children[0]) {
+              if (Array.isArray(e?.props?.children) && e?.props?.children[0]) {
                 if (e.props.children[0].key === 'copy-image' || e.props.children[0].key === 'copy-native-link') {
                   menu.splice(i, 1);
                 }
@@ -170,12 +170,25 @@ module.exports = class General {
         return res;
       },
 
-      user ([ { user, guildId } ], res, settings, getUserContext = (e) => e) {
+      user ([ { children } ], res, settings) {
+        if (!children?.props?.user) {
+          return children;
+        }
+
+        const { user, guildId } = children.props;
         const { getGuild } = getModule([ 'getGuild' ], false);
         const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
         const currentGuildId = guildMemberAvatars.findIndex(([ id ]) => id === guildId);
         const isCurrentGuild =  currentGuildId !== -1;
+
+        // @TODO (temporarily ?)
+        //  avoid infinite loop if there are context menu commands in the guild
+        if (guildId) {
+          if (2 in getGuild(guildId).applicationCommandCounts) {
+            return children;
+          }
+        }
         if (isCurrentGuild) {
           guildMemberAvatars.splice(0, 0, guildMemberAvatars.splice(currentGuildId, 1)[0]);
         }
@@ -196,11 +209,10 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          const menu = findInReactTree(res, ({ props }) => props?.navId === 'user-context').props.children;
-          initButton(getUserContext(menu), { images, settings });
+          initButton.call(this, children, { images, settings });
         }
 
-        return res;
+        return children;
       },
       guild ([ { guild } ], res, settings) {
         const params = {
@@ -214,7 +226,6 @@ module.exports = class General {
           webp: { src: ImageResolve.getGuildIconURL(params) },
           gif: ImageResolve.isAnimatedIconHash(guild.icon) ? { src:  ImageResolve.getGuildIconURL({ ...params, canAnimate: true }) } : null
         };
-
         if (images.webp.src) {
           initButton(res.props.children, { images, settings });
         }
@@ -261,7 +272,6 @@ module.exports = class General {
               height: 918
             }
           };
-
           initButton(res.props.children, { images, settings });
         }
         return res;
@@ -309,23 +319,6 @@ module.exports = class General {
     }
 
     return {
-      userBanner ([ { user } ], res, settings) {
-        if (!res.props.onContextMenu) { // @todo else ?
-          if (user.banner) {
-            const size = { width: 2048,
-              height: 918 };
-            const images = {
-              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
-              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
-              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
-            };
-
-            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images, settings });
-          }
-        }
-        return res;
-      },
-
       customStatus (args, res, settings) {
         if (!res.props.onContextMenu) { // @todo else ?
           res.props.onContextMenu = (event) => {
