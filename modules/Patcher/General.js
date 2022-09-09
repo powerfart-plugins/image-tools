@@ -80,6 +80,10 @@ module.exports = class General {
           if (menu?.type?.displayName) {
             patchMenu(menu.type.displayName);
           } else {
+            const { getGuild } = getModule([ 'getGuild' ], false);
+            if (getGuild(menu?.props?.guildId).applicationCommandCounts[2]) {
+              return menu; // avoid infinite loop if there are context menu commands in the guild
+            }
             menu.type = memorizeRender(menu.type, (res) => {
               res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
                 patchMenu(res2?.type?.displayName);
