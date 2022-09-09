@@ -26,7 +26,6 @@ module.exports = class General {
       this.isModalOpen = false;
       return this.overlayCallback(...args, () => this.isModalOpen = true);
     });
-    this.injectWithSettings('UserBanner.default', this.initNewContextMenu.userBanner);
     this.injectWithSettings('CustomStatus.default', this.initNewContextMenu.customStatus);
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
     this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy', {
@@ -320,23 +319,6 @@ module.exports = class General {
     }
 
     return {
-      userBanner ([ { user } ], res, settings) {
-        if (!res.props.onContextMenu) { // @todo else ?
-          if (user.banner) {
-            const size = { width: 2048,
-              height: 918 };
-            const images = {
-              png: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)).replace('.webp', '.png'), ...size },
-              webp: { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, false)), ...size },
-              gif:  ImageResolve.hasAnimatedUserBanner(user) ? { src: this.fixUrlSize(ImageResolve.getUserBannerURL(user, true)), ...size } : null
-            };
-
-            res.props.onContextMenu = (e) => genContextMenu(e, 'user-banner', { images, settings });
-          }
-        }
-        return res;
-      },
-
       customStatus (args, res, settings) {
         if (!res.props.onContextMenu) { // @todo else ?
           res.props.onContextMenu = (event) => {
