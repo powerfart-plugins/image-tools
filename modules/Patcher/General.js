@@ -8,6 +8,9 @@ const LensSettings = require('../../tools/Lens/Settings.jsx');
 const inject2 = require('../../utils/inject2.js');
 
 const { default: ImageResolve } = getModule([ 'getUserAvatarURL' ], false);
+const initMemorizeRender = () => window._.memoize((render, patch) => (...renderArgs) => (
+  patch(render(...renderArgs))
+));
 
 /* eslint-disable no-use-before-define, object-property-newline,no-undefined */
 // noinspection JSUnusedGlobalSymbols
@@ -65,9 +68,7 @@ module.exports = class General {
 
   patchOpenContextMenuLazy (id, menus) {
     const injectWithSettingsBind = this.injectWithSettings.bind(this);
-    const memorizeRender = window._.memoize((render, patch) => (...renderArgs) => (
-      patch(render(...renderArgs))
-    ));
+    const memorizeRender = initMemorizeRender();
 
     inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
       const wrapLazyRender = async () => {
@@ -122,16 +123,19 @@ module.exports = class General {
   }
 
   get contextMenuPatch () {
+    const memorizeRender = initMemorizeRender();
+
     function initButton (menu, args) {
+      const btn = Button.render(args);
+      memorizeRender.cache.clear();
+
       if (Array.isArray(menu)) {
-        menu.splice(menu.length - 1, 0, Button.render(args));
+        menu.splice(menu.length - 1, 0, btn);
       } else {
-        const renderContextMenu = menu.type;
-        menu.type = (props) => {
-          const contextMenu = renderContextMenu(props);
-          contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args));
-          return contextMenu;
-        };
+        menu.type = memorizeRender(menu.type, (res) => {
+          res.props.children.splice(res.props.children.length - 1, 0, btn);
+          return res;
+        });
       }
       return menu;
     }
