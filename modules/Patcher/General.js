@@ -15,7 +15,6 @@ module.exports = class General {
   constructor (settings) {
     this.settings = settings;
     this.uninjectIDs = [];
-    this.usedMenus = [];
     this.modalIsOpen = false;
   }
 
@@ -29,10 +28,7 @@ module.exports = class General {
     this.injectToGetImageSrc('image-tools-media-proxy-sizes');
     this.patchOpenContextMenuLazy('image-tools-open-context-menu-lazy', {
       MessageContextMenu: this.contextMenuPatch.message,
-      GuildChannelUserContextMenu: this.contextMenuPatch.user,
-      DMUserContextMenu: this.contextMenuPatch.user,
-      AnalyticsContext: (...args) => this.contextMenuPatch.user.call(this, ...args, (r) => r[0].props.children),
-      GroupDMUserContextMenu: this.contextMenuPatch.user,
+      AnalyticsContext: this.contextMenuPatch.user,
       GroupDMContextMenu: this.contextMenuPatch.groupDM,
       GuildContextMenuWrapper: this.contextMenuPatch.guild,
       GuildChannelListContextMenu: this.contextMenuPatch.guildChannelList,
@@ -68,59 +64,30 @@ module.exports = class General {
   }
 
   patchOpenContextMenuLazy (id, menus) {
+    const injectWithSettingsBind = this.injectWithSettings.bind(this);
+    const memorizeRender = window._.memoize((render, patch) => (...renderArgs) => (
+      patch(render(...renderArgs))
+    ));
+
     inject(id, getModule([ 'openContextMenuLazy' ], false), 'openContextMenuLazy', ([ event, lazyRender, params ]) => {
       const wrapLazyRender = async () => {
         const render = await lazyRender(event);
 
         return (config) => {
           const menu = render(config);
-          const CMName = menu?.type?.displayName;
 
-          if (!CMName && menu?.props?.user && !this.usedMenus.includes(menu?.props?.user?.id)) {
-            const renderContextMenu = menu.type;
-            menu.type = (props) => {
-              const contextMenu = renderContextMenu(props);
-              const renderMenu2 = contextMenu.props.children.type;
-
-                contextMenu.props.children.type = (props2) => {
-                  const trueContextMenu = renderMenu2(props2);
-
-                  const displayName = trueContextMenu?.type?.displayName;
-                  const moduleByDisplayName = getModuleByDisplayName(displayName, false);
-                  if (moduleByDisplayName !== null) {
-                    this.injectWithSettings(`${displayName}.default`, menus[displayName]);
-                  }
-
-                  return trueContextMenu;
-                }
-
-              return contextMenu;
-            }
-            
-            return menu;
-          };
-
-          if (CMName) {
-            const moduleByDisplayName = getModuleByDisplayName(CMName, false);
-            const module = getModule((m) => m.default === menu.type || m.__powercordOriginal_default === menu.type, false);
-
-            if (CMName in menus) {
-              if (moduleByDisplayName !== null) {
-                this.injectWithSettings(`${CMName}.default`, menus[CMName]);
-              } else if (module !== null) {
-                wrapAndInjectWithSettings.call(this, CMName, menus[CMName], module);
-              }
-
-              delete menus[CMName];
-            }
-
-            if (moduleByDisplayName !== null) {
-              menu.type = moduleByDisplayName;
-            } else if (module !== null) {
-              menu.type = module.default;
-            }
-
+          if (menu?.type?.displayName) {
+            patchMenu(menu?.type?.displayName, menu);
+          } else {
+            menu.type = memorizeRender(menu.type, (res) => {
+              res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
+                patchMenu(res2?.type?.displayName, menu);
+                return res2;
+              });
+              return res;
+            });
           }
+
           if (!Object.keys(menus).length) {
             uninject(id);
           }
@@ -135,40 +102,43 @@ module.exports = class General {
     this.uninjectIDs.push(id);
 
 
-    function wrapAndInjectWithSettings (CMName, patch, module) {
-      const injectId = `image-tools${CMName.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)}`;
-      const memorizeRender = window._.memoize((render) => (...renderArgs) => (
-        patch.call(this, renderArgs, render(...renderArgs), this.settings)
-      ));
+    function patchMenu (name, menu) {
+      const moduleByDisplayName = getModuleByDisplayName(name, false);
+      const module = getModule((m) => m.default === menu.type || m.__powercordOriginal_default === menu.type, false);
 
-      inject(injectId, module, 'default', (args, res) => {
-        res.props.children.type = memorizeRender(res.props.children.type);
-        return res;
-      });
+      if (name && name in menus) {
+        if (moduleByDisplayName !== null) {
+          injectWithSettingsBind(`${name}.default`, menus[name]);
+        }
+        delete menus[name];
 
-      this.uninjectIDs.push(injectId);
+        if (moduleByDisplayName !== null) {
+          menu.type = moduleByDisplayName;
+        } else if (module !== null) {
+          menu.type = module.default;
+        }
+      }
     }
   }
 
   get contextMenuPatch () {
     function initButton (menu, args) {
-      if (!Array.isArray(menu)) {
-        if (menu?.props?.user && this.usedMenus.filter(id => id === menu.props.user.id).length > 1) return menu; // for some reason, it has to be done twice in order for the context menu to appear. In some servers it does not appear at all, the reason is unknown for me, so this partially works. 
+      if (Array.isArray(menu)) {
+        menu.splice(menu.length - 1, 0, Button.render(args));
+      } else {
         const renderContextMenu = menu.type;
         menu.type = (props) => {
           const contextMenu = renderContextMenu(props);
           contextMenu.props.children.splice(contextMenu.props.children.length - 1, 0, Button.render(args));
           return contextMenu;
-        }
-        if (menu?.props?.user) this.usedMenus.push(menu.props.user.id);
+        };
       }
-      else menu.splice(menu.length - 1, 0, Button.render(args));
       return menu;
     }
 
     return {
       message ([ { target, message: { content, stickerItems } } ], res, settings) {
-        if ((target.tagName === 'IMG') || (target.getAttribute("data-role") === 'img') || (target.getAttribute("data-type") === 'sticker' && stickerItems.length)) {
+        if ((target.tagName === 'IMG') || (target.getAttribute('data-role') === 'img') || (target.getAttribute('data-type') === 'sticker' && stickerItems.length)) {
           const { width, height } = target;
           const menu = res.props.children;
           const hideNativeButtons = settings.get('hideNativeButtons', true);
@@ -205,8 +175,11 @@ module.exports = class General {
       },
 
       user ([ { children } ], res, settings) {
-        if (!children?.props?.user) return children;
-        const { user, guildId } = children?.props;
+        if (!children?.props?.user) {
+          return children;
+        }
+
+        const { user, guildId } = children.props;
         const { getGuild } = getModule([ 'getGuild' ], false);
         const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
@@ -397,8 +370,8 @@ module.exports = class General {
   }
 
   injectWithSettings (funcPath, patch) {
-    const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings), this.uninjectIDs);
-    if (!this.uninjectIDs.includes(id)) this.uninjectIDs.push(id);
+    const id = inject2(funcPath, (...args) => patch.call(this, ...args, this.settings));
+    this.uninjectIDs.push(id);
   }
 
   getImage (target) {
