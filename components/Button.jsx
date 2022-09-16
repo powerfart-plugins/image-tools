@@ -1,6 +1,7 @@
 const { React, getModule, i18n: { Messages } } = require('powercord/webpack');
-const { ContextMenu } = require('powercord/components');
-const { camelCaseify, findInReactTree } = require('powercord/util');
+const ContextMenu = require('../modules/PowerCord-libs/components/ContextMenu');
+const { findInReactTree } = require('powercord/util');
+const camelCaseify = require('../modules/PowerCord-libs/util/camelCaseify');
 
 const getDefaultSaveDir = require('../utils/getDefaultSaveDir');
 const buttonStructure = require('../structures/button');
