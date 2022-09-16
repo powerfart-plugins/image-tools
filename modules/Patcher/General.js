@@ -79,6 +79,9 @@ module.exports = class General {
           if (menu?.type?.displayName) {
             patchMenu(menu.type.displayName);
           } else {
+            if (window.kernel) {
+              return menu;
+            }
             menu.type = memorizeRender(menu.type, (res) => {
               res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
                 patchMenu(res2?.type?.displayName);
