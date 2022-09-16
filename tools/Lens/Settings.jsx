@@ -1,5 +1,5 @@
 const { React } = require('powercord/webpack');
-const { ContextMenu } = require('powercord/components');
+const ContextMenu = require('../../modules/PowerCord-libs/components/ContextMenu');
 const settings = require('../../structures/lensSettings');
 
 module.exports = class LensSettings extends React.PureComponent {
