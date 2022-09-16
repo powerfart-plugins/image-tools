@@ -77,11 +77,13 @@ module.exports = class General {
           const menu = render(config);
 
           if (menu?.type?.displayName) {
-            patchMenu(menu.type.displayName);
+            injectByDisplayName(menu.type.displayName);
           } else {
             menu.type = memorizeRender(menu.type, (res) => {
               res.props.children.type = memorizeRender(res.props.children.type, (res2) => {
-                patchMenu(res2?.type?.displayName);
+                injectByDisplayName(res2?.type?.displayName, {
+                  methodPath: '.prototype.renderProvider'
+                });
                 return res2;
               });
               return res;
@@ -102,12 +104,12 @@ module.exports = class General {
     this.uninjectIDs.push(id);
 
 
-    function patchMenu (name) {
+    function injectByDisplayName (name, opts = { methodPath: '' }) {
       const moduleByDisplayName = getModuleByDisplayName(name, false);
 
       if (name && name in menus) {
         if (moduleByDisplayName !== null) {
-          injectWithSettingsBind(`${name}.default`, menus[name]);
+          injectWithSettingsBind(`${name}.default${opts.methodPath}`, menus[name]);
         }
         delete menus[name];
       }
@@ -170,12 +172,12 @@ module.exports = class General {
         return res;
       },
 
-      user ([ { children } ], res, settings) {
-        if (!children?.props?.user) {
-          return children;
+      user (_, res, settings) {
+        if (!res?.props?.children?.props?.user) {
+          return res;
         }
 
-        const { user, guildId } = children.props;
+        const { user, guildId } = res.props.children.props;
         const { getGuild } = getModule([ 'getGuild' ], false);
         const guildMemberAvatarURLParams = { userId: user.id, guildId };
         const guildMemberAvatars =  Object.entries(user.guildMemberAvatars);
@@ -186,7 +188,7 @@ module.exports = class General {
         //  avoid infinite loop if there are context menu commands in the guild
         if (guildId) {
           if (2 in getGuild(guildId).applicationCommandCounts) {
-            return children;
+            return res;
           }
         }
         if (isCurrentGuild) {
@@ -209,10 +211,10 @@ module.exports = class General {
         };
 
         if (user.discriminator !== '0000') {
-          initButton.call(this, children, { images, settings });
+          initButton.call(this, res.props.children, { images, settings });
         }
 
-        return children;
+        return res;
       },
       guild ([ { guild } ], res, settings) {
         const params = {
