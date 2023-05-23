@@ -1,5 +1,9 @@
 # Image Tools
 
+> **Warning**
+> Powercord client is EOL and no longer works with latest versions of Discord
+
+
 <img src="preview/image0.png" width="700px" align="center" alt="Image Tools Preview">
 
 Adds new features to images
